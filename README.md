@@ -55,4 +55,10 @@ Add the following code to your controller action:
     
 ```
 
+Add the following code to your twig file:
+
+``` twig
+   {{ grid|raw }}
+```
+
 

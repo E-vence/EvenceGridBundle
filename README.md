@@ -17,3 +17,29 @@ Easy method to generate a grid.
    ```
    
    
+### Sample class
+
+``` php
+
+namespace Acme\Bundle\DemoBundle\Grid;
+use Evence\Bundle\GridBundle\Grid\Grid;
+
+class UserGrid extends Grid {
+    
+    public function getEntityName() {     
+        return 'EvenceCoreBundle:AdminUser';
+    }
+    
+    public function configureFields(GridFieldConfigurator $FieldConfigurator){
+        $FieldConfigurator  ->addDataField('firstname', 'Firstname')
+                            ->addDataField('lastname', 'Lastname')
+                            ->addDataField('username', 'Username');        
+    }
+    
+    public function getDataSourceType(){
+        return parent::DATA_SOURCE_ENTITY;
+    }
+    
+}
+
+``` 

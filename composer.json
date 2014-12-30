@@ -8,7 +8,7 @@
   "require-dev" : {
     "symfony/console" : "~2.0"
   },
-  "target-dir" : "Evence/GridBundle",
+  "target-dir" : "",
   "authors" : [ {
     "name" : "Ruben Harms",
     "homepage" : "http://www.rubenharms.nl/"

@@ -1,0 +1,30 @@
+{
+  "name" : "evence/grid-bundle",
+  "description" : "Provides an easy grid generator",
+  "require" : {
+    "php" : ">=5.3.3",
+    "symfony/framework-bundle" : "~2.0"
+  },
+  "require-dev" : {
+    "symfony/console" : "~2.0"
+  },
+  "target-dir" : "Evence/GridBundle",
+  "authors" : [ {
+    "name" : "Ruben Harms",
+    "homepage" : "http://www.rubenharms.nl/"
+  } ],
+  "keywords" : [ "grid", "table", "builder" ],
+  "minimum-stability" : "dev",
+  "extra" : {
+    "branch-alias" : {
+      "dev-master" : "1.1-dev"
+    }
+  },
+  "autoload" : {
+    "psr-0" : {
+      "Evence\\Bundle\\GridBundle" : ""
+    }
+  },
+  "license" : "MIT",
+  "type" : "symfony-bundle"
+}

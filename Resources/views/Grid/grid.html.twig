@@ -1,0 +1,85 @@
+{% block table %}
+<table class="table table-bordered table-hover table-striped">
+	<thead>
+		{% block fields %}
+		<tr>
+			{% for field in fields %} {% set fieldLabel = field.getLabel() %} 
+    			 {% set fieldSortUrl = field.getSortUrl() %} {% set fieldIsSorted = '' %}    		 
+    			 {% block field %}
+        		      <th><a href="{{ fieldSortUrl }}">{{ fieldLabel|trans }} </a></th>
+        	     {% endblock %}    	      
+			{% endfor %}
+
+			<th>&nbsp;</th>
+		</tr>
+		{% endblock %}
+	</thead>
+	<tbody>
+		{% block rows %}     		
+    		{% for row in rows %}
+    		<tr>
+    			{% for col in row.cols %} {% block col %}
+    			<td>{{ col.value }}</td> {% endblock %} {% endfor %}
+    
+    			<td>&nbsp;</td>
+    		</tr>
+    		{% endfor %} 
+		{% endblock %}
+	</tbody>
+	
+	{% set totalFields = fields|length %}
+	{% block footer %}
+	<tfoot>
+		<tr>
+			<td colspan="{{  totalFields +1 }}">
+				<div class="row">
+					<div class="col-lg-6">
+					
+					    {% set fromItem = pagination.getFirstRecord()  %}
+					    {% set toItem = pagination.getFirstRecord() + pagination.getCurrentLimit()  %}
+						<span> Display <span class="pages"> <span class="current-offset"> {{ fromItem }}</span> - <span class="to">{{ toItem }}</span>
+								{% trans %}from{% endtrans %} <span class="totalRecords">{{
+									pagination.getTotalRecords()}}</span> | {% trans %}Items per page{% endtrans %}: {#
+								<select class="pagination-products-per-page"> {% for limit in
+								productPerPage %} <option value="{{ limit.url }}" {% if
+								limit.current %}selected="selected"{% endif %}>{{ limit.name
+								}}</option> {% endfor %} </select> #}
+						</span>
+					
+					</div>
+					<div class="col-lg-6">
+						{% block pagination %}
+						<ul class="pagination pull-right">
+							{% if pagination.hasPreviousPage() %}
+							   {%  set url = pagination.getPreviousPage().getUrl() %}						       
+							   {% block pagePrevious %}		
+        							<li>
+        							     <a href="{{ url }}">
+        							     <i class="fa fa-angle-left"></i> {% trans %}Previous{% endtrans %}</a>
+        							</li>
+    							{% endblock %}	
+							{% endif %} 
+							
+							{% for page in pagination.getPages(3) %}
+							     <li {% if page.getCurrent() %} class="active" {% endif %}><a href="{{ page.getUrl() }}">{{ page.getName() }}</a></li> 
+							{% endfor %} 
+							
+							{% if pagination.hasNextPage() %}
+							    {%  set url = pagination.getNextPage().getUrl() %}
+							    {% block pageNext %}							    												    
+        							<li>
+        							     <a href="{{ url }}">{% trans	%}Next{% endtrans %}<i class="fa fa-angle-right"></i></a> 
+        							</li>    		
+    							{% endblock %}					
+    					    {% endif %}
+						</ul>
+						{% endblock %}
+
+					</div>
+				</div>
+		     </td>
+		</tr>
+	</tfoot>
+	{% endblock %}
+</table>
+{% endblock %}

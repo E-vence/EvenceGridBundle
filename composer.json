@@ -8,7 +8,7 @@
   "require-dev" : {
     "symfony/console" : "~2.0"
   },
-  "target-dir" : "",
+  "target-dir" : "Evence/Bundle/GridBundle",
   "authors" : [ {
     "name" : "Ruben Harms",
     "homepage" : "http://www.rubenharms.nl/"
@@ -17,7 +17,7 @@
   "minimum-stability" : "dev",
   "extra" : {
     "branch-alias" : {
-      "dev-master" : "0.1-dev"
+      "dev-master" : "0.1-dev"	
     }
   },
   "autoload" : {

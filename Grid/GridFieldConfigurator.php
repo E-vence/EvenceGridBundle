@@ -1,8 +1,8 @@
 <?php
 namespace Evence\Bundle\GridBundle\Grid;
 
-use Evence\Bundle\CoreBundle\Grid\Fields\DataField;
-use Evence\Bundle\CoreBundle\Grid\Fields\Field;
+use Evence\Bundle\GridBundle\Grid\Fields\DataField;
+use Evence\Bundle\GridBundle\Grid\Fields\Field;
 
 /**
  * Grid field configurator

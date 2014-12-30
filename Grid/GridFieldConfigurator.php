@@ -1,5 +1,5 @@
 <?php
-namespace Evence\Bundle\CoreBundle\Grid;
+namespace Evence\Bundle\GridBundle\Grid;
 
 use Evence\Bundle\CoreBundle\Grid\Fields\DataField;
 use Evence\Bundle\CoreBundle\Grid\Fields\Field;

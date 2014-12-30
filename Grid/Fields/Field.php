@@ -1,5 +1,5 @@
 <?php
-namespace Evence\Bundle\CoreBundle\Grid\Fields;
+namespace Evence\Bundle\GridBundle\Grid\Fields;
 
 use Evence\Bundle\CoreBundle\Grid\GridFieldConfigurator;
 class Field

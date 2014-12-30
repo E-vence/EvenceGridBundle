@@ -1,5 +1,5 @@
 <?php
-namespace Evence\Bundle\CoreBundle\Grid;
+namespace Evence\Bundle\GridBundle\Grid;
 
 use Symfony\Bridge\Twig\TwigEngine;
 use Symfony\Component\HttpFoundation\Request;

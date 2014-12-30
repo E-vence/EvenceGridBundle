@@ -1,6 +1,6 @@
 <?php
     
-    namespace Evence\Bundle\CoreBundle\Grid\Fields;
+    namespace Evence\Bundle\GridBundle\Grid\Fields;
 
     class DataField extends Field {
         

@@ -1,6 +1,6 @@
 <?php 
 
-namespace Evence\Bundle\CoreBundle\Grid\Exception;
+namespace Evence\Bundle\GridBundle\Grid\Exception;
 
 class UnknownGridFieldException extends \Exception {
     

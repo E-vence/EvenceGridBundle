@@ -8,6 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Route;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\HttpFoundation\Response;
 
 class GridHelper {
     
@@ -97,6 +98,17 @@ class GridHelper {
         return $this;
     }
  
-    
+    /**
+     * Renders a view.
+     *
+     * @param string   $view       The view name
+     * @param array    $parameters An array of parameters to pass to the view
+     * @param Response $response   A response instance
+     *
+     * @return Response A Response instance
+     */
+    public function gridRespose($view, array $parameters = array(), Response $response = null){
+        return $this->templating->renderResponse($view, $parameters, $response);
+    }
 
 }

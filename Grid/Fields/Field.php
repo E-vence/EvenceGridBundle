@@ -1,7 +1,7 @@
 <?php
 namespace Evence\Bundle\GridBundle\Grid\Fields;
 
-use Evence\Bundle\CoreBundle\Grid\GridFieldConfigurator;
+use Evence\Bundle\GridBundle\Grid\GridFieldConfigurator;
 class Field
 {
     protected $configurator = '';

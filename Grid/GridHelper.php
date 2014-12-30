@@ -107,7 +107,7 @@ class GridHelper {
      *
      * @return Response A Response instance
      */
-    public function gridRespose($view, array $parameters = array(), Response $response = null){
+    public function gridResponse($view, array $parameters = array(), Response $response = null){
         return $this->templating->renderResponse($view, $parameters, $response);
     }
 

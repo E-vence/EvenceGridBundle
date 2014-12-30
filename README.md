@@ -43,3 +43,16 @@ class UserGrid extends Grid {
 }
 
 ``` 
+
+### Usage
+
+Add the following code to your controller action:
+
+``` php
+  $gridHelper =  $this->get('evence.grid');        
+  $grid = $gridHelper->createGrid(new UserGrid());       
+  return  $gridHelper->gridRespose('EvenceCoreBundle:Admin:user_read.html.twig', array('grid' =>        $grid->renderView()));
+    
+```
+
+

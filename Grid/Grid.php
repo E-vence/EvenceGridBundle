@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Evence\Bundle\GridBundle\Grid\Exception\UnknownGridFieldException;
-use Evence\Bundle\GridBundle\Grid\Pagination\Pagination;
+use Evence\Bundle\GridBundle\Pagination\Pagination;
 
 
 /**

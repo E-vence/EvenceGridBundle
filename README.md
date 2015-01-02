@@ -30,10 +30,18 @@ class UserGrid extends Grid {
         return 'EvenceCoreBundle:AdminUser';
     }
     
+    public function getOptions(){
+        return array('numbers' => false, 'checkbox' => false);
+    }
+    
     public function configureFields(GridFieldConfigurator $FieldConfigurator){
         $FieldConfigurator  ->addDataField('firstname', 'Firstname')
                             ->addDataField('lastname', 'Lastname')
-                            ->addDataField('username', 'Username');        
+                            ->addDataField('username', 'Username')
+                            ->addCustomField('fullname', 'Volledige naam', 'text', function($source, $field){
+                                return $source->getFirstname(). ' ' . $source->getLastname();    
+                            }) 
+                            ->addDataField('roles', 'Rollen', 'choice', array('choices' => AdminUser::getRoleTypes(), 'mapped' => false));        
     }
     
     public function getDataSourceType(){
@@ -41,6 +49,7 @@ class UserGrid extends Grid {
     }
     
 }
+
 
 ``` 
 
@@ -51,7 +60,7 @@ Add the following code to your controller action:
 ``` php
   $gridHelper =  $this->get('evence.grid');        
   $grid = $gridHelper->createGrid(new UserGrid());       
-  return  $gridHelper->gridRespose('EvenceCoreBundle:Admin:user_read.html.twig', array('grid' =>        $grid->renderView()));
+  return  $gridHelper->gridRespose('AcmeDemoBundle:Admin:user_read.html.twig', array('grid' =>        $grid->renderView()));
     
 ```
 

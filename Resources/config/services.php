@@ -9,5 +9,6 @@ $container->setDefinition('evence.grid', new Definition('Evence\Bundle\GridBundl
     new Reference('request_stack'),
     new Reference('router'),
     new Reference('session'),
+    new Reference('security.context'),
 )));
 

@@ -3,6 +3,11 @@ namespace Evence\Bundle\GridBundle\Grid;
 
 use Evence\Bundle\GridBundle\Grid\Fields\DataField;
 use Evence\Bundle\GridBundle\Grid\Fields\Field;
+use Evence\Bundle\GridBundle\Grid\Type\AbstractType;
+use Evence\Bundle\GridBundle\Grid\Type\BooleanType;
+use Evence\Bundle\GridBundle\Grid\Type\TextType;
+use Evence\Bundle\GridBundle\Grid\Type\ChoiceType;
+use Evence\Bundle\GridBundle\Grid\Fields\CustomField;
 
 /**
  * Grid field configurator
@@ -22,26 +27,61 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
     private $grid = null;
     private $fields = array();
 
-    public function addDataField($alias, $label, $options = array())
+    public function addDataField($alias, $label, $type = null, $options = array())
     {
         $this->fields[$alias] = new DataField($this, $alias, $label);
         if($this->grid->getSortBy() == $alias){
             $this->fields[$alias]->setCurrentSort();
             $this->fields[$alias]->setCurrentSortOrder($this->grid->getCurrentSortOrder());
+          
         }
+        if (!empty($options['mapped'])) $this->fields[$alias]->setMapped($options['mapped']);
+        $this->fields[$alias]->setType($this->detectType($type))->getType()->setField($this->fields[$alias])->resolveOptions($options);
         
         return $this;
     }
 
-    public function addCustomField($alias, $label, $callable, $options = array())
-    {
-        $options['callback'] = $options;
-        $this->fields[$alias] = new Field($this, $alias, $label, $options);
+    public function addCustomField($alias, $label, $type, $callable, $options = array())   {
+      
+        
+        $options['mapped'] = false;
+        
+        $this->fields[$alias] = new CustomField($this, $alias, $label);
+        $this->fields[$alias]->setMapped($options['mapped'])->setCallback($callable)->setType($this->detectType($type))->getType()->setField($this->fields[$alias])->resolveOptions($options);
+        
+       return $this;
     }
     
     
     public function __construct(Grid $grid){
         $this->grid = $grid;
+    }
+    
+    public function detectType($type){
+        
+        if(is_object($type)){
+            if(! $type instanceof AbstractType){
+                throw new \Exception('Object is not an instance of Evence\Bundle\GridBundle\Grid\Type\AbstractType');
+            }            
+            return $type;
+        }
+        
+        switch($type){
+            case "boolean":
+                return new BooleanType();                
+            break;
+            case "":            
+            case "text":
+                return new TextType();
+            break;
+            case "choice":
+                return new ChoiceType();
+            break;
+            
+        }
+        
+        throw new \Exception('Non existing type ' . $type);
+        
     }
     
 
@@ -116,5 +156,6 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
     public function count( ){
         return count($this->fields);
     }
+   
 }
  

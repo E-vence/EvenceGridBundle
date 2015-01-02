@@ -1,6 +1,6 @@
-<?php  
+<?php
 /*
-Copyright (c) 2015
+Copyright (c) 2015 - Ruben Harms <postbus@rubenharms.nl>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-namespace Evence\Bundle\GridBundle\Grid\Exception;
+namespace Evence\Bundle\GridBundle\Grid\Type;
 
 /**
- * Execption for uknown grid field
+ * Text Type class
  *
  * @author Ruben Harms <info@rubenharms.nl>
  * @link http://www.rubenharms.nl
  * @link https://www.github.com/RubenHarms
  * @package evence/grid-bundle
- * @subpackage Exception
- */ 
-class UnknownGridFieldException extends \Exception {
+ * @subpackage Type
+ */
+class TextType extends AbstractType 
+{
+    /* (non-PHPdoc)
+     * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
+     */
+    public function renderType($value, $source ){
+        return $value;
+    }
     
+    /* (non-PHPdoc)
+     * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::getName()
+     */
+    public function getName(){
+        return 'text';
+    }    
 }
+

@@ -1,6 +1,6 @@
-<?php  
+<?php
 /*
-Copyright (c) 2015
+Copyright (c) 2015 - Ruben Harms <postbus@rubenharms.nl>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,54 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-namespace Evence\Bundle\GridBundle\Grid\Exception;
+namespace Evence\Bundle\GridBundle\Grid\Type;
 
+
+use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
- * Execption for uknown grid field
+ * Field type class for Boolean
  *
  * @author Ruben Harms <info@rubenharms.nl>
  * @link http://www.rubenharms.nl
  * @link https://www.github.com/RubenHarms
  * @package evence/grid-bundle
- * @subpackage Exception
+ * @subpackage Type
  */ 
-class UnknownGridFieldException extends \Exception {
+ 
+class ChoiceType extends AbstractType 
+{
+    /* (non-PHPdoc)
+     * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
+     */
+    public function renderType($value, $source ){
+        
+        $valArray = array();
+        
+        if (!is_array($value)){
+            $value = array($value);    
+        }   
+
+        $choices = $this->getOption('choices');
+        
+        foreach ($value as $val){
+            
+            if(!empty($choices[$val]))
+            $valArray[] = $choices[$val];
+        }
+        
+        return $valArray;
+    }
     
+    /* (non-PHPdoc)
+     * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::getName()
+     */
+    public function getName(){
+        return 'choice';
+    }    
+    
+    public function configureOptions(OptionsResolver $resolver){
+         $resolver->setDefaults( array('separator' => ', '));
+         $resolver->setRequired('choices');         
+    }
 }
+

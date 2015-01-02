@@ -1,0 +1,15 @@
+{%  block boolean_type %}
+    {%  if value %} 
+        <span class="label label-success">{{ options.label_yes|trans }}</span>
+    {% else %}
+        <span class="label label-default">{{ options.label_no|trans }}</span>
+    {% endif %}
+{%  endblock %}
+
+{%  block text_type %}
+    {{ value }}
+{% endblock %}
+
+{%  block choice_type %}
+    {%  for key,val in value %}{%  if key == 0 %}{{ val|trans }}{% else %}{{ options.separator }}{{ val|trans }}{% endif %}{% endfor %}
+{% endblock %}

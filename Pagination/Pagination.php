@@ -435,6 +435,17 @@ class Pagination implements \Iterator, \Countable
         $this->pageParam = $pageParam;
         return $this;
     }
+
+    public function getLimitParam()
+    {
+        return $this->limitParam;
+    }
+
+    public function getPageParam()
+    {
+        return $this->pageParam;
+    }
+ 
  
  
 }

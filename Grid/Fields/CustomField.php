@@ -1,6 +1,6 @@
-<?php  
+<?php
 /*
-Copyright (c) 2015
+Copyright (c) 2015 - Ruben Harms <info@rubenharms.nl>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,19 +20,25 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
 */
 
-namespace Evence\Bundle\GridBundle\Grid\Exception;
+namespace Evence\Bundle\GridBundle\Grid\Fields;
 
 /**
- * Execption for uknown grid field
+ * Class for DataField (array or entity)
  *
  * @author Ruben Harms <info@rubenharms.nl>
  * @link http://www.rubenharms.nl
  * @link https://www.github.com/RubenHarms
  * @package evence/grid-bundle
- * @subpackage Exception
+ * @subpackage Grid
  */ 
-class UnknownGridFieldException extends \Exception {
-    
+ 
+class CustomField extends Field
+{
+    public function getCallbackValue($source = null){
+        return call_user_func_array($this->callback, array( $source, $this));     
+    }    
 }
+    

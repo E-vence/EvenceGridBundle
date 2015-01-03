@@ -36,9 +36,17 @@
     		    
     			{% for field in fields %} {% set fieldLabel = field.getLabel() %} 
     			     {% set mapped = field.getMapped() %}
-        			 {% set fieldSortUrl = field.getSortUrl() %} {% set fieldIsSorted = '' %}    		 
+        			 {% set fieldSortUrl = field.getSortUrl() %} {% set fieldIsSorted = '' %}   
+        			 {% set fieldCurrentSort = field.getCurrentSort() %}
+        			 {% set fieldNextOrder = field.getNextSortOrder() %}
+        			  		 
         			 {% block field %}
-            		      <th>{% if mapped %}<a href="{{ fieldSortUrl }}">{{ fieldLabel|trans }}</a>{% else %}{{ fieldLabel|trans }}{% endif %}</th>
+            		      <th>{% if mapped %}<a href="{{ fieldSortUrl }}">{{ fieldLabel|trans }}</a>{% else %}{{ fieldLabel|trans }}{% endif %}
+            		          
+            		          {%  if fieldCurrentSort %}
+        			             {%  if fieldNextOrder  == 'DESC' %}{% block sortUp %}&uarr;{%endblock%}{% else %}{%  block sortDown %}&darr;{%endblock%}{% endif %}
+            		          {% endif %}
+            		      </th>
             	     {% endblock %}    	      
     			{% endfor %}
     
@@ -154,7 +162,7 @@
     							    {%  set url = pagination.getNextPage().getUrl() %}
     							    {% block pageNext %}							    												    
             							<li>
-            							     <a href="{{ url }}">{% trans	%}Next{% endtrans %}<i class="fa fa-angle-right"></i></a> 
+            							     <a href="{{ url }}">{% trans	%}Next{% endtrans %} <i class="fa fa-angle-right"></i></a> 
             							</li>    		
         							{% endblock %}					
         					    {% endif %}

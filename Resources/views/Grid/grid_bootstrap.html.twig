@@ -24,3 +24,13 @@
     {% set actionAttributes = actionAttributes|merge({'class': 'btn btn-default '~ actionAttributes.class}) %}   
     {{ parent() }}
 {% endblock %}
+
+{% block sortUp %}
+    <span class="caret"></span>
+{%endblock%}
+
+{% block sortDown %}
+<span class="dropup">
+    <span class="caret"></span>
+</span>
+{% endblock %}

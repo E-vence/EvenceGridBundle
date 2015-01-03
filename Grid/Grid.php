@@ -89,7 +89,7 @@ abstract class Grid
      *
      * @var Limit
      */
-    private $limit = 50;
+    private $limit = 20;
 
     private $prefix = 'g';
 
@@ -178,7 +178,7 @@ abstract class Grid
                 ->getFirstRecord());
             
             if ($this->getSortBy())
-                $qb->orderBy($this->getSortBy(), $this->getSortOrder());
+                $qb->orderBy('e.' .$this->getSortBy(), $this->getSortOrder());
             
             $data = $qb->getQuery()->getResult();
         } else {
@@ -314,9 +314,11 @@ abstract class Grid
     public function getSortBy()
     {
         if ($sortBy = $this->request->get($this->getPrefix() . 's', $this->getDefaultSortBy())) {
+
+            /*
             if (! $this->fieldConfigurator->hasField($sortBy)) {
                 throw new UnknownGridFieldException('Unknown grid field ' . $sortBy);
-            }
+            }*/
         }
         
         return $sortBy;

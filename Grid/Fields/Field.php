@@ -94,6 +94,10 @@ class Field
     protected $value = '';
 
     
+    protected $currentSort = '';
+    
+    protected $currentSortOrder = '';
+    
 
     public function __construct(GridFieldConfigurator $configurator,$identifier, $label)
     {
@@ -159,7 +163,16 @@ class Field
     }
     
     public function getSortUrl(){
-        return $this->configurator->getGrid()->generateSortUrl( $this->identifier, 'ASC');
+        return $this->configurator->getGrid()->generateSortUrl( $this->identifier, $this->getNextSortOrder());
+    }
+    
+    public function getNextSortOrder(){
+        if(!$this->getCurrentSort())
+            return 'ASC';
+        if($this->getCurrentSortOrder() == 'DESC') 
+            return 'ASC';
+                 
+        return 'DESC';
     }
 
     public function getType()
@@ -195,5 +208,29 @@ class Field
     public function getOptions(){
         return $this->getType()->getOptions();
     }
+
+    public function getCurrentSort()
+    {
+        return $this->currentSort;
+    }
+
+    public function setCurrentSort($currentSort)
+    {
+        $this->currentSort = $currentSort;
+        return $this;
+    }
+
+    public function getCurrentSortOrder()
+    {
+        return $this->currentSortOrder;
+    }
+
+    public function setCurrentSortOrder($currentSortOrder)
+    {
+        $this->currentSortOrder = $currentSortOrder;
+        return $this;
+    }
+ 
+ 
     
 }

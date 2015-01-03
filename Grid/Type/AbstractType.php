@@ -119,7 +119,7 @@ abstract class AbstractType implements InterfaceType
     }
     
     public function getOption($name){
-       if (empty($this->options[$name])){
+       if (!isset($this->options[$name])){
         throw new \Exception('Non existing option '. $name);    
        }
        return $this->options[$name];

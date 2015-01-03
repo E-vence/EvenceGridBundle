@@ -8,6 +8,9 @@ use Evence\Bundle\GridBundle\Grid\Type\BooleanType;
 use Evence\Bundle\GridBundle\Grid\Type\TextType;
 use Evence\Bundle\GridBundle\Grid\Type\ChoiceType;
 use Evence\Bundle\GridBundle\Grid\Fields\CustomField;
+use Evence\Bundle\GridBundle\Grid\Type\DateType;
+use Evence\Bundle\GridBundle\Grid\Type\DateTimeType;
+use Evence\Bundle\GridBundle\Grid\Type\TimeType;
 
 /**
  * Grid field configurator
@@ -31,8 +34,8 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
     {
         $this->fields[$alias] = new DataField($this, $alias, $label);
         if($this->grid->getSortBy() == $alias){
-            $this->fields[$alias]->setCurrentSort();
-            $this->fields[$alias]->setCurrentSortOrder($this->grid->getCurrentSortOrder());
+            $this->fields[$alias]->setCurrentSort(true);
+            $this->fields[$alias]->setCurrentSortOrder($this->grid->getSortOrder());
           
         }
         if (!empty($options['mapped'])) $this->fields[$alias]->setMapped($options['mapped']);
@@ -77,7 +80,15 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
             case "choice":
                 return new ChoiceType();
             break;
-            
+            case "date":
+                return new DateType();
+            break;
+            case "datetime":
+                return new DateTimeType();
+            break;            
+            case "time":
+                return new TimeType();
+            break;
         }
         
         throw new \Exception('Non existing type ' . $type);

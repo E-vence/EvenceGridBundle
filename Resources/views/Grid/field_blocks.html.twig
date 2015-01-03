@@ -10,6 +10,18 @@
     {{ value }}
 {% endblock %}
 
+{%  block datetime_type %}
+    {{ block('text_type') }}
+{% endblock %}
+
+{%  block date_type %}
+    {{ block('text_type') }}
+{% endblock %}
+
+{%  block time_type %}
+    {{ block('text_type') }}
+{% endblock %}
+
 {%  block choice_type %}
     {%  for key,val in value %}{%  if key == 0 %}{{ val|trans }}{% else %}{{ options.separator }}{{ val|trans }}{% endif %}{% endfor %}
 {% endblock %}

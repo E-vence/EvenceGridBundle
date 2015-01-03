@@ -11,6 +11,7 @@ use Evence\Bundle\GridBundle\Grid\Exception\UnknownGridFieldException;
 use Evence\Bundle\GridBundle\Pagination\Pagination;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\SecurityContext;
+use Evence\Bundle\GridBundle\Grid\Misc\Action;
 
 /**
  * E-vence: Grid
@@ -24,6 +25,8 @@ use Symfony\Component\Security\Core\SecurityContext;
 abstract class Grid
 {
 
+    abstract public function configureActions(GridActionConfigurator $actionConfigurator);
+    
     abstract public function configureFields(GridFieldConfigurator $FieldConfigurator);
 
     abstract public function getEntityName();
@@ -80,7 +83,7 @@ abstract class Grid
     /**
      * Default template
      */
-    private $template = 'EvenceGridBundle:Grid:grid.html.twig';
+    private $template = 'EvenceGridBundle:Grid:grid_bootstrap.html.twig';
 
     /**
      *
@@ -96,8 +99,9 @@ abstract class Grid
 
     private $sortOrder = 'ASC';
 
-    private $fieldConfigurator = null;
-
+    private $fieldConfigurator = null;    
+    private $actionConfigurator = null;
+    
     private $pagination = null;
 
     public function setTemplating(TwigEngine $templating)
@@ -184,6 +188,23 @@ abstract class Grid
         
         return $this->prepareData($data);
     }
+    
+    public function getColBySource($source, $col){
+        if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
+            $method = 'get'. strtoupper($col);
+            if(method_exists($source, $method))
+               return $source->$method(); 
+            
+            throw new UnknownGridFieldException('Field '. $col. " doesn't exists in entity.");            
+        }
+        elseif ($this->getDataSourceType() == self::DATA_SOURCE_ARRAY) {
+            if (!empty($source[$col]))
+                return $source[$col];
+                        
+            throw new UnknownGridFieldException('Field '. $col. " doesn't exists in array.");
+        }
+    }
+    
 
     public function prepareData($data)
     {
@@ -194,7 +215,21 @@ abstract class Grid
             foreach ($this->fieldConfigurator as $key => $field) {
                 $prow->cols[$key] = new \stdClass();
                 $prow->cols[$key]->value = $field->getData($row);
-                $prow->cols[$key]->fieldname = $field->getType()->getName();
+                $prow->cols[$key]->fieldname = $field->getType()->getName();             
+            }
+            foreach ($this->actionConfigurator as $key => $action){
+                /**
+                 * @var $action Action
+                 */
+                if($action->isVisible($row))
+                    $act  = new \stdClass();
+                $act->url =    $action->generateUrl($row);
+                $act->label = $action->getLabel();
+                $act->options = $action->getOptions();
+            
+                $prow->actions[] = $act;
+                 
+                 
             }
             $preparedData[] = $prow;
         }
@@ -206,23 +241,33 @@ abstract class Grid
     {
         return $this->fieldConfigurator = new GridFieldConfigurator($this);
     }
+    
+    public function createActionConfigurator()
+    {
+        return $this->actionConfigurator = new GridActionConfigurator($this);
+    }
 
-    public function renderView()
+    public function renderView($options)
     {
         
         $resolver = new OptionsResolver();
-        $resolver->setDefaults(array('checkbox' => true, 'numbers' => true));
-        $resolver->resolve($this->getOptions());
+        $resolver->setDefaults(array('checkbox' => true, 'numbers' => true, 'tableAttributes' => array(), 'formAttributes' => array(), 'trAttributes'=> array(), 'tdAttributes' => array(), 'actionAttributes' => array()));
+        $options = $resolver->resolve(array_merge($this->getOptions(),$options));
         
         
         if ($this->fieldConfigurator == null)
             $this->configureFields($this->createFieldConfigurator());
         
+
+        if ($this->actionConfigurator == null)
+            $this->configureActions($this->createActionConfigurator());
+        
         $grid = $this->templating->render($this->template, array(
             'fields' => $this->fieldConfigurator,
             'pagination' => $this->getPagination(),
-            'itemsperpage' => $this->getItemsPerPage(),
+            'itemsperpage' => $this->getItemsPerPage(),         
             'grid' => $this,
+            'gridOptions' =>  $options,
             'rows' => $this->getData()
         ));
         
@@ -336,6 +381,14 @@ abstract class Grid
     public function setSecurityContext(SecurityContext $securityContext)
     {
         $this->securityContext = $securityContext;
+        return $this;
+    }
+    
+    public function getRouter(){
+        return $this->router;        
+    }
+    
+    public function createView(){
         return $this;
     }
  

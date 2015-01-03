@@ -1,0 +1,26 @@
+{% extends 'EvenceGridBundle:Grid:grid_base.html.twig' %}
+
+{% block table %}
+
+ {% set tableAttributes = tableAttributes|merge({'class': 'table table-bordered table-hover table-striped '}) %}   
+    <table {{ g.attributes(tableAttributes) }}>
+    	<thead>   	
+	       {{ block('fields') }}
+    	</thead>
+    	<tbody>
+    		{{ block('rows') }}
+    	</tbody>   	    
+    	<tfoot>    	
+    	    {{ block('footer') }}
+    	</tfoot>    	
+    </table>
+{% endblock table %}
+
+{%  block actions %}
+  <div class="btn-group btn-group-xs" role="group">{{ parent() }}</div>
+{% endblock %}
+ 
+{% block action %}
+    {% set actionAttributes = actionAttributes|merge({'class': 'btn btn-default '~ actionAttributes.class}) %}   
+    {{ parent() }}
+{% endblock %}

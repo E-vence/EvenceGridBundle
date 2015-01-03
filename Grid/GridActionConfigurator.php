@@ -8,6 +8,7 @@ use Evence\Bundle\GridBundle\Grid\Type\BooleanType;
 use Evence\Bundle\GridBundle\Grid\Type\TextType;
 use Evence\Bundle\GridBundle\Grid\Type\ChoiceType;
 use Evence\Bundle\GridBundle\Grid\actions\CustomField;
+use Evence\Bundle\GridBundle\Grid\Misc\Action;
 
 /**
  * Grid field configurator
@@ -30,8 +31,32 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
     private $mappedParameters = array();
 
 
-    public function addAction($name, $routeName, $routeParameters = array(), $roles = null, $options = array()){
+    public function addAction($identifier, $label, $routeName, $routeParameters = array(), $roles = null, $options = array()){
+        $action = new Action($this, $identifier, $label, $options);
+        $action->setRoute($routeName)->setRouteParameters($routeParameters)->setRoles($roles);
         
+        $this->actions[$identifier] = $action;
+        
+        return $this;
+    }
+    
+    public function setMappedParameters($parameters){
+        $this->mappedParameters = $parameters;
+    }
+    
+    public function getMappedParameters(){
+        return $this->mappedParameters;        
+    }
+    
+    public function getParametersBySource($source){        
+        $pArray = array();
+        foreach ($this->mappedParameters as $key => $value){
+            
+            $val =  $this->grid->getColBySource($source, $value);            
+            if (!is_numeric($key)) $pArray[$key] = $val;
+            else  $pArray[$value] = $val;
+        }
+        return $pArray;
     }
     
     

@@ -1,6 +1,7 @@
 <?php
-use Evence\Bundle\GridBundle\Grid\GridActionConfigurator;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+
+namespace Evence\Bundle\GridBundle\Grid\Misc;
+
 /**
  * Copyright Ruben Harms 2015
  *
@@ -15,6 +16,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Copied versions shall be recognized and compared with the recorded version.
  * The owner of this softare will take all legal steps against every kind of malpractice!
  */
+
+use Evence\Bundle\GridBundle\Grid\GridActionConfigurator;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class Action {
     
@@ -43,9 +47,9 @@ class Action {
     /**
      * Set type
      *
-     * @var string
+     * @var multitype
      */
-    protected $roles = '';
+    protected $roles = array();
     
     
     
@@ -71,9 +75,12 @@ class Action {
      */
     protected $value = '';
     
-    protected $uri = '#';
+    protected $uri = '';
     protected $route = null; 
     protected $routeParameters = array();
+    
+    
+    protected $options;
     
     
     
@@ -84,16 +91,98 @@ class Action {
         $this->label = $label;
         
         $resolver = new OptionsResolver();
-        //$resolver->setDefault(alue)
+        $resolver->setDefaults(array('target' => '_self', 'icon' => false, 'class' => '','iconType' => 'glyphicons'));
         
-        $this->options = $resolver->resolve();        
+        $this->options = $resolver->resolve($options);        
     }
     
     
-    public function isVisible(){
-        if($this->configurator->getGrid()){
-            
+    public function isVisible($source){        
+        foreach($this->getRoles() as $row){
+            if($this->configurator->getGrid()->getSecurityContext()->isGranted($row) === false)
+            return false;
         }
+        
+        /**
+         * @todo Check conditions
+         */
+        
+      
+        return true;
     }
+
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label)
+    {
+        $this->label = $label;
+        return $this;
+    }
+
+    public function getRoles()
+    {
+        return $this->roles;
+    }
+
+    public function setRoles($roles)
+    {
+        if(!is_array($roles)) $roles = array($roles);
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function getUri()
+    {
+        return $this->uri;
+    }
+
+    public function setUri($uri)
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+
+    public function getRoute()
+    {
+        return $this->route;
+    }
+
+    public function setRoute($route)
+    {
+        $this->route = $route;
+        return $this;
+    }
+
+    public function getRouteParameters()
+    {
+        return $this->routeParameters;
+    }
+
+    public function setRouteParameters($routeParameters)
+    {
+        $this->routeParameters = $routeParameters;
+        return $this;
+    }
+    
+    public function generateUrl($source){
+        $router = $this->configurator->getGrid()->getRouter();
+        if($this->getUri()) return $this->getUri();
+         
+        $parameters = array_merge($this->getRouteParameters(),$this->configurator->getParametersBySource($source));
+        
+       
+        
+        return $router->generate($this->getRoute(), $parameters );
+    }
+
+    public function getOptions()
+    {
+        return $this->options;
+    }
+ 
+ 
     
 }

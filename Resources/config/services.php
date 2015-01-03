@@ -12,3 +12,6 @@ $container->setDefinition('evence.grid', new Definition('Evence\Bundle\GridBundl
     new Reference('security.context'),
 )));
 
+
+$container->setDefinition('evence.twig.grid_extension', new Definition('Evence\Bundle\GridBundle\Twig\GridExtension'))->addTag('twig.extension');
+

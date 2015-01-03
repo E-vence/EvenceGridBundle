@@ -1,0 +1,174 @@
+{% use 'EvenceGridBundle:Grid:field_blocks.html.twig' %}
+
+{% macro attributes(array) %}
+   {% spaceless %}
+    {%  for key,value in array %}
+        {{ key }}="{{ value }}" 
+    {% endfor %}
+   {% endspaceless %}   
+{% endmacro %}
+
+{% block grid %}
+    
+{% import _self as g %}
+{% set fromItem = pagination.getFirstRecord()+1  %}					    				    
+{% set toItem = pagination.getFirstRecord() + pagination.getCurrentLimit()  %}
+{%  if pagination.getTotalRecords() < toItem %}
+    {% set toItem = pagination.getTotalRecords()  %}
+{% endif %}
+
+{% set totalFields = fields|length %}
+{% set tableAttributes = gridOptions.tableAttributes %}
+{% set trAttributes = gridOptions.trAttributes %}
+{% set tdAttributes = gridOptions.tdAttributes %}
+{% set formAttributes = gridOptions.formAttributes %}
+{% set actionAttributes = gridOptions.actionAttributes %}
+    					    
+<form {{ g.attributes(formAttributes) }}>
+    {% block table %}
+        
+    <table {{ g.attributes(tableAttributes) }}>
+    	<thead>   	
+    		{% block fields %}
+    		<tr>
+        		{%  if gridOptions.checkbox %}{% block checkall %}<th><input type="checkbox" value="1" name="check_all" /></th>{% endblock %} {% endif %}
+    		    {%  if gridOptions.numbers %}{% block number_head %}<th>#</th>{% endblock %}{% endif %}
+    		    
+    			{% for field in fields %} {% set fieldLabel = field.getLabel() %} 
+    			     {% set mapped = field.getMapped() %}
+        			 {% set fieldSortUrl = field.getSortUrl() %} {% set fieldIsSorted = '' %}    		 
+        			 {% block field %}
+            		      <th>{% if mapped %}<a href="{{ fieldSortUrl }}">{{ fieldLabel|trans }}</a>{% else %}{{ fieldLabel|trans }}{% endif %}</th>
+            	     {% endblock %}    	      
+    			{% endfor %}
+    
+    			<th>&nbsp;</th>
+    		</tr>
+    		{% endblock %}
+    	</thead>
+    	<tbody>
+    		{% block rows %}     		
+        		{% for row_no, row in rows %}       		
+        		<tr {{ g.attributes(trAttributes) }}>
+        		   {%  if gridOptions.checkbox %}  {% block col_checkbox %}<td {{ g.attributes(tdAttributes) }}><input type="checkbox" value="1" name="id[]" /></td>{% endblock %} {% endif %} 
+        		   {%  if gridOptions.numbers %} {% block col_number %}<td  {{ g.attributes(tdAttributes) }}>{{ row_no+fromItem  }}</td>{% endblock %}  {% endif %}
+        		          		            		
+        			{% for col in row.cols %} 
+            			{% set fieldname = col.value.getType().getField().getIdentifier() %}        			
+            			{% set value = col.value.getValue() %}
+            			{% set options = col.value.getOptions() %}
+            			{% set blockName = col.fieldname~ '_type' %} 
+            			
+            			{% set colAttributes = tdAttributes %}
+            			{% set style = '' %}
+            			{% set class = '' %}            			
+            			{% if colAttributes.style is defined %}            			 
+            			     {% set style = colAttributes.style %}           			 
+            			{% endif %}            			 
+        			 	{% if colAttributes.class  is defined %}            			 
+            			     {% set class = colAttributes.class %}           			 
+            			{% endif %}            			             			
+            			{% if options.align is defined %}           			 
+            			 {% set colAttributes = colAttributes|merge({'style': 'text-align: '~options.align~'; ' ~ style})  %}          			 
+            			{% endif %}
+            			{% set colAttributes = colAttributes|merge({'class': 'col-'~ fieldname ~ ' ' ~ class})  %}                      		
+            			
+            			{% block col %}      						       			
+            		      <td {{ g.attributes(colAttributes)}}>{{ block(blockName) }}</td> 
+            			{% endblock %} 
+            		{% endfor %}       
+                     <td class="grid-actions">
+                        {%  block actions %}                       
+                            {%  for action in row.actions  %}
+                                {%  set label = action.label %}
+                                {%  set url = action.url %}
+                                {% set options = action.options %}  
+                                
+                                {% set class = '' %}       
+                                {% if actionAttributes.class  is defined %}            			 
+                    			     {% set class = actionAttributes.class %}           			 
+                    			{% endif %}       
+                                
+                                {%  set actionAttributes = actionAttributes|merge({'href': action.url, 'class': class }) %}                                                      
+                                                         
+                                {% block action %}                                
+                                    <a {{ g.attributes(actionAttributes) }}>                                    
+                                        {% block action_label %}
+                                            {%  if options.icon %}
+                                                {%  if options.iconType == 'fontawesome' %}
+                                                    <i class="fa fa-{{ options.icon }}"></i> 
+                                                {% elseif  options.iconType == 'glyphicons'   %}<span class="glyphicon glyphicon-{{ options.icon }}" aria-hidden="true"></span> {% endif %}
+                                            {% else %}
+                                                {{ label|trans }}
+                                            {% endif %}
+                                        {% endblock action_label %}
+                                   </a>
+                                {% endblock action %}                                 
+                            {% endfor %}           			
+            			{% endblock actions %}
+        			</td>
+        		</tr>
+        		{% endfor %} 
+    		{% endblock rows %}
+    	</tbody>
+    	
+    	
+    	<tfoot>
+    	{% block footer %}    	
+    		<tr>
+    			<td colspan="{{  totalFields +3 }}">
+    				<div class="row">
+    					<div class="col-lg-6"> 
+    					
+    					    {%  block paginationInfo %}  					    
+    						<span>{% trans %}Display{% endtrans %} <span class="pages"> <span class="current-offset"> {{ fromItem }}</span> - <span class="to">{{ toItem }}</span>
+    								{% trans %}from{% endtrans %} <span class="totalRecords">
+    								{{	pagination.getTotalRecords()}}</span> | {% trans %}Items per page{% endtrans %}: 
+    								
+    								 <select onchange="top.location.href=this.value;">
+        						         {%  for itm in itemsperpage %}
+        						              <option value="{{ grid.generateLimitUrl(itm) }}" {%  if pagination.getMaxRecords == itm %} selected="selected"{% endif %}>{{ itm }}</option>
+        						         {% endfor %}
+    						         </select>
+    						</span>
+    					   {% endblock paginationInfo %}
+    					</div>
+    					<div class="col-lg-6">
+    						{% block pagination %}
+    						<ul class="pagination pull-right">
+    							{% if pagination.hasPreviousPage() %}
+    							   {%  set url = pagination.getPreviousPage().getUrl() %}						       
+    							   {% block pagePrevious %}		
+            							<li>
+            							     <a href="{{ url }}">
+            							     <i class="fa fa-angle-left"></i> {% trans %}Previous{% endtrans %}</a>
+            							</li>
+        							{% endblock %}	
+    							{% endif %} 
+    							
+    							{% for page in pagination.getPages(3) %}
+    							     <li {% if page.getCurrent() %} class="active" {% endif %}><a href="{{ page.getUrl() }}">{{ page.getName() }}</a></li> 
+    							{% endfor %} 
+    							
+    							{% if pagination.hasNextPage() %}
+    							    {%  set url = pagination.getNextPage().getUrl() %}
+    							    {% block pageNext %}							    												    
+            							<li>
+            							     <a href="{{ url }}">{% trans	%}Next{% endtrans %}<i class="fa fa-angle-right"></i></a> 
+            							</li>    		
+        							{% endblock %}					
+        					    {% endif %}
+    						</ul>
+    						{% endblock %}
+    
+    					</div>
+    				</div>
+    		     </td>
+    		</tr>
+    	
+    	{% endblock %}
+    	</tfoot>
+    </table>
+    {% endblock table %}
+</form>
+{% endblock %}

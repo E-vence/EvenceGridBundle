@@ -25,15 +25,15 @@ namespace Acme\Bundle\DemoBundle\Grid;
 use Evence\Bundle\GridBundle\Grid\Grid;
 
 class UserGrid extends Grid {
-    
+
     public function getEntityName() {     
         return 'EvenceCoreBundle:AdminUser';
     }
-    
+
     public function getOptions(){
         return array('numbers' => false, 'checkbox' => false);
     }
-    
+
     public function configureFields(GridFieldConfigurator $FieldConfigurator){
         $FieldConfigurator  ->addDataField('firstname', 'Firstname')
                             ->addDataField('lastname', 'Lastname')
@@ -43,14 +43,21 @@ class UserGrid extends Grid {
                             }) 
                             ->addDataField('roles', 'Rollen', 'choice', array('choices' => AdminUser::getRoleTypes(), 'mapped' => false));        
     }
-    
+
     public function getDataSourceType(){
         return parent::DATA_SOURCE_ENTITY;
     }
     
+    public function configureActions(GridActionConfigurator $actionConfigurator){
+        $actionConfigurator
+                            ->addAction('edit', 'Edit', 'admin_user_edit', array(),array('ROLE_ADMIN'), array('icon' => 'pencil', 'iconType' => 'fontawesome'))
+                            ->addAction('remove', 'Delete', 'admin_user_delete', array(),array('ROLE_ADMIN'), array('icon' => 'times', 'iconType' => 'fontawesome'));
+        
+        
+        $actionConfigurator->setMappedParameters(array('id'));
+        
+    }
 }
-
-
 ``` 
 
 ### Usage
@@ -58,16 +65,17 @@ class UserGrid extends Grid {
 Add the following code to your controller action:
 
 ``` php
-  $gridHelper =  $this->get('evence.grid');        
-  $grid = $gridHelper->createGrid(new UserGrid());       
-  return  $gridHelper->gridRespose('AcmeDemoBundle:Admin:user_read.html.twig', array('grid' =>        $grid->renderView()));
+     $gridHelper =  $this->get('evence.grid');        
+        $grid = $gridHelper->createGrid(new UserGrid());       
+        
+        return  $gridHelper->gridResponse('EvenceCoreBundle:Admin:user_read.html.twig', array('grid' => $grid->createView()));
     
 ```
 
 Add the following code to your twig file:
 
 ``` twig
-   {{ grid|raw }}
+   {{ evenceGrid(grid, {'formAttributes': {'class': 'form'}}) }}
 ```
 
 

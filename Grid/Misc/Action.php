@@ -92,7 +92,7 @@ class Action {
     
     
     
-    public function __construct(GridActionConfigurator $configurator,$identifier, $label, $options)
+    public function __construct(GridActionConfigurator $configurator,$identifier, $label, $options = array())
     {
         $this->configurator = $configurator;
         $this->identifier = $identifier;
@@ -124,7 +124,7 @@ class Action {
         return $this->label;
     }
 
-    public function setLabel(string $label)
+    public function setLabel($label)
     {
         $this->label = $label;
         return $this;

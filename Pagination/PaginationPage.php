@@ -22,6 +22,7 @@
  THE SOFTWARE.
 
  */
+
 namespace Evence\Bundle\GridBundle\Pagination;
 
 /**

@@ -1,7 +1,8 @@
 EvenceGridBundle
 ================
-
 Easy method to generate a grid.
+
+![alt tag](https://travis-ci.org/E-vence/EvenceGridBundle.svg?branch=master)
 
 ### Installation
 

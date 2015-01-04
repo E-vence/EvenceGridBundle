@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright (c) 2015
+Copyright (c) 2015 - Ruben Harms <info@rubenharms.nl>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -92,7 +92,8 @@ class GridHelper
     private $doctrine = null;
     
     /**
-     * Grids 
+     * Array of grids
+     * @var multitype:Grid 
      */
     private $grids = null;
 

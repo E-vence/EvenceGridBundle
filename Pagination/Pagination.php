@@ -1,19 +1,27 @@
 <?php
-/**
- * Copyright Ruben Harms 2014
- *
- * Do not use, modify, sell and/or duplicate this script
- * without any permissions!
- *
- * This software is written and recorded by Ruben Harms!
- * Ruben Harms took all the necessary actions, juridical and
- * (hidden) technical, to protect her script against any use
- * without permission, any modify and against any unauthorized duplicate.
- *
- * Copied versions shall be recognized and compared with the recorded version.
- * The owner of this softare will take all legal steps against every kind of malpractice!
- */
+/*
+ Copyright (c) 2015 - Ruben Harms <info@rubenharms.nl>
 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+
+ */
 namespace Evence\Bundle\GridBundle\Pagination;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -373,21 +381,43 @@ class Pagination implements \Iterator, \Countable
         return $this->array[$p];
     }
     
+    /**
+     * Generate the url for the target page
+     * 
+     * @param PaginationPage $page
+     */
     public function generateUrl(PaginationPage $page){     
         return $this->getRouter()->generate($this->getRequest()->get('_route'), array_merge($this->getRouteVars(), array($this->pageParam => $page->getNumber(), $this->limitParam => $this->getCurrentLimit())));
     }
 
+    /**
+     * Get the Symfony's router service
+     * 
+     * @return \Symfony\Component\HttpFoundation\Request
+     */
     public function getRouter()
     {
         return $this->router;
     }
 
+    /**
+     * Set the Symfony's router service
+     * 
+     * @param unknown $router
+     * @return \Evence\Bundle\GridBundle\Pagination\Pagination
+     */
     public function setRouter($router)
     {
         $this->router = $router;
         return $this;
     }
     
+    /**
+     * Get pages
+     * 
+     * @param integer (optional) $maxPages Maximum page numbers to show
+     * @return \Evence\Bundle\GridBundle\Pagination\Pagination
+     */
     public function getPages($maxPages = null){
         
         if(!$maxPages) return $this;
@@ -404,10 +434,19 @@ class Pagination implements \Iterator, \Countable
         return array_slice($this->array, $start, $maxPages);
     }
     
+    /**
+     * Get all route vars from symfony's router service 
+     */
     private function getRouteVars (){
         return array_merge($this->getRequest()->query->all(), $this->getRequest()->attributes->get('_route_params'));        
     }
     
+    /**
+     * Get items per page
+     * 
+     * @param string $steps Square of the numbers
+     * @return multitype:\stdClass 
+     */
     public function getItemsPerPage($steps){
         $pp = $steps;
         $i = 0;
@@ -424,23 +463,45 @@ class Pagination implements \Iterator, \Countable
         return $limitArray;
     }
 
+    /**
+     * Set limitParam
+     * 
+     * @param unknown $limitParam
+     * @return \Evence\Bundle\GridBundle\Pagination\Pagination
+     */
     public function setLimitParam($limitParam)
     {
         $this->limitParam = $limitParam;
         return $this;
     }
 
+    /**
+     * Set pageParam
+     * 
+     * @param unknown $pageParam
+     * @return \Evence\Bundle\GridBundle\Pagination\Pagination
+     */
     public function setPageParam($pageParam)
     {
         $this->pageParam = $pageParam;
         return $this;
     }
 
+    /**
+     * Get limitParam
+     * 
+     * @return string
+     */
     public function getLimitParam()
     {
         return $this->limitParam;
     }
 
+    /**
+     * Get pageParam
+     * 
+     * @return string
+     */
     public function getPageParam()
     {
         return $this->pageParam;

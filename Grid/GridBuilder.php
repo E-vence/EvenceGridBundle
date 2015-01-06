@@ -1,11 +1,6 @@
 <?php
-namespace Evence\Bundle\GridBundle\Grid\GridBuilder;
 
-use Evence\Bundle\GridBundle\Grid\Grid;
-use Evence\Bundle\GridBundle\Grid\GridFieldConfigurator;
-use Evence\Bundle\CoreBundle\Entity\AdminUser;
-use Evence\Bundle\GridBundle\Grid\GridActionConfigurator;
-
+namespace Evence\Bundle\GridBundle\Grid;
 
 class GridBuilder extends Grid {
 

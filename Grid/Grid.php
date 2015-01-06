@@ -36,6 +36,7 @@ use Evence\Bundle\GridBundle\Pagination\Pagination;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\SecurityContext;
 use Evence\Bundle\GridBundle\Grid\Misc\Action;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 
 /**
  * E-vence: Grid
@@ -214,10 +215,10 @@ abstract class Grid
     /**
      * Set symfony's templating service
      *
-     * @param TwigEngine $templating            
+     * @param EngineInterface $templating            
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
-    public function setTemplating(TwigEngine $templating)
+    public function setTemplating(EngineInterface $templating)
     {
         $this->templating = $templating;
         return $this;

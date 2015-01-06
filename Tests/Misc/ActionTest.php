@@ -6,17 +6,48 @@ use Evence\Bundle\GridBundle\Grid\Misc\Action;
 class ActionTest extends \PHPUnit_Framework_TestCase {
     
     private $action = null;    
+    private $grid = null;
+    
+    public function getGrid(){
+        
+        if(!$this->grid){
+            $this->grid = $this->getMockBuilder('Evence\Bundle\GridBundle\Grid\GridBuilder')           
+            ->getMock();
+        }
+        
+        return $this->grid;
+    }
+    
+    public function getSecurityContext($granted = true){
+        $stub = $this->getMockBuilder('Symfony\Component\Security\Core\SecurityContext')->disableOriginalConstructor()->getMock();
+        //$obj = $stub->method('isGranted')->will($this->returnValue(false));
+     
+        
+        return $stub;
+    }
     
     public function getAction(){
         
         if(!$this->action){            
-            $configurator = $this->getMockBuilder('Evence\Bundle\GridBundle\Grid\GridActionConfigurator')
-            ->disableOriginalConstructor()
+            
+            $grid = $this->getGrid();
+            $grid->setSecurityContext($this->getSecurityContext());
+            
+            $configurator = $this->getMockBuilder('Evence\Bundle\GridBundle\Grid\GridActionConfigurator')                  
+            ->setConstructorArgs(array($grid))
             ->getMock();
                          
             $this->action = new Action($configurator, 'test', 'Label name',array());
         }          
         return $this->action;        
+    }
+    
+    public function testIsVisible(){
+        $action = $this->getAction();        
+
+        
+        
+        $this->assertEquals(true, $action->isVisible());
     }
     
     public function testGetSet() {   

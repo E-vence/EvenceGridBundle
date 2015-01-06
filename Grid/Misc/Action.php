@@ -105,7 +105,7 @@ class Action {
     }
     
     
-    public function isVisible($source){        
+    public function isVisible($source = ''){        
         foreach($this->getRoles() as $row){
             if($this->configurator->getGrid()->getSecurityContext()->isGranted($row) === false)
             return false;

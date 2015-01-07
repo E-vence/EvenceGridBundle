@@ -383,6 +383,7 @@ abstract class Grid
                 $prow->cols[$key] = new \stdClass();
                 $prow->cols[$key]->value = $field->getData($row);
                 $prow->cols[$key]->fieldname = $field->getType()->getName();
+                $prow->actions = array();
             }
             foreach ($this->actionConfigurator as $key => $action) {
                 /**
@@ -391,6 +392,7 @@ abstract class Grid
                  */
                 if ($action->isVisible($row))
                     $act = new \stdClass();
+                
                 $act->url = $action->generateUrl($row);
                 $act->label = $action->getLabel();
                 $act->options = $action->getOptions();
@@ -435,11 +437,13 @@ abstract class Grid
         $resolver->setDefaults(array(
             'checkbox' => true,
             'numbers' => true,
+            'title' => 'Unamed grid',
             'tableAttributes' => array(),
             'formAttributes' => array(),
             'trAttributes' => array(),
             'tdAttributes' => array(),
-            'actionAttributes' => array()
+            'actionAttributes' => array(),
+            'footer' => true
         ));
         $options = $resolver->resolve(array_merge($this->getOptions(), $options));
         
@@ -449,7 +453,7 @@ abstract class Grid
         if ($this->actionConfigurator == null)
             $this->configureActions($this->createActionConfigurator());
         
-        $grid = $this->templating->render($this->template, array(
+        $grid = $this->templating->render($this->getTemplate(), array(
             'fields' => $this->fieldConfigurator,
             'pagination' => $this->getPagination(),
             'itemsperpage' => $this->getItemsPerPage(),
@@ -690,8 +694,9 @@ abstract class Grid
      * @todo Use for different views like: CSV, PDF and Excel
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
-    public function createView()
+    public function createView($template ='')
     {
+        if($template) $this->template = $template;
         return $this;
     }
 }

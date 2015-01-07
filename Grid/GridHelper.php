@@ -119,6 +119,31 @@ class GridHelper
         
         return $grid;
     }
+    
+    /**
+     * Creates gridBuilder 
+     * 
+     * @return Grid With services populated Grid object
+     */
+    public function createGridBuilder($source, $dataSourceType, $options = array())
+    {
+        
+        $grid = new GridBuilder($source, $dataSourceType, $options);
+        
+        $grid->setTemplating($this->templating)
+        ->setDoctrine($this->doctrine)
+        ->setRequest($this->request)
+        ->setRouter($this->router)
+        ->setSession($this->session)
+        ->setSecurityContext($this->securityContext);
+    
+        if(count($this->grids) > 0) $grid->setPrefix('g'.count($this->grids));
+        $this->grids[] = $grid;
+    
+    
+    
+        return $grid;
+    }
 
     /**
      * Inject services

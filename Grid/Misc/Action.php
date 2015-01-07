@@ -99,7 +99,7 @@ class Action {
         $this->label = $label;
         
         $resolver = new OptionsResolver();
-        $resolver->setDefaults(array('target' => '_self', 'icon' => false, 'class' => '','iconType' => 'glyphicons'));
+        $resolver->setDefaults(array('target' => '_self', 'icon' => false, 'class' => '','iconType' => 'glyphicons', 'confirm' => null));
         
         $this->options = $resolver->resolve($options);        
     }

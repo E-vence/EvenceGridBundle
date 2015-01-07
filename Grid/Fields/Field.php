@@ -231,6 +231,10 @@ class Field
         return $this;
     }
  
+    
+    public function getDataSourceType(){
+        return $this->configurator->getGrid()->getDataSourceType();
+    }
  
     
 }

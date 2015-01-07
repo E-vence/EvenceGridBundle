@@ -49,8 +49,12 @@
             		      </th>
             	     {% endblock %}    	      
     			{% endfor %}
-    
-    			<th>&nbsp;</th>
+        
+               {% if rows|length > 0 %}              
+                    {% if rows[0].actions|length > 0 %}
+    			         <th>&nbsp;</th>
+    			    {% endif %}
+    		   {% endif %}
     		</tr>
     		{% endblock %}
     	</thead>
@@ -85,6 +89,8 @@
             		      <td {{ g.attributes(colAttributes)}}>{{ block(blockName) }}</td> 
             			{% endblock %} 
             		{% endfor %}       
+            		
+            		{%  if row.actions|length > 0 %}
                      <td class="grid-actions">
                         {%  block actions %}                       
                             {%  for action in row.actions  %}
@@ -97,7 +103,12 @@
                     			     {% set class = actionAttributes.class %}           			 
                     			{% endif %}       
                                 
-                                {%  set actionAttributes = actionAttributes|merge({'href': action.url, 'class': class }) %}                                                      
+                                {%  set actionAttributes = actionAttributes|merge({'href': action.url, 'class': class }) %}  
+                                
+                                {% if options.confirm %}
+                                    {% set onclick = "return confirm('" ~ options.confirm|escape ~"');" %}
+                                    {%  set actionAttributes = actionAttributes|merge({'onclick': onclick}) %}    
+                                {% endif %}                                                                  
                                                          
                                 {% block action %}                                
                                     <a {{ g.attributes(actionAttributes) }}>                                    
@@ -115,6 +126,7 @@
                             {% endfor %}           			
             			{% endblock actions %}
         			</td>
+        			{% endif %}
         		</tr>
         		{% endfor %} 
     		{% endblock rows %}
@@ -123,6 +135,7 @@
     	
     	<tfoot>
     	{% block footer %}    	
+    	   {%  if gridOptions.footer %}
     		<tr>
     			<td colspan="{{  totalFields +3 }}">
     				<div class="row">
@@ -173,7 +186,7 @@
     				</div>
     		     </td>
     		</tr>
-    	
+    	   {% endif %}
     	{% endblock %}
     	</tfoot>
     </table>

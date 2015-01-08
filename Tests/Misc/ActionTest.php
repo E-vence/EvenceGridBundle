@@ -2,6 +2,7 @@
 namespace Evence\Bundle\GridBundle\Tests;
 
 use Evence\Bundle\GridBundle\Grid\Misc\Action;
+use Evence\Bundle\GridBundle\Grid\Grid;
 
 class ActionTest extends \PHPUnit_Framework_TestCase {
     
@@ -11,7 +12,8 @@ class ActionTest extends \PHPUnit_Framework_TestCase {
     public function getGrid(){
         
         if(!$this->grid){
-            $this->grid = $this->getMockBuilder('Evence\Bundle\GridBundle\Grid\GridBuilder')           
+            $this->grid = $this->getMockBuilder('Evence\Bundle\GridBundle\Grid\GridBuilder')  
+            ->setConstructorArgs(array(array(), Grid::DATA_SOURCE_ARRAY, array()))         
             ->getMock();
         }
         

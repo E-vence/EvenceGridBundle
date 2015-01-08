@@ -106,7 +106,7 @@
                                 {%  set actionAttributes = actionAttributes|merge({'href': action.url, 'class': class }) %}  
                                 
                                 {% if options.confirm %}
-                                    {% set onclick = "return confirm('" ~ options.confirm|escape ~"');" %}
+                                    {% set onclick = "return confirm('" ~ options.confirm|trans|escape ~"');" %}
                                     {%  set actionAttributes = actionAttributes|merge({'onclick': onclick}) %}    
                                 {% endif %}                                                                  
                                                          

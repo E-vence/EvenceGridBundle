@@ -26,7 +26,8 @@ Add the following code to your controller:
     $gridHelper = $this->get('evence.grid');
     $grid = $gridHelper->createGridBuilder('EvenceOptinBundle:Supplier')
             ->addDataField('name', 'Name')
-            -> addAction('edit', 'Edit supplier', 'evence_optin_supplier_edit',  array(), array('ROLE_ADMIN'), array('icon' => 'pencil'));
+            -> addAction('edit', 'Edit supplier', 'evence_optin_supplier_edit',  array(), array('ROLE_ADMIN'), array('icon' => 'pencil'))
+            ->setMappedParameters(array('id'));
         
   return $gridHelper->gridResponse('EvenceCoreBundle:Admin:simple_grid.html.twig', array(
       'grid' => $grid->createView()));

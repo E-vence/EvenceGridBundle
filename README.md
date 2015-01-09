@@ -16,9 +16,25 @@ Easy method to generate a grid.
    ``` php
     new Evence\Bundle\GridBundle\EvenceGridBundle()
    ```
+
+### Grid withoud class
+
+Add the following code to your controller:
+
+``` php
+    
+    $gridHelper = $this->get('evence.grid');
+    $grid = $gridHelper->createGridBuilder('EvenceOptinBundle:Supplier')
+            ->addDataField('name', 'Name')
+            -> addAction('edit', 'Edit supplier', 'evence_optin_supplier_edit',  array(), array('ROLE_ADMIN'), array('icon' => 'pencil'))
+            ->setMappedParameters(array('id'));
+        
+  return $gridHelper->gridResponse('EvenceCoreBundle:Admin:simple_grid.html.twig', array(
+      'grid' => $grid->createView()));
+``` 
+
    
-   
-### Sample class
+### Grid within a class
 
 ``` php
 
@@ -61,7 +77,6 @@ class UserGrid extends Grid {
 }
 ``` 
 
-### Usage
 
 Add the following code to your controller action:
 
@@ -72,6 +87,9 @@ Add the following code to your controller action:
         return  $gridHelper->gridResponse('EvenceCoreBundle:Admin:user_read.html.twig', array('grid' => $grid->createView()));
     
 ```
+
+### Show grid in twig
+
 
 Add the following code to your twig file:
 

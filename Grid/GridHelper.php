@@ -123,7 +123,7 @@ class GridHelper
     /**
      * Creates gridBuilder 
      * 
-     * @return Grid With services populated Grid object
+     * @return GridBuilder With services populated Grid object
      */
     public function createGridBuilder($source, $dataSourceType = Grid::DATA_SOURCE_ENTITY, $options = array())
     {

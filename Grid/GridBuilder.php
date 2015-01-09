@@ -65,7 +65,7 @@ class GridBuilder extends Grid {
      *            Callback to render your custom field
      * @param array $options
      *            Array of options
-     * @return \Evence\Bundle\GridBundle\Grid\GridFieldConfigurator
+     * @return GridBuilder
      */
     public function  addCustomField($alias, $label, $type, $callable, $options = array()){
         $this->fieldConfigurator->addCustomField($alias, $label, $type, $callable, $options);
@@ -88,7 +88,7 @@ class GridBuilder extends Grid {
      *            (optional) Required roles to do this action (symfony's securityContext)
      * @param array $options
      *            Options for the action
-     * @return \Evence\Bundle\GridBundle\Grid\GridActionConfigurator
+     * @return GridBuilder
      */
     public function addAction($identifier, $label, $routeName, $routeParameters = array(), $roles = null, $options = array())
     {

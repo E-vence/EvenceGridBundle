@@ -34,6 +34,7 @@ use Evence\Bundle\GridBundle\Grid\Fields\CustomField;
 use Evence\Bundle\GridBundle\Grid\Type\DateType;
 use Evence\Bundle\GridBundle\Grid\Type\DateTimeType;
 use Evence\Bundle\GridBundle\Grid\Type\TimeType;
+use Evence\Bundle\GridBundle\Grid\Type\EntityType;
 
 /**
  * Grid field configurator
@@ -165,6 +166,9 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
             case "time":
                 return new TimeType();
                 break;
+            case "entity":
+                return new EntityType();
+            break;
         }
         
         throw new \Exception('Non existing type ' . $type);

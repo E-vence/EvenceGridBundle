@@ -125,7 +125,7 @@ class GridHelper
      * 
      * @return Grid With services populated Grid object
      */
-    public function createGridBuilder($source, $dataSourceType, $options = array())
+    public function createGridBuilder($source, $dataSourceType = Grid::DATA_SOURCE_ENTITY, $options = array())
     {
         
         $grid = new GridBuilder($source, $dataSourceType, $options);

@@ -390,14 +390,17 @@ abstract class Grid
                  *
                  * @var $action Action
                  */
-                if ($action->isVisible($row))
+                if ($action->isVisible($row)){
                     $act = new \stdClass();
                 
-                $act->url = $action->generateUrl($row);
-                $act->label = $action->getLabel();
-                $act->options = $action->getOptions();
+                    $act->url = $action->generateUrl($row);
+                    $act->label = $action->getLabel();
+                    $act->options = $action->getOptions();
+                    
+                    $prow->actions[] = $act;
+                }
                 
-                $prow->actions[] = $act;
+               
             }
             $preparedData[] = $prow;
         }

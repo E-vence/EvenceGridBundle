@@ -120,6 +120,7 @@ class Field
      * Get Data
      */
     public function getData($source = null) {       
+        
         return $this->getType()->getData( $this->getCallbackValue($source), $source);        
     }
 

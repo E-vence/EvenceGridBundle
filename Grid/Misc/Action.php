@@ -99,7 +99,10 @@ class Action {
         $this->label = $label;
         
         $resolver = new OptionsResolver();
-        $resolver->setDefaults(array('target' => '_self', 'icon' => false, 'class' => '','iconType' => 'glyphicons', 'confirm' => null));
+        $resolver->setDefaults(array('target' => '_self', 'icon' => false, 'class' => '','iconType' => 'glyphicons', 'iconLabel' => false, 'confirm' => null, 'isVisible' => function(Action $action, $source){
+           return true;
+        }            
+        ));
         
         $this->options = $resolver->resolve($options);        
     }
@@ -113,10 +116,9 @@ class Action {
         
         /**
          * @todo Check conditions
-         */
-        
+         */    
       
-        return true;
+        return call_user_func_array($this->options['isVisible'], array($this, $source));
     }
 
     public function getLabel()
@@ -189,8 +191,21 @@ class Action {
     public function getOptions()
     {
         return $this->options;
+    }   
+
+    /**
+     * Get col value by source
+     *
+     * @param mixed $source Source (row)
+     * @param string $col Key name of the desired col
+     */
+    public function getColBySource($source, $col) {
+        return $this->configurator->getColBySource($source, $col);
+    }
+
+    public function getIdentifier()
+    {
+        return $this->identifier;
     }
  
- 
-    
 }

@@ -291,5 +291,16 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
     {
         return count($this->actions);
     }
+    
+    /**
+     * Get col value by source
+     * 
+     * @param mixed $source Source (row) 
+     * @param string $col Key name of the desired col
+     */
+    public function getColBySource($source, $col) {
+        return $this->getGrid()->getColBySource($source, $col);
+    }
+    
 }
  

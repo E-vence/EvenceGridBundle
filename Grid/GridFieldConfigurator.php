@@ -35,6 +35,7 @@ use Evence\Bundle\GridBundle\Grid\Type\DateType;
 use Evence\Bundle\GridBundle\Grid\Type\DateTimeType;
 use Evence\Bundle\GridBundle\Grid\Type\TimeType;
 use Evence\Bundle\GridBundle\Grid\Type\EntityType;
+use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
 
 /**
  * Grid field configurator
@@ -168,6 +169,9 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
                 break;
             case "entity":
                 return new EntityType();
+            break;
+            case "money":
+                return new MoneyType();
             break;
         }
         

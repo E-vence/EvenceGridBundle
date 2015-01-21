@@ -44,7 +44,7 @@ class DataField extends Field
      */
     public function getValue($source = null)
     {
-        if (! $source) {
+        if ($source === null) {
             throw new \Exception('Field must have a source');
         }
         $value = $this->getDataFromSource($source);

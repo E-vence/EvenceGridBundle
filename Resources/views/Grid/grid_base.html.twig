@@ -101,6 +101,10 @@
                                 {% set class = '' %}       
                                 {% if actionAttributes.class  is defined %}            			 
                     			     {% set class = actionAttributes.class %}           			 
+                    			{% endif %} 
+                    			
+                    			 {% if options.class %}            			 
+                    			     {% set class = class ~ ' ' ~ options.class %}           			 
                     			{% endif %}       
                                 
                                 {%  set actionAttributes = actionAttributes|merge({'href': action.url, 'class': class }) %}  
@@ -117,9 +121,13 @@
                                                 {%  if options.iconType == 'fontawesome' %}
                                                     <i class="fa fa-{{ options.icon }}"></i> 
                                                 {% elseif  options.iconType == 'glyphicons'   %}<span class="glyphicon glyphicon-{{ options.icon }}" aria-hidden="true"></span> {% endif %}
-                                            {% else %}
+                                            {% endif %}
+                                            
+                                            {% if not options.icon or options.iconLabel == true %}
                                                 {{ label|trans }}
                                             {% endif %}
+                                            
+                                            
                                         {% endblock action_label %}
                                    </a>
                                 {% endblock action %}                                 

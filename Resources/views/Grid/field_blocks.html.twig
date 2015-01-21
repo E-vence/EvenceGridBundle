@@ -22,6 +22,10 @@
     {{ block('text_type') }}
 {% endblock %}
 
+{%  block money_type %}
+   <div style="text-align: right;"> {{ block('text_type') }}</div>
+{% endblock %}
+
 {%  block choice_type %}
     {%  for key,val in value %}{%  if key == 0 %}{{ val|trans }}{% else %}{{ options.separator }}{{ val|trans }}{% endif %}{% endfor %}
 {% endblock %}

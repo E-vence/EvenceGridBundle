@@ -359,7 +359,7 @@ abstract class Grid
             
             throw new UnknownGridFieldException('Field ' . $col . " doesn't exists in entity.");
         } elseif ($this->getDataSourceType() == self::DATA_SOURCE_ARRAY) {
-            if (! empty($source[$col]))
+            if (isset($source[$col]))
                 return $source[$col];
             
             throw new UnknownGridFieldException('Field ' . $col . " doesn't exists in array.");

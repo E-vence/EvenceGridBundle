@@ -3,16 +3,16 @@
   "description" : "Provides an easy grid generator",
   "require" : {
     "php" : ">=5.3.3",
-    "symfony/framework-bundle" : "~2.0",
-     "twig/extensions": "~1.0",
-    "doctrine/orm": "~2.2,>=2.2.3",
-    "doctrine/doctrine-bundle": "~1.2"
+    "symfony/framework-bundle" : "~2.0",    
   },
   "require-dev" : {
     "symfony/console" : "~2.0",
     "symfony/options-resolver": "2.4",
     "symfony/routing": "~2.0",
-    "phpunit/phpunit": "4.4.*"
+    "phpunit/phpunit": "4.4.*",
+     "twig/extensions": "~1.0",
+    "doctrine/orm": "~2.2,>=2.2.3",
+    "doctrine/doctrine-bundle": "~1.2"
   },
   "target-dir" : "Evence/Bundle/GridBundle",
   "authors" : [ {

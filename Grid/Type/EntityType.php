@@ -56,7 +56,7 @@ class EntityType extends AbstractType
                 return $value;
             }
         }
-        else {
+        elseif($value !== null) {
             throw new \Exception('Field is not an entity expected an object.');
         }
         return $value;

@@ -446,7 +446,9 @@ abstract class Grid
             'trAttributes' => array(),
             'tdAttributes' => array(),
             'actionAttributes' => array(),
-            'footer' => true
+            'footer' => true,
+            'querybuilder_callback' => array($this, 'qbCallback'),
+            'template' => $this->getTemplate()
         ));
         $options = $resolver->resolve(array_merge($this->getOptions(), $options));
         
@@ -456,7 +458,7 @@ abstract class Grid
         if ($this->actionConfigurator == null)
             $this->configureActions($this->createActionConfigurator());
         
-        $grid = $this->templating->render($this->getTemplate(), array(
+        $grid = $this->templating->render($options['template'], array(
             'fields' => $this->fieldConfigurator,
             'pagination' => $this->getPagination(),
             'itemsperpage' => $this->getItemsPerPage(),
@@ -701,6 +703,10 @@ abstract class Grid
     {
         if($template) $this->template = $template;
         return $this;
+    }
+    
+    public function qbCallback(\Doctrine\ORM\QueryBuilder $qb){
+        
     }
 }
     

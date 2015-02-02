@@ -26,6 +26,7 @@
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Doctrine\ORM\PersistentCollection;
 /**
  * Entity Type class
  *
@@ -41,10 +42,8 @@ class EntityType extends AbstractType
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
     public function renderType($value, $source ){
-        
-        if (is_object($value)){//
-            
-        
+    
+        if (is_object($value) && ! $value instanceof  PersistentCollection){        
             if(($property = $this->getOption('property')) !== false){            
                 $getter = 'get'. ucfirst($property);
                 if(!method_exists($value, $getter)){
@@ -55,6 +54,26 @@ class EntityType extends AbstractType
             else {
                 return $value;
             }
+        }
+        elseif (is_object($value)){
+            
+            $multiple = array();
+            
+            foreach($value as $val)
+            {
+                if(($property = $this->getOption('property')) !== false){
+                    $getter = 'get'. ucfirst($property);
+                    if(!method_exists($value, $getter)){
+                        throw new \Exception('Non-existing method '. $getter . ' in ' . get_class($value));
+                    }
+                    $multiple[] = $val->$getter();
+                }
+                else {
+                    $multiple[] = $val;
+                }
+            }
+            
+            return implode(", ", $multiple);
         }
         elseif($value !== null) {
             throw new \Exception('Field is not an entity expected an object.');

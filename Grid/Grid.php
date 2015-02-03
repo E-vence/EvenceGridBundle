@@ -318,7 +318,7 @@ abstract class Grid
      *
      * @return array|object
      */
-    private function getData()
+    private function getData($options)
     {
         $this->getPagination()->setTotalRows($this->countRows());
         
@@ -328,6 +328,8 @@ abstract class Grid
                 ->getMaxRecords())
                 ->setFirstResult($this->getPagination()
                 ->getFirstRecord());
+            
+            call_user_func_array($options['querybuilder_callback'], array($qb));
             
             if ($this->getSortBy())
                 $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
@@ -464,7 +466,7 @@ abstract class Grid
             'itemsperpage' => $this->getItemsPerPage(),
             'grid' => $this,
             'gridOptions' => $options,
-            'rows' => $this->getData()
+            'rows' => $this->getData($options)
         ));
         
         return $grid;

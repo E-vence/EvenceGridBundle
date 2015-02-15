@@ -384,8 +384,9 @@ abstract class Grid
             foreach ($this->fieldConfigurator as $key => $field) {
                 $prow->cols[$key] = new \stdClass();
                 $prow->cols[$key]->value = $field->getData($row);
-                $prow->cols[$key]->fieldname = $field->getType()->getName();
+                $prow->cols[$key]->fieldname = $field->getType()->getName();                
                 $prow->actions = array();
+                $prow->mappedParams = $this->actionConfigurator->getParametersBySource($row);
             }
             foreach ($this->actionConfigurator as $key => $action) {
                 /**

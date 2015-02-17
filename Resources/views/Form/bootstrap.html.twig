@@ -1,0 +1,55 @@
+{% extends 'bootstrap_3_horizontal_layout.html.twig'  %}
+
+{% block _form_savereturn_row %}    
+   {{ block('savebutton_row') }}
+{% endblock %}
+
+{% block _form_savenew_row %}      
+   {{ block('savebutton_row') }}
+{% endblock %}
+
+{% block _form_savenew_widget %}
+    {% set icon = 'plus' %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' btn-saveadd')|trim}) %}
+    {{ block('savebutton_widget') }}
+{% endblock %}
+
+{% block _form_savereturn_widget %}
+    {% set icon = 'share' %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' btn-savereturn')|trim}) %}
+    {{ block('savebutton_widget') }}
+{% endblock %}
+
+
+{% block savebutton_widget %}
+    {% set type ='submit' %}    
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' btn')|trim}) %}
+    
+   {%- if label is empty -%}
+        {%- if label_format is not empty -%}
+            {% set label = label_format|replace({
+                '%name%': name,
+                '%id%': id,
+            }) %}
+        {%- else -%}
+            {% set label = name|humanize %}
+        {%- endif -%}
+    {%- endif -%}
+    {% set label %}<i class="fa fa-{{ icon }}"></i> {{label|trans}}{% endset %}
+    
+    <button type="{{ type|default('button') }}" {{ block('button_attributes') }}>{{ label|raw }}</button>
+
+{% endblock %}
+
+{%  block savebutton_row  %}
+    {{ form_widget(form, {'label':  label, 'attr': {'class': 'btn btn-success pull-right'}}) }}
+{%  endblock %}
+
+
+{% block form_group_class -%}
+col-sm-8
+{%- endblock form_group_class %}
+
+{% block form_label_class -%}
+col-sm-4
+{%- endblock form_label_class %}

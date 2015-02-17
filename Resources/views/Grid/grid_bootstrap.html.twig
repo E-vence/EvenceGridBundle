@@ -1,8 +1,17 @@
 {% extends 'EvenceGridBundle:Grid:grid_base.html.twig' %}
 
-{% block table %}
 
- {% set tableAttributes = tableAttributes|merge({'class': 'table table-bordered table-hover table-striped '}) %}   
+{% block filter %}
+    {% if filter.hasFields() %}
+        <div class="col-lg-4">
+            {{ parent() }}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block table %}
+ {% set tableAttributes = tableAttributes|merge({'class': 'table table-bordered table-hover table-striped '}) %} 
+ <div class="col-lg-{% if filter.hasFields() %}9{% else %}12{% endif %}">
     <table {{ g.attributes(tableAttributes) }}>
     	<thead>   	
 	       {{ block('fields') }}
@@ -14,6 +23,7 @@
     	    {{ block('footer') }}
     	</tfoot>    	
     </table>
+</div>
 {% endblock table %}
 
 {%  block actions %}

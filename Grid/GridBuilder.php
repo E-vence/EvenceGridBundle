@@ -6,6 +6,7 @@ class GridBuilder extends Grid {
 
     private $fieldConfigurator = null;
     private $actionConfigurator = null;
+    private $filterConfigurator = null;
     private $entityName = null;
     private $dataSourceType = null;
     private $options = array();
@@ -30,6 +31,7 @@ class GridBuilder extends Grid {
         $this->dataSourceType = $dataSourceType;
         $this->fieldConfigurator = $this->createFieldConfigurator();
         $this->actionConfigurator = $this->createActionConfigurator();
+        $this->filterConfigurator = $this->createFilterConfigurator();
     }   
     
 
@@ -109,6 +111,27 @@ class GridBuilder extends Grid {
     }
     
     
+
+        
+    /**
+     * Adds a new field to this group. A field must have a unique name within
+     * the group. Otherwise the existing field is overwritten.
+     *
+     * If you add a nested group, this group should also be represented in the
+     * object hierarchy.
+     *
+     * @param string|int|FormBuilderInterface $child
+     * @param string|FormTypeInterface        $type
+     * @param array                           $options
+     *
+     * @return GridFilterConfigurator The builder object.
+     */
+    public function addFilterField($child, $type = null, array $options = array()){
+    {
+        $this->filterConfigurator->add($child, $type, $options);
+        return $this;
+    }
+    
     
     public function getDataSourceType(){
         return $this->dataSourceType;
@@ -121,6 +144,11 @@ class GridBuilder extends Grid {
 
     public function configureFields(GridFieldConfigurator $FieldConfigurator){
         //Do nothing
+    }
+    
+    
+    public function configureFilter(GridFilterConfigurator $filterConfigurator){
+        //Do nothing    
     }
     
     public function getOptions(){

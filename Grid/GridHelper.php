@@ -34,6 +34,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\SecurityContext;
+use Symfony\Component\Form\FormFactoryInterface;
 
 /**
  * Grid helper: Helps creating a Grid
@@ -96,7 +97,15 @@ class GridHelper
      * @var multitype:Grid 
      */
     private $grids = null;
-
+    
+    /**
+     * Symfony's FormFactoryInterface
+     *
+     * @var FormFactoryInterface
+     */
+    private $formFactory = null;
+    
+    
     /**
      * Helper to create a grid
      *
@@ -110,7 +119,8 @@ class GridHelper
             ->setRequest($this->request)
             ->setRouter($this->router)
             ->setSession($this->session)
-            ->setSecurityContext($this->securityContext);
+            ->setSecurityContext($this->securityContext)
+            ->setFormFactory($this->formFactory);
         
         if(count($this->grids) > 0) $grid->setPrefix('g'.count($this->grids)); 
         $this->grids[] = $grid;
@@ -130,14 +140,18 @@ class GridHelper
         
         $grid = new GridBuilder($source, $dataSourceType, $options);
         
+        $prefix = 'g'.count($this->grids);
+        
         $grid->setTemplating($this->templating)
         ->setDoctrine($this->doctrine)
         ->setRequest($this->request)
         ->setRouter($this->router)
         ->setSession($this->session)
-        ->setSecurityContext($this->securityContext);
+        ->setSecurityContext($this->securityContext)
+        ->setFormFactory($this->formFactory)
+        ->setIdentifier($prefix);
     
-        if(count($this->grids) > 0) $grid->setPrefix('g'.count($this->grids));
+        if(count($this->grids) > 0) $grid->setPrefix($prefix);
         $this->grids[] = $grid;
     
     
@@ -154,7 +168,7 @@ class GridHelper
      * @param Router $router            
      * @param Session $session            
      */
-    public function __construct(Registry $doctrine, TwigEngine $templating, RequestStack $request, Router $router, Session $session, SecurityContext $securityContext)
+    public function __construct(Registry $doctrine, TwigEngine $templating, RequestStack $request, Router $router, Session $session, SecurityContext $securityContext, FormFactoryInterface $formFactory)
     {
         $this->doctrine = $doctrine;
         $this->templating = $templating;
@@ -162,7 +176,9 @@ class GridHelper
         $this->router = $router;
         $this->session = $session;
         $this->securityContext = $securityContext;
+        $this->formFactory = $formFactory;
     }
+    
 
     /**
      * Set templating service
@@ -240,4 +256,11 @@ class GridHelper
     {
         return $this->templating->renderResponse($view, $parameters, $response);
     }
+
+    public function setFormFactory(FormFactoryInterface $formFactory)
+    {
+        $this->formFactory = $formFactory;
+        return $this;
+    }
+ 
 }

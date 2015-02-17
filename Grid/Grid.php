@@ -37,6 +37,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\SecurityContext;
 use Evence\Bundle\GridBundle\Grid\Misc\Action;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 
 /**
  * E-vence: Grid
@@ -64,6 +65,16 @@ abstract class Grid
      * @throws UnknownGridFieldException
      */
     abstract public function configureFields(GridFieldConfigurator $FieldConfigurator);
+    
+    
+
+    /**
+     * Configures search filter fields
+     *
+     * @param GridFilterConfigurator $filterConfigurator
+     * @throws Unknown GridFieldException
+     */
+    abstract public function configureFilter(GridFilterConfigurator $filterConfigurator);
 
     /**
      * Returns the name of the entity for the data source
@@ -204,6 +215,13 @@ abstract class Grid
      * @var GridActionConfigurator
      */
     private $actionConfigurator = null;
+    
+    /**
+     * Grid filter configurator
+     *
+     * @var GridFilterConfigurator
+     */
+    private $filterConfigurator = null;
 
     /**
      * Grid pagination
@@ -211,6 +229,21 @@ abstract class Grid
      * @var Pagination
      */
     private $pagination = null;
+    
+    /**
+     * Symfony's FormFactoryInterface
+     *
+     * @var FormFactoryInterface
+     */
+    private $formFactory;
+
+    /**
+     * Grid identifier
+     *
+     * @var string
+     */
+    private $identifier = null;
+    
 
     /**
      * Set symfony's templating service
@@ -308,6 +341,9 @@ abstract class Grid
     {
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
             $qb = $this->getQueryBuilder()->select('count(e.id)');
+            $this->filterQuery($qb);
+            
+            
             return $qb->getQuery()->getSingleScalarResult();
         }
         return count($this->dataSource);
@@ -330,6 +366,8 @@ abstract class Grid
                 ->getFirstRecord());
             
             call_user_func_array($options['querybuilder_callback'], array($qb));
+        
+            $this->filterQuery($qb);
             
             if ($this->getSortBy())
                 $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
@@ -341,6 +379,31 @@ abstract class Grid
         }
         
         return $this->prepareData($data);
+    }
+    
+    
+    public function filterQuery(\Doctrine\ORM\QueryBuilder $qb){
+
+        /* Filters here */
+        $form = $this->filterConfigurator->getFormBuilder()->getForm();
+        $form->handleRequest($this->request);
+        
+        $identifier = $form->get('_identifier')->getData();
+        
+        if ($identifier == 'grid' &&  $form->isValid() ){
+            foreach($form->all() as $item){
+                $name = $item->getName();                
+                if($name != '_identifier' && $name != '_search' ){   
+
+                    $data = $item->getData();
+                    if($data){
+                        $qb->andWhere('e.'.$name .' = :'.$name);
+                        $qb->setParameter($name, $data);
+                    }
+                }
+            }
+        }
+        
     }
 
     /**
@@ -420,6 +483,16 @@ abstract class Grid
     {
         return $this->fieldConfigurator = new GridFieldConfigurator($this);
     }
+    
+    /**
+     * Create and return the Field configurator
+     *
+     * @return \Evence\Bundle\GridBundle\Grid\GridFilterConfigurator
+     */
+    public function createFilterConfigurator()
+    {
+        return $this->filterConfigurator = new GridFilterConfigurator($this, $this->formFactory);
+    }
 
     /**
      * Create and return the Action configurator
@@ -461,13 +534,23 @@ abstract class Grid
         if ($this->actionConfigurator == null)
             $this->configureActions($this->createActionConfigurator());
         
+        if ($this->filterConfigurator == null)
+            $this->configureFilter($this->createFilterConfigurator());
+        
+        $filter  = $this->filterConfigurator;
+        $filter->getFormBuilder()->add('_search', 'submit');
+        $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => 'grid' , 'mapped' => false));
+        
+        
         $grid = $this->templating->render($options['template'], array(
             'fields' => $this->fieldConfigurator,
+            'filter' => $this->filterConfigurator,
             'pagination' => $this->getPagination(),
             'itemsperpage' => $this->getItemsPerPage(),
             'grid' => $this,
             'gridOptions' => $options,
-            'rows' => $this->getData($options)
+            'rows' => $this->getData($options),
+            'form' => $this->filterConfigurator->getForm()->createView()
         ));
         
         return $grid;
@@ -711,5 +794,45 @@ abstract class Grid
     public function qbCallback(\Doctrine\ORM\QueryBuilder $qb){
         
     }
+
+    /**
+     * Get formFactory
+     * 
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
+    public function getFormFactory()
+    {
+        return $this->formFactory;
+    }
+
+    /**
+     * Set formFactory
+     * 
+     * @param FormFactoryInterface $formFactory
+     * @return \Evence\Bundle\GridBundle\Grid\Grid
+     */
+    public function setFormFactory(FormFactoryInterface $formFactory)
+    {
+        $this->formFactory = $formFactory;
+        return $this;
+    }
+    
+    public function getEntityClassMeta (){
+        return $this->doctrine->getManager()->getClassMetadata($this->getEntityName());
+    }
+
+    public function setIdentifier(string $identifier)
+    {
+        $this->identifier = $identifier;
+        return $this;
+    }
+
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+ 
+ 
+ 
 }
     

@@ -385,8 +385,11 @@ abstract class Grid
     public function filterQuery(\Doctrine\ORM\QueryBuilder $qb){
 
         /* Filters here */
+        
+        if( !$this->filterConfigurator->hasFields() ) return
         $form = $this->filterConfigurator->getFormBuilder()->getForm();
         $form->handleRequest($this->request);
+        
         
         $identifier = $form->get('_identifier')->getData();
         
@@ -538,9 +541,11 @@ abstract class Grid
             $this->configureFilter($this->createFilterConfigurator());
         
         $filter  = $this->filterConfigurator;
-        $filter->getFormBuilder()->add('_search', 'submit');
-        $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => 'grid' , 'mapped' => false));
         
+        if($filter->hasFields()){
+            $filter->getFormBuilder()->add('_search', 'submit');
+            $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => 'grid' , 'mapped' => false));
+        }
         
         $grid = $this->templating->render($options['template'], array(
             'fields' => $this->fieldConfigurator,
@@ -821,7 +826,7 @@ abstract class Grid
         return $this->doctrine->getManager()->getClassMetadata($this->getEntityName());
     }
 
-    public function setIdentifier(string $identifier)
+    public function setIdentifier($identifier)
     {
         $this->identifier = $identifier;
         return $this;

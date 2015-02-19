@@ -28,16 +28,7 @@
 
 
     {% block filter %}
-        {%  if filter.hasFields() %}
-        <div>
-            {% block filterForm %}
-                {{ form_start(form) }}
-           
-                {{ form_end(form) }}
-            {% endblock %}
-            
-        </div>
-        {% endif %}
+     
     {% endblock %}
 
   

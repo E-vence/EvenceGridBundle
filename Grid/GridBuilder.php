@@ -31,8 +31,14 @@ class GridBuilder extends Grid {
         $this->dataSourceType = $dataSourceType;
         $this->fieldConfigurator = $this->createFieldConfigurator();
         $this->actionConfigurator = $this->createActionConfigurator();
-        $this->filterConfigurator = $this->createFilterConfigurator();
+       
     }   
+   
+    public function getFilterConfigurator(){
+        if(!$this->filterConfigurator)$this->filterConfigurator = $this->createFilterConfigurator();
+        return $this->filterConfigurator;
+    }
+   
     
 
     /**
@@ -126,9 +132,9 @@ class GridBuilder extends Grid {
      *
      * @return GridFilterConfigurator The builder object.
      */
-    public function addFilterField($child, $type = null, array $options = array()){
+    public function addFilterField($child, $type = null, array $options = array())
     {
-        $this->filterConfigurator->add($child, $type, $options);
+        $this->getFilterConfigurator()->add($child, $type, $options);
         return $this;
     }
     

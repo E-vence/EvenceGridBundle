@@ -137,9 +137,9 @@ class GridHelper
      */
     public function createGridBuilder($source, $dataSourceType = Grid::DATA_SOURCE_ENTITY, $options = array())
     {
-        
+       
         $grid = new GridBuilder($source, $dataSourceType, $options);
-        
+
         $prefix = 'g'.count($this->grids);
         
         $grid->setTemplating($this->templating)
@@ -150,6 +150,8 @@ class GridHelper
         ->setSecurityContext($this->securityContext)
         ->setFormFactory($this->formFactory)
         ->setIdentifier($prefix);
+        
+       
     
         if(count($this->grids) > 0) $grid->setPrefix($prefix);
         $this->grids[] = $grid;

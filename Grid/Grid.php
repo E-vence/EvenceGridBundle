@@ -390,9 +390,13 @@ abstract class Grid
         $form = $this->filterConfigurator->getFormBuilder()->getForm();
         $form->handleRequest($this->request);       
         
-        $identifier = $form->get('_identifier')->getData();
         
-        if ($identifier == 'grid' &&  $form->isValid() ){
+        
+        $identifier = $form->get('_identifier')->getData();
+
+
+        if ($identifier == $this->getIdentifier() &&  $form->isValid() ){
+           
             foreach($form->all() as $item){
                 $name = $item->getName();                
                 if($name != '_identifier' && $name != '_search' ){   
@@ -544,7 +548,7 @@ abstract class Grid
         
         if($filter->hasFields()){
             $filter->getFormBuilder()->add('_search', 'submit');
-            $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => 'grid' , 'mapped' => false));
+            $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => $this->getIdentifier() , 'mapped' => false));
         }
         
         $grid = $this->templating->render($options['template'], array(

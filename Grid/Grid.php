@@ -386,10 +386,9 @@ abstract class Grid
 
         /* Filters here */
         
-        if( !$this->filterConfigurator->hasFields() ) return
+        if( !$this->filterConfigurator->hasFields() ) return;
         $form = $this->filterConfigurator->getFormBuilder()->getForm();
-        $form->handleRequest($this->request);
-        
+        $form->handleRequest($this->request);       
         
         $identifier = $form->get('_identifier')->getData();
         
@@ -494,6 +493,7 @@ abstract class Grid
      */
     public function createFilterConfigurator()
     {
+    
         return $this->filterConfigurator = new GridFilterConfigurator($this, $this->formFactory);
     }
 

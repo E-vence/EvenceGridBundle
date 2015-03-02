@@ -11,19 +11,13 @@
 
 {% block table %}
  {% set tableAttributes = tableAttributes|merge({'class': 'table table-bordered table-hover table-striped '}) %} 
- <div class="col-lg-{% if filter.hasFields() %}9{% else %}12{% endif %}">
-    <table {{ g.attributes(tableAttributes) }}>
-    	<thead>   	
-	       {{ block('fields') }}
-    	</thead>
-    	<tbody>
-    		{{ block('rows') }}
-    	</tbody>   	    
-    	<tfoot>    	
-    	    {{ block('footer') }}
-    	</tfoot>    	
-    </table>
-</div>
+  {%  if gridOptions.mode == 'view' %}
+     <div class="col-lg-{% if filter.hasFields() %}9{% else %}12{% endif %}">
+        {{ parent() }}
+    </div>
+  {% else %}
+    {{ parent() }}
+  {% endif %}
 {% endblock table %}
 
 {%  block actions %}
@@ -31,7 +25,13 @@
 {% endblock %}
  
 {% block action %}
-    {% set actionAttributes = actionAttributes|merge({'class': 'btn btn-default '~ actionAttributes.class}) %}   
+    {% set currentClass = "" %}
+    
+    {%  if attr.class is defined %}
+        {% set currentClass = attr.class %}
+    {% endif %}
+    
+    {% set attr = attr|merge({'class': 'btn btn-default ' ~ currentClass}) %}   
     {{ parent() }}
 {% endblock %}
 

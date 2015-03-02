@@ -64,49 +64,10 @@ class DataField extends Field
         
       $id = $this->identifier;
         
-      if ($this->isAssociation($id)){
-         return $this->getAssociation($id, $source);
+      if ($this->configurator->getGrid()->isAssociation($id)){
+         return $this->configurator->getGrid()->getAssociation($id, $source);
       }
-      return $this->getValueFromSource($source,$id);
-    }
-    
-    public function getAssociation($id, $source){
-        $path = explode(".", $id);        
-        while( count($path) > 0){
-            $id = array_shift($path);
-            $source = $this->getValueFromSource($source,$id);
-        }
-        
-        return $source;
-    }
-    
-    public function getValueFromSource($source,$id){
-        $method = 'get' . ucfirst($id);
-        
-        
-        if($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY){
-            if (!method_exists($source, $method)) {
-                throw new \Exception('Uknown field ' . $id . ' in datasource ' . $this->configurator->getGrid()->getEntityName());
-            }
-            if (!property_exists($source, $id)){
-                $this->setMapped(false);
-            }
-            return $source->$method();
-        }
-        elseif($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY){
-            if(!isset($source[$this->identifier]) )
-                throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source,true));
-        
-            return $source[$id];
-        }
-        
-    }
-    
-    public function isAssociation($id){
-        if(stristr($id,".")){                
-            return true;    
-        }
-        return false;
-    }
+      return $this->configurator->getGrid()->getValueFromSource($source,$id);
+    }    
 }
     

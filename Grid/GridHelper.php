@@ -114,6 +114,8 @@ class GridHelper
      */
     public function createGrid(Grid $grid)
     {
+        $prefix = 'g'.count($this->grids);
+        
         $grid->setTemplating($this->templating)
             ->setDoctrine($this->doctrine)
             ->setRequest($this->request)
@@ -122,8 +124,9 @@ class GridHelper
             ->setSecurityContext($this->securityContext)
             ->setFormFactory($this->formFactory);
         
-        if(count($this->grids) > 0) $grid->setPrefix('g'.count($this->grids)); 
-        $this->grids[] = $grid;
+        $grid->setPrefix($prefix); 
+        
+        $this->grids[$prefix] = $grid;
         
         
         
@@ -153,12 +156,18 @@ class GridHelper
         
        
     
-        if(count($this->grids) > 0) $grid->setPrefix($prefix);
-        $this->grids[] = $grid;
+        $grid->setPrefix($prefix);
+        $this->grids[$prefix] = $grid;
     
     
     
         return $grid;
+    }
+    
+    public function hasGrid($gridId){
+        if(!empty($this->grids[$gridId])){
+            return true;
+        }
     }
 
     /**
@@ -256,6 +265,18 @@ class GridHelper
      */
     public function gridResponse($view, array $parameters = array(), Response $response = null)
     {
+        if($gmode = $this->request->get('grid_mode')){
+            if($gid = $this->request->get('grid_id')){
+                if($this->hasGrid($gid)){
+                    $grid = $this->grids[$gid];
+                    $options = $this->request->get('grid_options', array());
+                    $options = array_merge($options, array('mode' => $gmode));           
+                    return new Response($grid->renderView($options));                    
+                }
+            }
+        }
+        
+        
         return $this->templating->renderResponse($view, $parameters, $response);
     }
 

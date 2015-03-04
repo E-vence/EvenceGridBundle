@@ -60,29 +60,14 @@ class DataField extends Field
      * @return mixed value
      */
     public function getDataFromSource($source)
-    {
+    {        
         
-        $method = 'get' . ucfirst($this->identifier);
+      $id = $this->identifier;
         
-        
-        if($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY){
-            if (!method_exists($source, $method)) {                     
-                throw new \Exception('Uknown field ' . $this->identifier . ' in datasource ' . $this->configurator->getGrid()->getEntityName());
-            }            
-            if (!property_exists($source, $this->identifier)){
-                $this->setMapped(false);
-            }
-            return $source->$method();
-        }
-        elseif($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY){
-            if(!isset($source[$this->identifier]) )
-                throw new \Exception('Uknown field ' . $this->identifier . ' in datasource array: ' . print_r($source,true));
-            
-            return $source[$this->identifier];
-        }
- 
-        
-      
-    }
+      if ($this->configurator->getGrid()->isAssociation($id)){
+         return $this->configurator->getGrid()->getAssociation($id, $source);
+      }
+      return $this->configurator->getGrid()->getValueFromSource($source,$id);
+    }    
 }
     

@@ -35,7 +35,7 @@ class GridBuilder extends Grid {
     }   
    
     public function getFilterConfigurator(){
-        if(!$this->filterConfigurator)$this->filterConfigurator = $this->createFilterConfigurator();
+        if(!$this->filterConfigurator) $this->filterConfigurator = $this->createFilterConfigurator();
         return $this->filterConfigurator;
     }
    

@@ -97,6 +97,8 @@ class GridFilterConfigurator
             $this->formData = new $entityInfo->name();
         }
         
+        $options = array_merge(array('validation_groups' => array('registration')), $options);
+        
         $this->formBuilder = $formFactory->createNamedBuilder($this->grid->getPrefix(),'form', $this->formData, $options)->setMethod('GET');
         
        

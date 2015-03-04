@@ -19,26 +19,43 @@
 {% endif %}
 
 {% set totalFields = fields|length %}
-{% set tableAttributes = gridOptions.tableAttributes %}
+{% set tableAttributes = gridOptions.tableAttributes|merge({"data-grid-id": grid.getPrefix()}) %}
 {% set trAttributes = gridOptions.trAttributes %}
 {% set tdAttributes = gridOptions.tdAttributes %}
 {% set formAttributes = gridOptions.formAttributes %}
 {% set actionAttributes = gridOptions.actionAttributes %}
     					    
 
+    {%  if gridOptions.mode == 'view' %}
+    
+        {% block filter %}
+            {%  if filter.hasFields() %}
+            <div>
+                {% block filterForm %}
+                    {{ form_start(form) }}
+               
+                    {{ form_end(form) }}
+                {% endblock %}
+                
+            </div>
+            {% endif %}
+        {% endblock %}
 
-    {% block filter %}
-     
-    {% endblock %}
-
+    {% endif %}
+    
   
     
         {% block form %}
     
-    <form {{ g.attributes(formAttributes) }}> 
+        {%  if gridOptions.mode == 'view' %}
+            <form {{ g.attributes(formAttributes) }}>
+        {% endif %} 
     
       {% block table %}       
-    <table {{ g.attributes(tableAttributes) }}>
+        {%  if gridOptions.mode == 'view' %}
+            {% block table_tag %}<table {{ g.attributes(tableAttributes) }}>{% endblock %}
+        {% endif %}
+        {% block innertable %}
     	<thead>   	
     		{% block fields %}
     		<tr>
@@ -118,15 +135,17 @@
                     			     {% set class = class ~ ' ' ~ options.class %}           			 
                     			{% endif %}       
                                 
-                                {%  set actionAttributes = actionAttributes|merge({'href': action.url, 'class': class }) %}  
+                                {%  set attr = actionAttributes|merge({'href': action.url, 'class': class }) %}  
                                 
                                 {% if options.confirm %}
                                     {% set onclick = "return confirm('" ~ options.confirm|trans|escape ~"');" %}
-                                    {%  set actionAttributes = actionAttributes|merge({'onclick': onclick}) %}    
-                                {% endif %}                                                                  
+                                    {%  set attr = attr|merge({'onclick': onclick}) %}    
+                                {% endif %}             
+                                
+                                {% set attr = attr|merge(options.attr)  %}                                                     
                                                          
                                 {% block action %}                                
-                                    <a {{ g.attributes(actionAttributes) }}>                                    
+                                    <a {{ g.attributes(attr) }}>                                    
                                         {% block action_label %}
                                             {%  if options.icon %}
                                                 {%  if options.iconType == 'fontawesome' %}
@@ -208,9 +227,14 @@
     	   {% endif %}
     	{% endblock %}
     	</tfoot>
-    </table>
+    	{% endblock innertable %}
+    {%  if gridOptions.mode == 'view' %}
+        </table>
+    {% endif %}
     {% endblock table %}
+    {%  if gridOptions.mode == 'view' %}
     </form>
+    {% endif %}
     {% endblock form %}
 
 {% endblock %}

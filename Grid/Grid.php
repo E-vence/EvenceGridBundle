@@ -386,14 +386,17 @@ abstract class Grid
 
         /* Filters here */
         
-        if( !$this->filterConfigurator->hasFields() ) return
+        if( !$this->filterConfigurator->hasFields() ) return;
         $form = $this->filterConfigurator->getFormBuilder()->getForm();
-        $form->handleRequest($this->request);
+        $form->handleRequest($this->request);       
+        
         
         
         $identifier = $form->get('_identifier')->getData();
-        
-        if ($identifier == 'grid' &&  $form->isValid() ){
+
+
+        if ($identifier == $this->getIdentifier() &&  $form->isValid() ){
+           
             foreach($form->all() as $item){
                 $name = $item->getName();                
                 if($name != '_identifier' && $name != '_search' ){   
@@ -420,12 +423,13 @@ abstract class Grid
      */
     public function getColBySource($source, $col)
     {
-        if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
-            $method = 'get' . strtoupper($col);
-            if (method_exists($source, $method))
-                return $source->$method();
+        if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {                    
             
-            throw new UnknownGridFieldException('Field ' . $col . " doesn't exists in entity.");
+            if ($this->isAssociation($col)){
+                return $this->getAssociation($col, $source);
+            }
+            return $this->getValueFromSource($source,$col);                          
+            
         } elseif ($this->getDataSourceType() == self::DATA_SOURCE_ARRAY) {
             if (isset($source[$col]))
                 return $source[$col];
@@ -434,6 +438,65 @@ abstract class Grid
         }
     }
 
+    
+
+    /**
+     * Get Association for col
+     * 
+     * @param integer $id
+     * @param mixed $source
+     * @return mixed new Source
+     */
+    public function getAssociation($id, $source){
+        $path = explode(".", $id);
+        while( count($path) > 0){
+            $id = array_shift($path);
+            $source = $this->getValueFromSource($source,$id);
+        }
+    
+        return $source;
+    }
+    
+    /**
+     * Gets the value from a source
+     * 
+     * @param mixed $source Data source
+     * @param string $id Field identifier
+     * @throws \Exception
+     * @return mixed
+     */
+    public function getValueFromSource($source,$id){
+        $method = 'get' . ucfirst($id);
+    
+    
+        if($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY){
+            if (!method_exists($source, $method)) {
+                throw new \Exception('Uknown field ' . $id . ' in datasource ' . $this->configurator->getGrid()->getEntityName());
+            }  
+            return $source->$method();
+        }
+        elseif($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY){
+            if(!isset($source[$this->identifier]) )
+                throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source,true));
+    
+            return $source[$id];
+        }
+    
+    }
+    
+    /**
+     * Checks whether identifier is an association or not.
+     * 
+     * @param string $id Field identifier
+     * @return boolean
+     */
+    public function isAssociation($id){
+        if(stristr($id,".")){
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Converts the data to useable data.
      *
@@ -494,6 +557,7 @@ abstract class Grid
      */
     public function createFilterConfigurator()
     {
+    
         return $this->filterConfigurator = new GridFilterConfigurator($this, $this->formFactory);
     }
 
@@ -517,6 +581,7 @@ abstract class Grid
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
+            'mode' => 'view',            
             'checkbox' => true,
             'numbers' => true,
             'title' => 'Unamed grid',
@@ -531,6 +596,8 @@ abstract class Grid
         ));
         $options = $resolver->resolve(array_merge($this->getOptions(), $options));
         
+   
+        
         if ($this->fieldConfigurator == null)
             $this->configureFields($this->createFieldConfigurator());
         
@@ -544,7 +611,7 @@ abstract class Grid
         
         if($filter->hasFields()){
             $filter->getFormBuilder()->add('_search', 'submit');
-            $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => 'grid' , 'mapped' => false));
+            $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => $this->getIdentifier() , 'mapped' => false));
         }
         
         $grid = $this->templating->render($options['template'], array(

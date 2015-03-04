@@ -22,6 +22,19 @@
     {{ block('text_type') }}
 {% endblock %}
 
+{%  block link_type %}
+    {% spaceless %}
+        <a href="{{ value }}" target="{{ options.target }}">
+            {% if not options.label %}
+                {{ value }}
+            {% else %}
+                {{ options.label }}
+            {% endif %}
+        </a>
+    {% endspaceless %}
+{% endblock %}
+
+
 {%  block money_type %}
    <div style="text-align: right;"> {{ block('text_type') }}</div>
 {% endblock %}

@@ -36,6 +36,7 @@ use Evence\Bundle\GridBundle\Grid\Type\DateTimeType;
 use Evence\Bundle\GridBundle\Grid\Type\TimeType;
 use Evence\Bundle\GridBundle\Grid\Type\EntityType;
 use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
+use Evence\Bundle\GridBundle\Grid\Type\LinkType;
 
 /**
  * Grid field configurator
@@ -172,6 +173,9 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
             break;
             case "money":
                 return new MoneyType();
+            break;
+            case "link":
+                return new LinkType();
             break;
         }
         

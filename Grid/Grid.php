@@ -905,6 +905,12 @@ abstract class Grid
     }
  
  
- 
+    public function getFieldConfigurator(){
+        return $this->fieldConfigurator;
+    }
+    public function getActionConfigurator(){
+        return $this->actionConfigurator;
+    }
+    
 }
     

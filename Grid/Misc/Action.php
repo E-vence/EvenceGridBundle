@@ -207,5 +207,9 @@ class Action {
     {
         return $this->identifier;
     }
+    
+    public function setIsVisibleCallback($cb){
+        $this->options['isVisible'] = $cb;
+    }
  
 }

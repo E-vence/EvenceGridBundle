@@ -709,7 +709,10 @@ abstract class Grid
      */
     public function getSortBy()
     {
-        if ($sortBy = $this->request->get($this->getPrefix() . 's', $this->getDefaultSortBy())) {
+        if (!$sortBy = $this->request->get($this->getPrefix() . 's', $this->getDefaultSortBy())) {
+            
+            
+            return $this->sortBy;
             
             /*
              * if (! $this->fieldConfigurator->hasField($sortBy)) {
@@ -911,6 +914,19 @@ abstract class Grid
     public function getActionConfigurator(){
         return $this->actionConfigurator;
     }
+
+    public function setSortBy($sortBy)
+    {
+        $this->sortBy = $sortBy;
+        return $this;
+    }
+
+    public function setSortOrder( $sortOrder)
+    {
+        $this->sortOrder = $sortOrder;
+        return $this;
+    }
+ 
     
 }
     

@@ -10,6 +10,10 @@
     {{ value }}
 {% endblock %}
 
+{%  block html_type %}
+    {{ value|raw }}
+{% endblock %}
+
 {%  block datetime_type %}
     {{ block('text_type') }}
 {% endblock %}

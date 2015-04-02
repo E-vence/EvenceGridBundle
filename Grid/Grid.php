@@ -476,7 +476,7 @@ abstract class Grid
             return $source->$method();
         }
         elseif($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY){
-            if(!isset($source[$this->identifier]) )
+            if(!array_key_exists($id, $source) )
                 throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source,true));
     
             return $source[$id];

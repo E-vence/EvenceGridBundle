@@ -99,7 +99,7 @@ class Action {
         $this->label = $label;
         
         $resolver = new OptionsResolver();
-        $resolver->setDefaults(array('attr' => array(), 'target' => '_self', 'icon' => false, 'class' => '','iconType' => 'glyphicons', 'iconLabel' => false, 'confirm' => null, 'isVisible' => function(Action $action, $source){
+        $resolver->setDefaults(array('attr' => array(), 'target' => '_self', 'icon' => false, 'class' => '','iconType' => 'fontawesome', 'iconLabel' => false, 'confirm' => null, 'isVisible' => function(Action $action, $source){
            return true;
         }            
         ));
@@ -108,10 +108,13 @@ class Action {
     }
     
     
-    public function isVisible($source = ''){        
-        foreach($this->getRoles() as $row){
-            if($this->configurator->getGrid()->getSecurityContext()->isGranted($row) === false)
-            return false;
+    public function isVisible($source = ''){ 
+        if($this->getRoles() != null && count($this->getRoles()) > 0){   
+     
+            foreach($this->getRoles() as $row){
+                if($this->configurator->getGrid()->getSecurityContext()->isGranted($row) === false)
+                return false;
+            }
         }
         
         /**
@@ -138,7 +141,8 @@ class Action {
     }
 
     public function setRoles($roles)
-    {
+    { 
+        if($roles == null) return;   
         if(!is_array($roles)) $roles = array($roles);
         $this->roles = $roles;
         return $this;

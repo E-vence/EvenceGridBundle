@@ -99,7 +99,7 @@ class Action {
         $this->label = $label;
         
         $resolver = new OptionsResolver();
-        $resolver->setDefaults(array('attr' => array(), 'target' => '_self', 'icon' => false, 'class' => '','iconType' => 'glyphicons', 'iconLabel' => false, 'confirm' => null, 'isVisible' => function(Action $action, $source){
+        $resolver->setDefaults(array('attr' => array(), 'multiple' => false, 'target' => '_self', 'icon' => false, 'class' => '','iconType' => 'glyphicons', 'iconLabel' => false, 'confirm' => null, 'isVisible' => function(Action $action, $source){
            return true;
         }            
         ));
@@ -177,12 +177,14 @@ class Action {
         return $this;
     }
     
-    public function generateUrl($source){
+    public function generateUrl($source = null){
         $router = $this->configurator->getGrid()->getRouter();
         if($this->getUri()) return $this->getUri();
          
-        $parameters = array_merge($this->getRouteParameters(),$this->configurator->getParametersBySource($source));
-        
+        if($source)
+            $parameters = array_merge($this->getRouteParameters(),$this->configurator->getParametersBySource($source));
+        else 
+            $parameters = $this->getRouteParameters();
        
         
         return $router->generate($this->getRoute(), $parameters );

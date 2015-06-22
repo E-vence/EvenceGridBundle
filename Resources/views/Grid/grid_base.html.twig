@@ -59,7 +59,7 @@
     	<thead>   	
     		{% block fields %}
     		<tr>
-        		{%  if gridOptions.checkbox %}{% block checkall %}<th><input type="checkbox" value="1" name="check_all" /></th>{% endblock %} {% endif %}
+        		{%  if gridOptions.checkbox %}{% block checkall %}<th><input type="checkbox" value="1" name="check_all" id="check_all_{{ grid.getPrefix()}}" /></th>{% endblock %} {% endif %}
     		    {%  if gridOptions.numbers %}{% block number_head %}<th>#</th>{% endblock %}{% endif %}
     		    
     			{% for field in fields %} {% set fieldLabel = field.getLabel() %} 
@@ -90,7 +90,7 @@
     		{% block rows %}     		
         		{% for row_no, row in rows %}       		
         		<tr {{ g.attributes(trAttributes) }}{{ g.attributes(row.mappedParams, 'data-') }}>
-        		   {%  if gridOptions.checkbox %}  {% block col_checkbox %}<td {{ g.attributes(tdAttributes) }}><input type="checkbox" value="1" name="id[]" /></td>{% endblock %} {% endif %} 
+        		   {%  if gridOptions.checkbox %}  {% block col_checkbox %}<td {{ g.attributes(tdAttributes) }}><input type="checkbox" value="{{ row.multipleIdentifier }}" name="id[]" /></td>{% endblock %} {% endif %} 
         		   {%  if gridOptions.numbers %} {% block col_number %}<td  {{ g.attributes(tdAttributes) }}>{{ row_no+fromItem  }}</td>{% endblock %}  {% endif %}
         		          		            		
         			{% for col in row.cols %} 
@@ -237,4 +237,33 @@
     {% endif %}
     {% endblock form %}
 
+    {% block script %}
+        <script>          
+        (function() {
+           // var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");
+
+            document.getElementById("check_all_{{ grid.getPrefix()}}").addEventListener("click", 
+
+                    function(){
+                    var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");
+                
+                    var aa= table[0].getElementsByTagName("input");
+                    for (var i =0; i < aa.length; i++){
+                        if (aa[i].type == 'checkbox'){
+
+                        	if(    aa[i].checked == false)
+                        	    aa[i].checked = true;
+                        	else
+                        		aa[i].checked = false;
+                        }
+                        
+                    }
+                }
+            );
+            
+       
+        })()                  
+        </script>
+    {% endblock %}
+    
 {% endblock %}

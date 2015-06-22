@@ -244,6 +244,13 @@ abstract class Grid
      */
     private $identifier = null;
     
+    /**
+     * Grid multiple identifier field
+     *
+     * @var string
+     */
+    private $multipleIdentifierField = null;
+    
 
     /**
      * Set symfony's templating service
@@ -506,36 +513,77 @@ abstract class Grid
      */
     public function prepareData($data)
     {
-        $preparedData = array();
+        $preparedData = new \stdClass();
+        $preparedData->rows = array();
+        $preparedData->multipleActions = array();
+        
         foreach ($data as $rid => $row) {
             $prow = new \stdClass();
             $prow->cols = array();
             foreach ($this->fieldConfigurator as $key => $field) {
                 $prow->cols[$key] = new \stdClass();
                 $prow->cols[$key]->value = $field->getData($row);
-                $prow->cols[$key]->fieldname = $field->getType()->getName();                
+                $prow->cols[$key]->fieldname = $field->getType()->getName();    
+                
+                 $prow->multipleIdentifier = null;
+                if($this->getMultipleIdentifierField() != null)  $prow->multipleIdentifier =  $this->getColBySource($row, $this->getMultipleIdentifierField());
+  
                 $prow->actions = array();
                 $prow->mappedParams = $this->actionConfigurator->getParametersBySource($row);
             }
             foreach ($this->actionConfigurator as $key => $action) {
-                /**
-                 *
-                 * @var $action Action
-                 */
-                if ($action->isVisible($row)){
-                    $act = new \stdClass();
                 
-                    $act->url = $action->generateUrl($row);
-                    $act->label = $action->getLabel();
-                    $act->options = $action->getOptions();
+                $opt = $action->getOptions();
+                
+                if(!$opt['multiple']){                 
                     
-                    $prow->actions[] = $act;
+                    /**
+                     *
+                     * @var $action Action
+                     */
+                    if ($action->isVisible($row)){
+                        $act = new \stdClass();
+                    
+                        $act->url = $action->generateUrl($row);
+                        $act->label = $action->getLabel();
+                        $act->options = $action->getOptions();
+                        
+                        $prow->actions[] = $act;
+                    }
+                
                 }
                 
                
             }
-            $preparedData[] = $prow;
+            $preparedData->rows[] = $prow;
+            
+            foreach ($this->actionConfigurator as $key => $action) {
+            
+                $opt = $action->getOptions();
+            
+                if($opt['multiple']){
+            
+                    /**
+                     *
+                     * @var $action Action
+                     */
+                    if ($action->isVisible($row)){
+                        $act = new \stdClass();
+            
+                        $act->url = $action->generateUrl();
+                        $act->label = $action->getLabel();
+                        $act->options = $action->getOptions();
+            
+                        $preparedData->multipleActions[] = $act;
+                    }
+            
+                }
+            
+                 
+            }
         }
+        
+        
         
         return $preparedData;
     }
@@ -614,6 +662,8 @@ abstract class Grid
             $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => $this->getIdentifier() , 'mapped' => false));
         }
         
+        $data = $this->getData($options);
+        
         $grid = $this->templating->render($options['template'], array(
             'fields' => $this->fieldConfigurator,
             'filter' => $this->filterConfigurator,
@@ -621,7 +671,8 @@ abstract class Grid
             'itemsperpage' => $this->getItemsPerPage(),
             'grid' => $this,
             'gridOptions' => $options,
-            'rows' => $this->getData($options),
+            'rows' => $data->rows,
+            'multipleActions' => $data->multipleActions,
             'form' => $this->filterConfigurator->getForm()->createView()
         ));
         
@@ -926,6 +977,19 @@ abstract class Grid
         $this->sortOrder = $sortOrder;
         return $this;
     }
+
+    public function getMultipleIdentifierField()
+    {
+        return $this->multipleIdentifierField;
+    }
+
+    public function setMultipleIdentifierField($multipleIdentifierField)
+    {
+        $this->multipleIdentifierField = $multipleIdentifierField;
+        return $this;
+    }
+ 
+ 
  
     
 }

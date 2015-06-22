@@ -94,6 +94,31 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
         
         return $this;
     }
+    
+
+    /**
+     * Add a multiple action to the grid
+     *
+     * @param string $identifier
+     *            Unique action name
+     * @param string $label
+     *            Label name to display in the grid
+     * @param string $routeName
+     *            Symfony route name
+     * @param array $routeParameters
+     *            (optional) Route parameters for the specified router
+     * @param string $roles
+     *            (optional) Required roles to do this action (symfony's securityContext)
+     * @param array $options
+     *            Options for the action
+     * @return \Evence\Bundle\GridBundle\Grid\GridActionConfigurator
+     */
+    public function addMultipleAction($identifier, $label, $routeName, $routeParameters = array(), $roles = null, $options = array())
+    {       
+        $options['multiple'] = true;
+        return $this->addAction($identifier, $label, $routeName, $routeParameters, $roles, $options);
+    }
+    
 
     /**
      * Set mapped parameters

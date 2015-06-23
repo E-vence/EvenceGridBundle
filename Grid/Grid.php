@@ -557,30 +557,32 @@ abstract class Grid
             }
             $preparedData->rows[] = $prow;
             
-            foreach ($this->actionConfigurator as $key => $action) {
             
-                $opt = $action->getOptions();
-            
-                if($opt['multiple']){
-            
-                    /**
-                     *
-                     * @var $action Action
-                     */
-                    if ($action->isVisible($row)){
-                        $act = new \stdClass();
-            
-                        $act->url = $action->generateUrl();
-                        $act->label = $action->getLabel();
-                        $act->options = $action->getOptions();
-            
-                        $preparedData->multipleActions[] = $act;
-                    }
-            
+        }
+        
+        foreach ($this->actionConfigurator as $key => $action) {
+        
+            $opt = $action->getOptions();
+        
+            if($opt['multiple']){
+        
+                /**
+                 *
+                 * @var $action Action
+                 */
+                if ($action->isVisible($row)){
+                    $act = new \stdClass();
+        
+                    $act->url = $action->generateUrl();
+                    $act->label = $action->getLabel();
+                    $act->options = $action->getOptions();
+        
+                    $preparedData->multipleActions[] = $act;
                 }
-            
-                 
+        
             }
+        
+             
         }
         
         

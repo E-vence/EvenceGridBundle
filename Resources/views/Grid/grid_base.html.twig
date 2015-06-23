@@ -22,7 +22,7 @@
 {% set tableAttributes = gridOptions.tableAttributes|merge({"data-grid-id": grid.getPrefix()}) %}
 {% set trAttributes = gridOptions.trAttributes %}
 {% set tdAttributes = gridOptions.tdAttributes %}
-{% set formAttributes = gridOptions.formAttributes %}
+{% set formAttributes = gridOptions.formAttributes|merge({"data-grid-id": grid.getPrefix(), "method":"post", "action": ""}) %}
 {% set actionAttributes = gridOptions.actionAttributes %}
     					    
 
@@ -177,7 +177,21 @@
     		<tr>
     			<td colspan="{{  totalFields +3 }}">
     				<div class="row">
-    					<div class="col-lg-6"> 
+    				    <div class="col-lg-2">   				      			        
+	      			        <div class="input-group input-group-sm">                             
+        				        <select class="bulk-select form-control" id="bulkSelect{{ grid.getPrefix() }}">
+        				            <option value>-- {% trans %}Select a bulk action{% endtrans %} --</option>
+        				            {% for action in multipleActions %}
+        				                <option value="{{ action.url }}">{{ action.label|trans }}</option>
+        				            {% endfor %}
+        				        </select>
+        				        
+        				         <span class="input-group-btn">   
+        				            <button class="btn btn-success" type="submit">Ga</button>	
+        				         </span>    
+    				         </div>			        
+    				    </div>  
+    					<div class="col-lg-4 col-lg-offset-2"> 
     					
     					    {%  block paginationInfo %}  					    
     						<span>{% trans %}Display{% endtrans %} <span class="pages"> <span class="current-offset"> {{ fromItem }}</span> - <span class="to">{{ toItem }}</span>
@@ -192,7 +206,7 @@
     						</span>
     					   {% endblock paginationInfo %}
     					</div>
-    					<div class="col-lg-6">
+    					<div class="col-lg-4">
     						{% block pagination %}
     						<ul class="pagination pull-right">
     							{% if pagination.hasPreviousPage() %}
@@ -236,34 +250,33 @@
     </form>
     {% endif %}
     {% endblock form %}
-
     {% block script %}
         <script>          
-        (function() {
-           // var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");
-
-            document.getElementById("check_all_{{ grid.getPrefix()}}").addEventListener("click", 
-
-                    function(){
-                    var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");
-                
+        (function() {         
+            var checkId = "check_all_{{ grid.getPrefix()}}";
+            document.getElementById(checkId).addEventListener("click", 
+                function(){
+                    var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");                
                     var aa= table[0].getElementsByTagName("input");
                     for (var i =0; i < aa.length; i++){
-                        if (aa[i].type == 'checkbox'){
-
-                        	if(    aa[i].checked == false)
-                        	    aa[i].checked = true;
-                        	else
-                        		aa[i].checked = false;
-                        }
-                        
+                    	if (aa[i].id != checkId){
+                            if (aa[i].type == 'checkbox'){
+    
+                            	if(    aa[i].checked == false)
+                            	    aa[i].checked = true;
+                            	else
+                            		aa[i].checked = false;
+                            }
+                    	}
                     }
                 }
-            );
-            
-       
+            ); 
+            var form =  document.querySelector("form[data-grid-id={{ grid.getPrefix() }}]");        
+            form.addEventListener("submit",function(e){               
+            	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");
+                form.action = select.value;
+            });             
         })()                  
         </script>
-    {% endblock %}
-    
+    {% endblock %}    
 {% endblock %}

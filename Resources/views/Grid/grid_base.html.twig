@@ -182,7 +182,7 @@
         				        <select class="bulk-select form-control" id="bulkSelect{{ grid.getPrefix() }}">
         				            <option value>-- {% trans %}Select a bulk action{% endtrans %} --</option>
         				            {% for action in multipleActions %}
-        				                <option value="{{ action.url }}">{{ action.label|trans }}</option>
+        				                <option data-confirm="{{ action.options.confirm|trans }}" value="{{ action.url }}">{{ action.label|trans }}</option>
         				            {% endfor %}
         				        </select>
         				        
@@ -272,9 +272,21 @@
                 }
             ); 
             var form =  document.querySelector("form[data-grid-id={{ grid.getPrefix() }}]");        
-            form.addEventListener("submit",function(e){               
-            	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");
+            form.addEventListener("submit",function(e){              
+            	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");      
+            	selectOption = select.options[select.selectedIndex];
+            	if(selectOption.dataset.confirm !== undefined){
+         		   if(!confirm(selectOption.dataset.confirm)){
+        			 e.preventDefault();
+        			 return false;
+        		    }
+                }            	           
+                if(!select.value){
+                	e.preventDefault();
+                    return false;
+                } 	      	            	
                 form.action = select.value;
+                
             });             
         })()                  
         </script>

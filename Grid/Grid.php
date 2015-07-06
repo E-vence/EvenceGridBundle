@@ -249,7 +249,7 @@ abstract class Grid
      *
      * @var string
      */
-    private $multipleIdentifierField = null;
+    private $multipleIdentifierField = 'id';
     
 
     /**
@@ -473,12 +473,12 @@ abstract class Grid
      * @return mixed
      */
     public function getValueFromSource($source,$id){
-        $method = 'get' . ucfirst($id);
+        $method = 'get' . str_replace("_", "", ucfirst($id));
     
     
         if($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY){
             if (!method_exists($source, $method)) {
-                throw new \Exception('Uknown field ' . $id . ' in datasource ' . $this->configurator->getGrid()->getEntityName());
+                throw new \Exception('Uknown field ' . $id . ' in datasource ' . $this->getEntityName());
             }  
             return $source->$method();
         }
@@ -570,7 +570,7 @@ abstract class Grid
                  *
                  * @var $action Action
                  */
-                if ($action->isVisible($row)){
+                if ($action->isVisible()){
                     $act = new \stdClass();
         
                     $act->url = $action->generateUrl();

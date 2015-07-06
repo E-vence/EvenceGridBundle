@@ -26,6 +26,10 @@
     {{ block('text_type') }}
 {% endblock %}
 
+{%  block age_type %}
+    {{ block('text_type') }}
+{% endblock %}
+
 {%  block link_type %}
     {% spaceless %}
         <a href="{{ value }}" target="{{ options.target }}">

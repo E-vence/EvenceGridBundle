@@ -38,6 +38,7 @@ use Evence\Bundle\GridBundle\Grid\Type\EntityType;
 use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
 use Evence\Bundle\GridBundle\Grid\Type\LinkType;
 use Evence\Bundle\GridBundle\Grid\Type\HtmlType;
+use Evence\Bundle\GridBundle\Grid\Type\AgeType;
 
 /**
  * Grid field configurator
@@ -159,6 +160,9 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
                 break;
             case "choice":
                 return new ChoiceType();
+                break;
+            case "age":
+                return new AgeType();
                 break;
             case "date":
                 return new DateType();

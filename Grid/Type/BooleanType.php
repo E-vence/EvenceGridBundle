@@ -43,7 +43,7 @@ class BooleanType extends AbstractType
      */
     public function renderType($value, $source)
     {
-        return ($value ? true : false);
+        return ($value == $this->getOption('true_value') ? true : false);
     }
 
     /*
@@ -58,6 +58,8 @@ class BooleanType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
+            'true_value' => true,
+            'false_value' => false,
             'label_yes' => 'Yes',
             'label_no' => 'No'
         ));

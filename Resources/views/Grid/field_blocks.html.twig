@@ -48,5 +48,15 @@
 {% endblock %}
 
 {%  block choice_type %}
-    {%  for key,val in value %}{%  if key == 0 %}{{ val|trans }}{% else %}{{ options.separator }}{{ val|trans }}{% endif %}{% endfor %}
+    {% set index = 0 %}
+    {%  for key,val in value %}
+        {%  if index != 0 %}{{ options.separator }}{% endif %}
+        {% if options.bootstrap.label_callback %}
+            <span class="label label-{{ type.getLabel(key) }}">{{ val|trans }}</span>
+        {%else%}
+            {{ val|trans }}
+        {%endif%}
+        {% set index = index+1 %}
+    {% endfor %}
+  
 {% endblock %}

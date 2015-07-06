@@ -54,11 +54,12 @@ class ChoiceType extends AbstractType
         foreach ($value as $val){
             
             if(!empty($choices[$val]))
-            $valArray[] = $choices[$val];
+            $valArray[$val] = $choices[$val];
         }
         
         return $valArray;
     }
+
     
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::getName()
@@ -68,8 +69,15 @@ class ChoiceType extends AbstractType
     }    
     
     public function configureOptions(OptionsResolver $resolver){
-         $resolver->setDefaults( array('separator' => ', '));
+         $resolver->setDefaults( array('separator' => ', ', 'bootstrap' => ['label_callback' => null]));
          $resolver->setRequired('choices');         
+    }
+    
+    public function getLabel($key){
+        $bootstrap = $this->getOption('bootstrap');
+        if($bootstrap['label_callback']){
+            return call_user_func_array($bootstrap['label_callback'],[$key]);
+        }
     }
 }
 

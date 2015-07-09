@@ -10,8 +10,17 @@
     {{ value }}
 {% endblock %}
 
+{%  block image_type %}
+    <img src="{{ value.url }}" alt="" width="{{ value.width }}" height="{{ value.height }}">
+{% endblock %}
+
+
 {%  block html_type %}
     {{ value|raw }}
+{% endblock %}
+
+{%  block decimal_type %}
+    {{ block('text_type') }}
 {% endblock %}
 
 {%  block datetime_type %}

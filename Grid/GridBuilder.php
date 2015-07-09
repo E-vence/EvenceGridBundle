@@ -9,7 +9,7 @@ class GridBuilder extends Grid {
     private $filterConfigurator = null;
     private $entityName = null;
     private $dataSourceType = null;
-    private $options = array();
+
    
       
     public function getEntityName() {     
@@ -185,6 +185,10 @@ class GridBuilder extends Grid {
         return $this->options;
     }
     
+    
+    public function setOption($key, $value){
+        return $this->options[$key] = $value;
+    }
 
     public function setOptions($options){
         $this->options = $options;

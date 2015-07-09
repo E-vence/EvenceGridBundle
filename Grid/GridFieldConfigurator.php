@@ -39,6 +39,8 @@ use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
 use Evence\Bundle\GridBundle\Grid\Type\LinkType;
 use Evence\Bundle\GridBundle\Grid\Type\HtmlType;
 use Evence\Bundle\GridBundle\Grid\Type\AgeType;
+use Evence\Bundle\GridBundle\Grid\Type\ImageType;
+use Evence\Bundle\GridBundle\Grid\Type\DecimalType;
 
 /**
  * Grid field configurator
@@ -166,7 +168,10 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
                 break;
             case "date":
                 return new DateType();
-                break;
+            break;            
+            case "decimal":
+                return new DecimalType();
+            break;
             case "datetime":
                 return new DateTimeType();
                 break;
@@ -182,6 +187,9 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
             case "link":
                 return new LinkType();
             break;
+            case "image":
+                return new ImageType();
+                break;
             case "html":
                 return new HtmlType();
             break;

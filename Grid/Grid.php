@@ -251,7 +251,14 @@ abstract class Grid
      */
     private $multipleIdentifierField = 'id';
     
-
+    /**
+     * Grid options
+     * 
+     * @var array
+     */
+    protected $options;
+    
+    
     /**
      * Set symfony's templating service
      *

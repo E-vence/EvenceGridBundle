@@ -27,7 +27,7 @@ namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
- * Text Type class
+ * Image Type class
  *
  * @author Ruben Harms <info@rubenharms.nl>
  * @link http://www.rubenharms.nl
@@ -35,26 +35,29 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @package evence/grid-bundle
  * @subpackage Type
  */
-class MoneyType extends TextType 
+class ImageType extends AbstractType 
 {
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source ){        
-        $fmt = new \NumberFormatter($this->getOption('locale'), \NumberFormatter::CURRENCY );        
-        return  $fmt->formatCurrency($value, $this->getOption('currency'));
+    public function renderType($value, $source){
+                
+        
+        $modifier = $this->getOption('modifier');
+        $prefix  = $this->getOption('prefix');
+        
+        return ['url' => $prefix.$modifier($value, $source, $this), 'width' => $this->getOption('width'), 'height' => $this->getOption('height')];
     }
     
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::getName()
      */
     public function getName(){
-        return 'money';
+        return 'image';
     }    
     
     public function configureOptions(OptionsResolver $resolver){
-        $resolver->setDefaults( array('locale' => locale_get_default(), 'currency' => 'EUR'));
-
+        $resolver->setDefaults( array('prefix' => '', 'width' => 96, 'height' => '96' , 'modifier' => function($input){return $input; }));    
     }
 }
 

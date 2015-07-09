@@ -276,7 +276,7 @@
             form.addEventListener("submit",function(e){              
             	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");      
             	selectOption = select.options[select.selectedIndex];
-            	if(selectOption.dataset.confirm !== undefined){
+            	if(selectOption.dataset.confirm !== undefined && selectOption.dataset.confirm){
          		   if(!confirm(selectOption.dataset.confirm)){
         			 e.preventDefault();
         			 return false;

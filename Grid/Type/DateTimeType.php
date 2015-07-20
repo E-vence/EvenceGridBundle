@@ -46,6 +46,8 @@ class DateTimeType extends AbstractType
         $date = '';
         $time = '';
         
+        if($value == null) return '';
+        
         if ($value instanceof \DateTime) {
             if ($this->getOption('date_format'))
                 $date = $value->format($this->getOption('date_format'));

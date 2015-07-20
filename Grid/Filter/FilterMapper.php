@@ -236,10 +236,10 @@ class FilterMapper {
                 $qb->andWhere($qb->expr()->gt($id, ':'.$param))->setParameter($param, $data);
                 break;
             case self::FILTER_TYPE_LIKE:
-                $qb->andWhere($qb->expr()->like($id, ':'.$param))->setParameter($param, $data);
+                $qb->andWhere($qb->expr()->like($id, ':'.$param))->setParameter($param,  ($this->args['strict'] ? $data : '%'.$data.'%'));
                 break;
             case self::FILTER_TYPE_NOTLIKE:            
-                $qb->andWhere($qb->expr()->notLike($id, ':'.$param))->setParameter($param, $data);
+                $qb->andWhere($qb->expr()->notLike($id, ':'.$param))->setParameter($param, ($this->args['strict'] ? $data : '%'.$data.'%'));
                 break;
             case self::FILTER_TYPE_ISNULL:              
                 $qb->andWhere($qb->expr()->isNull($id));

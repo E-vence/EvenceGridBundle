@@ -38,6 +38,7 @@ use Symfony\Component\Security\Core\SecurityContext;
 use Evence\Bundle\GridBundle\Grid\Misc\Action;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
 
 /**
  * E-vence: Grid
@@ -65,27 +66,25 @@ abstract class Grid
      * @throws UnknownGridFieldException
      */
     abstract public function configureFields(GridFieldConfigurator $FieldConfigurator);
-    
-    
 
     /**
      * Configures search filter fields
      *
-     * @param GridFilterConfigurator $filterConfigurator
+     * @param GridFilterConfigurator $filterConfigurator            
      * @throws Unknown GridFieldException
      */
     abstract public function configureFilter(GridFilterConfigurator $filterConfigurator);
 
     /**
      * Returns the name of the entity for the data source
-     * 
+     *
      * @return string
      */
     abstract public function getEntityName();
 
     /**
      * Returns the Data source type
-     * 
+     *
      * @return string Possible strings: 'array' or 'entity'
      */
     abstract public function getDataSourceType();
@@ -215,7 +214,7 @@ abstract class Grid
      * @var GridActionConfigurator
      */
     private $actionConfigurator = null;
-    
+
     /**
      * Grid filter configurator
      *
@@ -229,7 +228,7 @@ abstract class Grid
      * @var Pagination
      */
     private $pagination = null;
-    
+
     /**
      * Symfony's FormFactoryInterface
      *
@@ -243,22 +242,21 @@ abstract class Grid
      * @var string
      */
     private $identifier = null;
-    
+
     /**
      * Grid multiple identifier field
      *
      * @var string
      */
     private $multipleIdentifierField = 'id';
-    
+
     /**
      * Grid options
-     * 
+     *
      * @var array
      */
     protected $options;
-    
-    
+
     /**
      * Set symfony's templating service
      *
@@ -357,7 +355,6 @@ abstract class Grid
             $qb = $this->getQueryBuilder()->select('count(e.id)');
             $this->filterQuery($qb);
             
-            
             return $qb->getQuery()->getSingleScalarResult();
         }
         return count($this->dataSource);
@@ -379,8 +376,10 @@ abstract class Grid
                 ->setFirstResult($this->getPagination()
                 ->getFirstRecord());
             
-            call_user_func_array($options['querybuilder_callback'], array($qb));
-        
+            call_user_func_array($options['querybuilder_callback'], array(
+                $qb
+            ));
+            
             $this->filterQuery($qb);
             
             if ($this->getSortBy())
@@ -394,36 +393,46 @@ abstract class Grid
         
         return $this->prepareData($data);
     }
-    
-    
-    public function filterQuery(\Doctrine\ORM\QueryBuilder $qb){
 
+    public function filterQuery(\Doctrine\ORM\QueryBuilder $qb)
+    {
+        
         /* Filters here */
-        
-        if( !$this->filterConfigurator->hasFields() ) return;
+        if (! $this->filterConfigurator->hasFields())
+            return;
         $form = $this->filterConfigurator->getFormBuilder()->getForm();
-        $form->handleRequest($this->request);       
-        
-        
+        $form->handleRequest($this->request);
+     
         
         $identifier = $form->get('_identifier')->getData();
-
-
-        if ($identifier == $this->getIdentifier() &&  $form->isValid() ){
-           
-            foreach($form->all() as $item){
-                $name = $item->getName();                
-                if($name != '_identifier' && $name != '_search' ){   
-
-                    $data = $item->getData();
-                    if($data){
-                        $qb->andWhere('e.'.$name .' = :'.$name);
-                        $qb->setParameter($name, $data);
+        
+        if ($identifier == $this->getIdentifier() && $form->isValid()) {
+            
+            foreach ($form->all() as $item) {
+                
+                $name = $item->getName();
+                
+                if ($name != '_identifier' && $name != '_search') {
+                    
+                    if (! $this->filterConfigurator->getFilterMapper()->hasField($name)) {
+                        
+                        $data = $item->getData();
+                        if ($data) {
+                            $qb->andWhere('e.' . $name . ' = :' . $name);
+                            $qb->setParameter($name, $data);
+                        }
                     }
                 }
             }
+            
+            foreach ($this->filterConfigurator->getFilterMapper() as $mapper) {
+                /**
+                 *
+                 * @var $mapper FilterMapper
+                 */
+                $mapper->filterQuery($qb, $form);
+            }
         }
-        
     }
 
     /**
@@ -437,13 +446,12 @@ abstract class Grid
      */
     public function getColBySource($source, $col)
     {
-        if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {                    
+        if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
             
-            if ($this->isAssociation($col)){
+            if ($this->isAssociation($col)) {
                 return $this->getAssociation($col, $source);
             }
-            return $this->getValueFromSource($source,$col);                          
-            
+            return $this->getValueFromSource($source, $col);
         } elseif ($this->getDataSourceType() == self::DATA_SOURCE_ARRAY) {
             if (isset($source[$col]))
                 return $source[$col];
@@ -452,65 +460,66 @@ abstract class Grid
         }
     }
 
-    
-
     /**
      * Get Association for col
-     * 
-     * @param integer $id
-     * @param mixed $source
+     *
+     * @param integer $id            
+     * @param mixed $source            
      * @return mixed new Source
      */
-    public function getAssociation($id, $source){
+    public function getAssociation($id, $source)
+    {
         $path = explode(".", $id);
-        while( count($path) > 0){
+        while (count($path) > 0) {
             $id = array_shift($path);
-            $source = $this->getValueFromSource($source,$id);
+            $source = $this->getValueFromSource($source, $id);
         }
-    
+        
         return $source;
     }
-    
+
     /**
      * Gets the value from a source
-     * 
-     * @param mixed $source Data source
-     * @param string $id Field identifier
+     *
+     * @param mixed $source
+     *            Data source
+     * @param string $id
+     *            Field identifier
      * @throws \Exception
      * @return mixed
      */
-    public function getValueFromSource($source,$id){
+    public function getValueFromSource($source, $id)
+    {
         $method = 'get' . str_replace("_", "", ucfirst($id));
-    
-    
-        if($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY){
-            if (!method_exists($source, $method)) {
+        
+        if ($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY) {
+            if (! method_exists($source, $method)) {
                 throw new \Exception('Uknown field ' . $id . ' in datasource ' . $this->getEntityName());
-            }  
+            }
             return $source->$method();
-        }
-        elseif($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY){
-            if(!array_key_exists($id, $source) )
-                throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source,true));
-    
+        } elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY) {
+            if (! array_key_exists($id, $source))
+                throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source, true));
+            
             return $source[$id];
         }
-    
     }
-    
+
     /**
      * Checks whether identifier is an association or not.
-     * 
-     * @param string $id Field identifier
+     *
+     * @param string $id
+     *            Field identifier
      * @return boolean
      */
-    public function isAssociation($id){
-        if(stristr($id,".")){
+    public function isAssociation($id)
+    {
+        if (stristr($id, ".")) {
             return true;
         }
         return false;
     }
-    
+
     /**
      * Converts the data to useable data.
      *
@@ -530,11 +539,12 @@ abstract class Grid
             foreach ($this->fieldConfigurator as $key => $field) {
                 $prow->cols[$key] = new \stdClass();
                 $prow->cols[$key]->value = $field->getData($row);
-                $prow->cols[$key]->fieldname = $field->getType()->getName();    
+                $prow->cols[$key]->fieldname = $field->getType()->getName();
                 
-                 $prow->multipleIdentifier = null;
-                if($this->getMultipleIdentifierField() != null)  $prow->multipleIdentifier =  $this->getColBySource($row, $this->getMultipleIdentifierField());
-  
+                $prow->multipleIdentifier = null;
+                if ($this->getMultipleIdentifierField() != null)
+                    $prow->multipleIdentifier = $this->getColBySource($row, $this->getMultipleIdentifierField());
+                
                 $prow->actions = array();
                 $prow->mappedParams = $this->actionConfigurator->getParametersBySource($row);
             }
@@ -542,57 +552,47 @@ abstract class Grid
                 
                 $opt = $action->getOptions();
                 
-                if(!$opt['multiple']){                 
+                if (! $opt['multiple']) {
                     
                     /**
                      *
                      * @var $action Action
                      */
-                    if ($action->isVisible($row)){
+                    if ($action->isVisible($row)) {
                         $act = new \stdClass();
-                    
+                        
                         $act->url = $action->generateUrl($row);
                         $act->label = $action->getLabel();
                         $act->options = $action->getOptions();
                         
                         $prow->actions[] = $act;
                     }
-                
                 }
-                
-               
             }
             $preparedData->rows[] = $prow;
-            
-            
         }
         
         foreach ($this->actionConfigurator as $key => $action) {
-        
+            
             $opt = $action->getOptions();
-        
-            if($opt['multiple']){
-        
+            
+            if ($opt['multiple']) {
+                
                 /**
                  *
                  * @var $action Action
                  */
-                if ($action->isVisible()){
+                if ($action->isVisible()) {
                     $act = new \stdClass();
-        
+                    
                     $act->url = $action->generateUrl();
                     $act->label = $action->getLabel();
                     $act->options = $action->getOptions();
-        
+                    
                     $preparedData->multipleActions[] = $act;
                 }
-        
             }
-        
-             
         }
-        
-        
         
         return $preparedData;
     }
@@ -606,7 +606,7 @@ abstract class Grid
     {
         return $this->fieldConfigurator = new GridFieldConfigurator($this);
     }
-    
+
     /**
      * Create and return the Field configurator
      *
@@ -614,7 +614,6 @@ abstract class Grid
      */
     public function createFilterConfigurator()
     {
-    
         return $this->filterConfigurator = new GridFilterConfigurator($this, $this->formFactory);
     }
 
@@ -638,7 +637,7 @@ abstract class Grid
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults(array(
-            'mode' => 'view',            
+            'mode' => 'view',
             'checkbox' => true,
             'numbers' => true,
             'title' => 'Unamed grid',
@@ -648,12 +647,13 @@ abstract class Grid
             'tdAttributes' => array(),
             'actionAttributes' => array(),
             'footer' => true,
-            'querybuilder_callback' => array($this, 'qbCallback'),
+            'querybuilder_callback' => array(
+                $this,
+                'qbCallback'
+            ),
             'template' => $this->getTemplate()
         ));
         $options = $resolver->resolve(array_merge($this->getOptions(), $options));
-        
-   
         
         if ($this->fieldConfigurator == null)
             $this->configureFields($this->createFieldConfigurator());
@@ -664,11 +664,14 @@ abstract class Grid
         if ($this->filterConfigurator == null)
             $this->configureFilter($this->createFilterConfigurator());
         
-        $filter  = $this->filterConfigurator;
+        $filter = $this->filterConfigurator;
         
-        if($filter->hasFields()){
+        if ($filter->hasFields()) {
             $filter->getFormBuilder()->add('_search', 'submit');
-            $filter->getFormBuilder()->add('_identifier', 'hidden', array('data' => $this->getIdentifier() , 'mapped' => false));
+            $filter->getFormBuilder()->add('_identifier', 'hidden', array(
+                'data' => $this->getIdentifier(),
+                'mapped' => false
+            ));
         }
         
         $data = $this->getData($options);
@@ -682,7 +685,8 @@ abstract class Grid
             'gridOptions' => $options,
             'rows' => $data->rows,
             'multipleActions' => $data->multipleActions,
-            'form' => $this->filterConfigurator->getForm()->createView()
+            'form' => $this->filterConfigurator->getForm()
+                ->createView()
         ));
         
         return $grid;
@@ -722,8 +726,8 @@ abstract class Grid
 
     /**
      * Set current datasource
-     * 
-     * @param array $dataSource
+     *
+     * @param array $dataSource            
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setDataSource($dataSource)
@@ -734,7 +738,7 @@ abstract class Grid
 
     /**
      * Get parameter prefix
-     * 
+     *
      * @return \Evence\Bundle\GridBundle\Grid\unknown
      */
     public function getPrefix()
@@ -744,7 +748,7 @@ abstract class Grid
 
     /**
      * Get the defaultSortBy
-     * 
+     *
      * @return string
      */
     public function getDefaultSortBy()
@@ -754,7 +758,7 @@ abstract class Grid
 
     /**
      * Get the defaultSortOrder
-     * 
+     *
      * @return string
      */
     public function getDefaultSortOrder()
@@ -764,13 +768,12 @@ abstract class Grid
 
     /**
      * Get current sortBy
-     * 
+     *
      * @return string
      */
     public function getSortBy()
     {
-        if (!$sortBy = $this->request->get($this->getPrefix() . 's', $this->getDefaultSortBy())) {
-            
+        if (! $sortBy = $this->request->get($this->getPrefix() . 's', $this->getDefaultSortBy())) {
             
             return $this->sortBy;
             
@@ -786,7 +789,7 @@ abstract class Grid
 
     /**
      * Get current sort order
-     * 
+     *
      * @return string
      */
     public function getSortOrder()
@@ -801,7 +804,7 @@ abstract class Grid
 
     /**
      * Creates, initializes and returns the paignation object
-     * 
+     *
      * @return \Evence\Bundle\GridBundle\Pagination\Pagination
      */
     private function getPagination()
@@ -819,9 +822,11 @@ abstract class Grid
 
     /**
      * Generates the sort URL
-     * 
-     * @param string $sortBy Valid fieldname of the current datasource
-     * @param string $direction Sort order direction, possible options: 'ASC' or 'DESC'
+     *
+     * @param string $sortBy
+     *            Valid fieldname of the current datasource
+     * @param string $direction
+     *            Sort order direction, possible options: 'ASC' or 'DESC'
      */
     public function generateSortUrl($sortBy, $direction)
     {
@@ -833,8 +838,8 @@ abstract class Grid
 
     /**
      * Generates the limit URL
-     * 
-     * @param unknown $limit
+     *
+     * @param unknown $limit            
      */
     public function generateLimitUrl($limit)
     {
@@ -845,8 +850,8 @@ abstract class Grid
 
     /**
      * Returns an array for items per page
-     * 
-     * @return multitype:number 
+     *
+     * @return multitype:number
      */
     public function getItemsPerPage()
     {
@@ -862,7 +867,7 @@ abstract class Grid
 
     /**
      * Get current options
-     * 
+     *
      * @return multitype:
      */
     public function getOptions()
@@ -872,8 +877,8 @@ abstract class Grid
 
     /**
      * Set parameter prefix
-     * 
-     * @param string $prefix
+     *
+     * @param string $prefix            
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setPrefix($prefix)
@@ -884,7 +889,7 @@ abstract class Grid
 
     /**
      * Get Symfony's securityContext service
-     * 
+     *
      * @return \Symfony\Component\Security\Core\SecurityContext
      */
     public function getSecurityContext()
@@ -894,8 +899,8 @@ abstract class Grid
 
     /**
      * Set Symfony's securityContext service
-     * 
-     * @param SecurityContext $securityContext
+     *
+     * @param SecurityContext $securityContext            
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setSecurityContext(SecurityContext $securityContext)
@@ -906,7 +911,7 @@ abstract class Grid
 
     /**
      * Get symfony's router service
-     * 
+     *
      * @return \Symfony\Bundle\FrameworkBundle\Routing\Router
      */
     public function getRouter()
@@ -916,23 +921,23 @@ abstract class Grid
 
     /**
      * Creates the view
-     * 
+     *
      * @todo Use for different views like: CSV, PDF and Excel
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
-    public function createView($template ='')
+    public function createView($template = '')
     {
-        if($template) $this->template = $template;
+        if ($template)
+            $this->template = $template;
         return $this;
     }
-    
-    public function qbCallback(\Doctrine\ORM\QueryBuilder $qb){
-        
-    }
+
+    public function qbCallback(\Doctrine\ORM\QueryBuilder $qb)
+    {}
 
     /**
      * Get formFactory
-     * 
+     *
      * @return \Symfony\Component\Form\FormFactoryInterface
      */
     public function getFormFactory()
@@ -942,8 +947,8 @@ abstract class Grid
 
     /**
      * Set formFactory
-     * 
-     * @param FormFactoryInterface $formFactory
+     *
+     * @param FormFactoryInterface $formFactory            
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setFormFactory(FormFactoryInterface $formFactory)
@@ -951,8 +956,9 @@ abstract class Grid
         $this->formFactory = $formFactory;
         return $this;
     }
-    
-    public function getEntityClassMeta (){
+
+    public function getEntityClassMeta()
+    {
         return $this->doctrine->getManager()->getClassMetadata($this->getEntityName());
     }
 
@@ -966,12 +972,14 @@ abstract class Grid
     {
         return $this->identifier;
     }
- 
- 
-    public function getFieldConfigurator(){
+
+    public function getFieldConfigurator()
+    {
         return $this->fieldConfigurator;
     }
-    public function getActionConfigurator(){
+
+    public function getActionConfigurator()
+    {
         return $this->actionConfigurator;
     }
 
@@ -981,7 +989,7 @@ abstract class Grid
         return $this;
     }
 
-    public function setSortOrder( $sortOrder)
+    public function setSortOrder($sortOrder)
     {
         $this->sortOrder = $sortOrder;
         return $this;
@@ -997,9 +1005,5 @@ abstract class Grid
         $this->multipleIdentifierField = $multipleIdentifierField;
         return $this;
     }
- 
- 
- 
-    
 }
     

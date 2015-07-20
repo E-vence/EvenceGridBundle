@@ -38,6 +38,8 @@ use Evence\Bundle\GridBundle\Grid\Type\EntityType;
 use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormBuilderInterface;
+use Evence\Bundle\GridBundle\Grid\Filter\FilterMapperCollection;
+use Evence\Bundle\GridBundle\Grid\Filter\FilterObject;
 
 /**
  * Grid filter configurator
@@ -72,6 +74,15 @@ class GridFilterConfigurator
      */
     private $formFactory;
     
+
+    /**
+     * Array of filter mappers
+     *
+     * @var FilterMapperCollection
+     */
+    private $filterMapper = null;
+    
+    
     
 
     /**
@@ -94,14 +105,16 @@ class GridFilterConfigurator
         
         if($grid->getDataSourceType() == Grid::DATA_SOURCE_ENTITY){
             $entityInfo =  $grid->getEntityClassMeta();
-            $this->formData = new $entityInfo->name();
+            //$this->formData = new $entityInfo->name();
+            $this->formData = new FilterObject();
         }
         
-        $options = array_merge(array('validation_groups' => array('registration')), $options);
+    
         
-        $this->formBuilder = $formFactory->createNamedBuilder($this->grid->getPrefix(),'form', $this->formData, $options)->setMethod('GET');
+        $options = array_merge(array('mapped' => true), $options);
         
-       
+        $this->formBuilder = $formFactory->createNamedBuilder($this->grid->getPrefix(),'form', $this->formData, $options)->setMethod('GET');        
+        $this->filterMapper = new FilterMapperCollection();
     } 
     
     
@@ -527,5 +540,11 @@ class GridFilterConfigurator
     public function getFormBuilder(){
         return $this->formBuilder;
     }
+
+    public function getFilterMapper()
+    {
+        return $this->filterMapper;
+    }
+ 
 }
  

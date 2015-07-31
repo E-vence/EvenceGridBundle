@@ -72,6 +72,27 @@ class UserGrid extends Grid {
         $actionConfigurator->setMappedParameters(array('id'));
         
     }
+    
+    
+    /*
+     * (non-PHPdoc)
+     * @see \Evence\Bundle\GridBundle\Grid\Grid::configureFilter()
+     */
+    public function configureFilter(GridFilterConfigurator $filterConfigurator)
+    {
+        $filterConfigurator->add('status', 'choice', [
+            'choices' => Transaction::getStatusses()
+        ])
+            ->add('dateFrom', 'datetime', [])
+
+        
+            ->add('dateTill', 'datetime', []);
+        
+        $fm = $filterConfigurator->getFilterMapper();
+        
+        $fm->add(FilterMapper::gt('transactionAt', 'dateFrom'))->add(FilterMapper::lt('transactionAt', 'dateTill'));
+    }
+    
 }
 ``` 
 

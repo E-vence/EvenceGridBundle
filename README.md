@@ -38,6 +38,10 @@ Add the following code to your controller:
 
 namespace Acme\Bundle\DemoBundle\Grid;
 use Evence\Bundle\GridBundle\Grid\Grid;
+use Evence\Bundle\GridBundle\Grid\GridFieldConfigurator;
+use Evence\Bundle\GridBundle\Grid\GridActionConfigurator;
+use Evence\Bundle\GridBundle\Grid\GridFilterConfigurator;
+use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
 
 class UserGrid extends Grid {
 

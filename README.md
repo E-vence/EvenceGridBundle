@@ -2,8 +2,6 @@ EvenceGridBundle
 ================
 Easy method to generate a grid.
 
-![alt tag](https://travis-ci.org/E-vence/EvenceGridBundle.svg?branch=master)
-
 ### Installation
 
 
@@ -40,6 +38,10 @@ Add the following code to your controller:
 
 namespace Acme\Bundle\DemoBundle\Grid;
 use Evence\Bundle\GridBundle\Grid\Grid;
+use Evence\Bundle\GridBundle\Grid\GridFieldConfigurator;
+use Evence\Bundle\GridBundle\Grid\GridActionConfigurator;
+use Evence\Bundle\GridBundle\Grid\GridFilterConfigurator;
+use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
 
 class UserGrid extends Grid {
 
@@ -74,6 +76,27 @@ class UserGrid extends Grid {
         $actionConfigurator->setMappedParameters(array('id'));
         
     }
+    
+    
+    /*
+     * (non-PHPdoc)
+     * @see \Evence\Bundle\GridBundle\Grid\Grid::configureFilter()
+     */
+    public function configureFilter(GridFilterConfigurator $filterConfigurator)
+    {
+        $filterConfigurator->add('status', 'choice', [
+            'choices' => Transaction::getStatusses()
+        ])
+            ->add('dateFrom', 'datetime', [])
+
+        
+            ->add('dateTill', 'datetime', []);
+        
+        $fm = $filterConfigurator->getFilterMapper();
+        
+        $fm->add(FilterMapper::gt('transactionAt', 'dateFrom'))->add(FilterMapper::lt('transactionAt', 'dateTill'));
+    }
+    
 }
 ``` 
 

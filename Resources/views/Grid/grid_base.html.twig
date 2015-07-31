@@ -9,6 +9,11 @@
    {% endspaceless %}   
 {% endmacro %}
 
+{% block stylesheets %}  
+		
+{% endblock %} 					
+    
+
 {% block grid %}
     
 {% import _self as g %}
@@ -177,65 +182,80 @@
     	   {%  if gridOptions.footer %}
     		<tr>
     			<td colspan="{{  totalFields +3 }}">
-    				<div class="row">
-    				    <div class="col-lg-2">   				      			        
-	      			        <div class="input-group input-group-sm">                             
-        				        <select class="bulk-select form-control" id="bulkSelect{{ grid.getPrefix() }}">
-        				            <option value>-- {% trans %}Select a bulk action{% endtrans %} --</option>
-        				            {% for action in multipleActions %}
-        				                <option data-confirm="{{ action.options.confirm|trans }}" value="{{ action.url }}">{{ action.label|trans }}</option>
-        				            {% endfor %}
-        				        </select>
-        				        
-        				         <span class="input-group-btn">   
-        				            <button class="btn btn-success" type="submit">Ga</button>	
-        				         </span>    
-    				         </div>			        
-    				    </div>  
-    					<div class="col-lg-4 col-lg-offset-2"> 
-    					
-    					    {%  block paginationInfo %}  					    
-    						<span>{% trans %}Display{% endtrans %} <span class="pages"> <span class="current-offset"> {{ fromItem }}</span> - <span class="to">{{ toItem }}</span>
-    								{% trans %}from{% endtrans %} <span class="totalRecords">
-    								{{	pagination.getTotalRecords()}}</span> | {% trans %}Items per page{% endtrans %}: 
-    								
-    								 <select onchange="top.location.href=this.value;">
-        						         {%  for itm in itemsperpage %}
-        						              <option value="{{ grid.generateLimitUrl(itm) }}" {%  if pagination.getMaxRecords == itm %} selected="selected"{% endif %}>{{ itm }}</option>
-        						         {% endfor %}
-    						         </select>
-    						</span>
-    					   {% endblock paginationInfo %}
-    					</div>
-    					<div class="col-lg-4">
-    						{% block pagination %}
-    						<ul class="pagination pull-right">
-    							{% if pagination.hasPreviousPage() %}
-    							   {%  set url = pagination.getPreviousPage().getUrl() %}						       
-    							   {% block pagePrevious %}		
-            							<li>
-            							     <a href="{{ url }}">
-            							     <i class="fa fa-angle-left"></i> {% trans %}Previous{% endtrans %}</a>
-            							</li>
-        							{% endblock %}	
-    							{% endif %} 
-    							
-    							{% for page in pagination.getPages(3) %}
-    							     <li {% if page.getCurrent() %} class="active" {% endif %}><a href="{{ page.getUrl() }}">{{ page.getName() }}</a></li> 
-    							{% endfor %} 
-    							
-    							{% if pagination.hasNextPage() %}
-    							    {%  set url = pagination.getNextPage().getUrl() %}
-    							    {% block pageNext %}							    												    
-            							<li>
-            							     <a href="{{ url }}">{% trans	%}Next{% endtrans %} <i class="fa fa-angle-right"></i></a> 
-            							</li>    		
-        							{% endblock %}					
-        					    {% endif %}
-    						</ul>
-    						{% endblock %}
-    
-    					</div>
+    				<div class="row">    				
+    				    {% block bulkAction %}   	
+        				    <div class="col-lg-2">
+            				   
+            				    
+            				        {% if multipleActions|length() > 0 %}			      			        
+        	      			        <div class="input-group input-group-sm">                             
+                				        <select class="bulk-select form-control" id="bulkSelect{{ grid.getPrefix() }}">
+                				            <option value>-- {% trans %}Select a bulk action{% endtrans %} --</option>
+                				            {% for action in multipleActions %}
+                				                <option data-confirm="{{ action.options.confirm|trans }}" value="{{ action.url }}">{{ action.label|trans }}</option>
+                				            {% endfor %}
+                				        </select>
+                				        
+                				         <span class="input-group-btn">   
+                				            <button class="btn btn-success" type="submit">Ga</button>	
+                				         </span>    
+            				         </div>			
+            				         {% endif %}        				   
+        				    </div>      				    
+    				    {% endblock %}        
+				        {%  block paginationInfo %}       		
+        					<div class="col-lg-4 col-lg-offset-2"> 
+        					{%  if gridOptions.paginationInfo %} 
+        					  			    
+            					     
+            						<span>{% trans %}Display{% endtrans %} <span class="pages"> <span class="current-offset"> {{ fromItem }}</span> - <span class="to">{{ toItem }}</span>
+            								{% trans %}from{% endtrans %} <span class="totalRecords">
+            								{{	pagination.getTotalRecords()}}</span> | {% trans %}Items per page{% endtrans %}: {% if gridOptions.selectLimit %}
+            								
+            								 <select onchange="top.location.href=this.value;">
+                						         {%  for itm in itemsperpage %}
+                						              <option value="{{ grid.generateLimitUrl(itm) }}" {%  if pagination.getMaxRecords  == itm %} selected="selected"{% endif %}>{{ itm }}</option>
+                						         {% endfor %}
+            						         </select>{% else %}{{ pagination.getMaxRecords }}{% endif %}
+            						</span>
+    						  {% endif %}
+    						  </div>
+					   {% endblock paginationInfo %}
+    				  
+					   {% block pagination %}
+        				   <div class="col-lg-4">
+        				   {% if gridOptions.pagination %}
+        					
+        						
+            						{% if pagination.getPages()|length() > 1 %}
+            						<ul class="pagination pull-right">
+            							{% if pagination.hasPreviousPage() %}
+            							   {%  set url = pagination.getPreviousPage().getUrl() %}						       
+            							   {% block pagePrevious %}		
+                    							<li>
+                    							     <a href="{{ url }}">
+                    							     <i class="fa fa-angle-left"></i> {% trans %}Previous{% endtrans %}</a>
+                    							</li>
+                							{% endblock %}	
+            							{% endif %} 
+            							
+            							{% for page in pagination.getPages(3) %}
+            							     <li {% if page.getCurrent() %} class="active" {% endif %}><a href="{{ page.getUrl() }}">{{ page.getName() }}</a></li> 
+            							{% endfor %} 
+            							
+            							{% if pagination.hasNextPage() %}
+            							    {%  set url = pagination.getNextPage().getUrl() %}
+            							    {% block pageNext %}							    												    
+                    							<li>
+                    							     <a href="{{ url }}">{% trans	%}Next{% endtrans %} <i class="fa fa-angle-right"></i></a> 
+                    							</li>    		
+                							{% endblock %}					
+                					    {% endif %}
+            						</ul>
+            						{% endif %}    						
+                            {% endif %}
+        					</div>
+    					{% endblock %}
     				</div>
     		     </td>
     		</tr>
@@ -255,41 +275,48 @@
         <script>          
         (function() {         
             var checkId = "check_all_{{ grid.getPrefix()}}";
-            document.getElementById(checkId).addEventListener("click", 
-                function(){
-                    var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");                
-                    var aa= table[0].getElementsByTagName("input");
-                    for (var i =0; i < aa.length; i++){
-                    	if (aa[i].id != checkId){
-                            if (aa[i].type == 'checkbox'){
-    
-                            	if(    aa[i].checked == false)
-                            	    aa[i].checked = true;
-                            	else
-                            		aa[i].checked = false;
-                            }
-                    	}
+            if( document.getElementById(checkId) !== null){
+                document.getElementById(checkId).addEventListener("click", 
+                    function(){
+                        var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");                
+                        var aa= table[0].getElementsByTagName("input");
+                        for (var i =0; i < aa.length; i++){
+                        	if (aa[i].id != checkId){
+                                if (aa[i].type == 'checkbox'){
+        
+                                	if(    aa[i].checked == false)
+                                	    aa[i].checked = true;
+                                	else
+                                		aa[i].checked = false;
+                                }
+                        	}
+                        }
                     }
-                }
-            ); 
+                ); 
+            }
             var form =  document.querySelector("form[data-grid-id={{ grid.getPrefix() }}]");        
             form.addEventListener("submit",function(e){              
-            	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");      
-            	selectOption = select.options[select.selectedIndex];
-            	if(selectOption.dataset.confirm !== undefined && selectOption.dataset.confirm){
-         		   if(!confirm(selectOption.dataset.confirm)){
-        			 e.preventDefault();
-        			 return false;
-        		    }
-                }            	           
-                if(!select.value){
-                	e.preventDefault();
-                    return false;
-                } 	      	            	
-                form.action = select.value;
-                
+
+                if(document.getElementById("bulkSelect{{ grid.getPrefix() }}") !== null){
+                	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");      
+                	selectOption = select.options[select.selectedIndex];
+                	if(selectOption.dataset.confirm !== undefined && selectOption.dataset.confirm){
+             		   if(!confirm(selectOption.dataset.confirm)){
+            			 e.preventDefault();
+            			 return false;
+            		    }
+                    }            	           
+                    if(!select.value){
+                    	e.preventDefault();
+                        return false;
+                    } 	      	            	
+                    form.action = select.value;
+                }
             });             
         })()                  
         </script>
     {% endblock %}    
+{% endblock %}
+{% block javascripts %}
+
 {% endblock %}

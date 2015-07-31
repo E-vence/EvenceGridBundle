@@ -12,7 +12,7 @@
 {% block table %}
  {% set tableAttributes = tableAttributes|merge({'class': 'table table-bordered table-hover table-striped '}) %} 
   {%  if gridOptions.mode == 'view' %}
-     <div class="col-lg-{% if filter.hasFields() %}9{% else %}12{% endif %}">
+     <div class="col-lg-{% if filter.hasFields() %}8{% else %}12{% endif %}">
         {{ parent() }}
     </div>
   {% else %}

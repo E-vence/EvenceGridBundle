@@ -671,7 +671,7 @@ abstract class Grid
         $filter = $this->filterConfigurator;
         
         if ($filter->hasFields()) {
-            $filter->getFormBuilder()->add('_search', 'submit');
+            if(!$filter->getFormBuilder()->has('_search')) $filter->getFormBuilder()->add('_search', 'submit');
             $filter->getFormBuilder()->add('_identifier', 'hidden', array(
                 'data' => $this->getIdentifier(),
                 'mapped' => false

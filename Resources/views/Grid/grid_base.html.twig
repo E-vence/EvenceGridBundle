@@ -141,7 +141,7 @@
                     			     {% set class = class ~ ' ' ~ options.class %}           			 
                     			{% endif %}       
                                 
-                                {%  set attr = actionAttributes|merge({'href': action.url, 'class': class }) %}  
+                                {%  set attr = actionAttributes|merge({'href': action.url, 'class': class, 'target': options.target }) %}  
                                 
                                 {% if options.confirm %}
                                     {% set onclick = "return confirm('" ~ options.confirm|trans|escape ~"');" %}
@@ -173,6 +173,13 @@
         			{% endif %}
         		</tr>
         		{% endfor %} 
+        		{% if rows|length() == 0 %}
+        		 		<tr>
+    			         <td colspan="{{  totalFields +3 }}">
+    			             {% trans %}No results found{% endtrans %}
+    			         </td>
+    			       </tr>
+        		{% endif %}
     		{% endblock rows %}
     	</tbody>
     	

@@ -150,7 +150,7 @@ abstract class Grid
      *
      * @var Registry
      */
-    private $doctrine = null;
+    protected  $doctrine = null;
 
     /**
      * Symfony's sercurityContext service
@@ -378,8 +378,8 @@ abstract class Grid
             
             call_user_func_array($options['querybuilder_callback'], array(
                 $qb
-            ));
-            
+            ));         
+                        
             $this->filterQuery($qb);
             
             if ($this->getSortBy())

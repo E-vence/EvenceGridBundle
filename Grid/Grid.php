@@ -349,10 +349,14 @@ abstract class Grid
      *
      * @return integer
      */
-    public function countRows()
+    public function countRows($options)
     {
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
             $qb = $this->getQueryBuilder()->select('count(e.id)');
+            
+            call_user_func_array($options['querybuilder_callback'], array(
+                $qb
+            ));
             $this->filterQuery($qb);
             
             return $qb->getQuery()->getSingleScalarResult();
@@ -367,7 +371,7 @@ abstract class Grid
      */
     private function getData($options)
     {
-        $this->getPagination()->setTotalRows($this->countRows());
+        $this->getPagination()->setTotalRows($this->countRows($options));
         
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
             $qb = $this->getQueryBuilder()
@@ -384,6 +388,8 @@ abstract class Grid
             
             if ($this->getSortBy())
                 $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
+            
+          //  die($qb->getQuery()->getDql());
             
             $data = $qb->getQuery()->getResult();
         } else {

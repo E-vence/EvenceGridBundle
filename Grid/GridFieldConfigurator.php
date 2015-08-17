@@ -86,6 +86,13 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
             $this->fields[$alias]->setCurrentSort(true);
             $this->fields[$alias]->setCurrentSortOrder($this->grid->getSortOrder());
         }
+        if(isset($options['objectReference']))
+           $this->fields[$alias]->setObjectReference($options['objectReference']);
+    
+        
+      
+       
+        
         if (! empty($options['mapped']))
             $this->fields[$alias]->setMapped($options['mapped']);
         $this->fields[$alias]->setType($this->detectType($type))

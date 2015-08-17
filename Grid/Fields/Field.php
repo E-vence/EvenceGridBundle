@@ -78,6 +78,7 @@ class Field
      */
     protected $mapped = true;
     
+    
 
     /**
      * Callback

@@ -39,6 +39,9 @@ use Evence\Bundle\GridBundle\Grid\Misc\Action;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\VarDumper\VarDumper;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 /**
  * E-vence: Grid
@@ -51,6 +54,10 @@ use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
  */
 abstract class Grid
 {
+
+    CONST QUERY_COUNT = 'count';
+
+    CONST QUERY_SELECT = 'select';
 
     /**
      * Configures actions for the grid
@@ -150,7 +157,7 @@ abstract class Grid
      *
      * @var Registry
      */
-    protected  $doctrine = null;
+    protected $doctrine = null;
 
     /**
      * Symfony's sercurityContext service
@@ -258,6 +265,18 @@ abstract class Grid
     protected $options;
 
     /**
+     *
+     * @var PropertyAccessor
+     */
+    private $accessor = null;
+
+    /**
+     *
+     * @var MetaFields
+     */
+    private $metaFields = [];
+
+    /**
      * Set symfony's templating service
      *
      * @param EngineInterface $templating            
@@ -347,16 +366,20 @@ abstract class Grid
     /**
      * Count rows for current data source
      *
-     * @return integer
+     * @return integer0
      */
     public function countRows($options)
     {
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
-            $qb = $this->getQueryBuilder()->select('count(e.id)');
+            $qb = $this->getQueryBuilder();
             
             call_user_func_array($options['querybuilder_callback'], array(
-                $qb
+                $qb,
+                self::QUERY_COUNT
             ));
+            
+            $qb->select('count(e.id)');
+            
             $this->filterQuery($qb);
             
             return $qb->getQuery()->getSingleScalarResult();
@@ -381,15 +404,27 @@ abstract class Grid
                 ->getFirstRecord());
             
             call_user_func_array($options['querybuilder_callback'], array(
-                $qb
-            ));         
-                        
+                $qb,
+                self::QUERY_SELECT
+            ));
+            
             $this->filterQuery($qb);
             
-            if ($this->getSortBy())
-                $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
-            
-          //  die($qb->getQuery()->getDql());
+            if ($this->getSortBy()) {
+                
+                $by = $this->getSortBy();
+                $fc = $this->getFieldConfigurator();
+                if (empty($fc[$by])) {
+                    throw new Exception('There is no field called ' . $by);
+                }
+                
+                $dataField = $fc[$by];
+                
+                if ($dataField->getObjectReference())
+                    $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
+                else
+                    $qb->orderBy($this->getSortBy(), $this->getSortOrder());
+            }
             
             $data = $qb->getQuery()->getResult();
         } else {
@@ -408,7 +443,6 @@ abstract class Grid
             return;
         $form = $this->filterConfigurator->getFormBuilder()->getForm();
         $form->handleRequest($this->request);
-     
         
         $identifier = $form->get('_identifier')->getData();
         
@@ -496,19 +530,39 @@ abstract class Grid
      */
     public function getValueFromSource($source, $id)
     {
-        $method = 'get' . str_replace("_", "", ucfirst($id));
-        
         if ($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY) {
-            if (! method_exists($source, $method)) {
-                throw new \Exception('Uknown field ' . $id . ' in datasource ' . $this->getEntityName());
-            }
-            return $source->$method();
+            
+            $dataField = null;
+            $fc = $this->getFieldConfigurator();
+            if (! empty($fc[$id]))
+                $dataField = $fc[$id];
+            
+            if ($dataField && ! $dataField->getObjectReference())
+                return $this->getAccessor()->getValue($this->metaFields[$source->getId()], '[' . $id . ']');
+            else
+                return $this->getAccessor()->getValue($source, $id);
         } elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY) {
             if (! array_key_exists($id, $source))
                 throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source, true));
             
             return $source[$id];
         }
+        
+        /*
+         * $method = 'get' . str_replace("_", "", ucfirst($id));
+         *
+         * if ($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY) {
+         * if (! method_exists($source, $method)) {
+         * throw new \Exception('Uknown field ' . $id . ' in datasource ' . $this->getEntityName());
+         * }
+         * return $source->$method();
+         * } elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY) {
+         * if (! array_key_exists($id, $source))
+         * throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source, true));
+         *
+         * return $source[$id];
+         * }
+         */
     }
 
     /**
@@ -539,7 +593,30 @@ abstract class Grid
         $preparedData->rows = array();
         $preparedData->multipleActions = array();
         
+        $sData = [];
+        
         foreach ($data as $rid => $row) {
+            
+            if (is_object($row)) {
+                $sData[] = $row;
+            } else {
+                
+                $id = $rid;
+                foreach ($row as $key => $value) {
+                    
+                    if (is_numeric($key) && is_object($value)) {
+                        
+                        if ($this->getAccessor()->isReadable($value, 'id'))
+                            $id = $this->getAccessor()->getValue($value, 'id');
+                        
+                        $sData[] = $value;
+                    } elseif (! is_numeric($key)) {
+                        $this->metaFields[$id][$key] = $value;
+                    }
+                }
+            }
+        }
+        foreach ($sData as $rid => $row) {
             $prow = new \stdClass();
             $prow->cols = array();
             foreach ($this->fieldConfigurator as $key => $field) {
@@ -677,7 +754,8 @@ abstract class Grid
         $filter = $this->filterConfigurator;
         
         if ($filter->hasFields()) {
-            if(!$filter->getFormBuilder()->has('_search')) $filter->getFormBuilder()->add('_search', 'submit');
+            if (! $filter->getFormBuilder()->has('_search'))
+                $filter->getFormBuilder()->add('_search', 'submit');
             $filter->getFormBuilder()->add('_identifier', 'hidden', array(
                 'data' => $this->getIdentifier(),
                 'mapped' => false
@@ -1014,6 +1092,18 @@ abstract class Grid
     {
         $this->multipleIdentifierField = $multipleIdentifierField;
         return $this;
+    }
+
+    /**
+     *
+     * @return PropertyAccessor
+     */
+    public function getAccessor()
+    {
+        if (! $this->accessor) {
+            $this->accessor = PropertyAccess::createPropertyAccessor();
+        }
+        return $this->accessor;
     }
 }
     

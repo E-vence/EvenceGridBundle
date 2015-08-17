@@ -98,6 +98,7 @@ abstract class AbstractType implements InterfaceType
     
     public function resolveOptions($options){
         $resolver = new OptionsResolver();
+        $resolver->setDefault('objectReference', true);
         $resolver->setDefault('mapped', true);
         $resolver->setDefault('align', false);
         $resolver->setDefault('class', '');        

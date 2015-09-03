@@ -415,7 +415,7 @@ abstract class Grid
                 $by = $this->getSortBy();
                 $fc = $this->getFieldConfigurator();
                 if (empty($fc[$by])) {
-                    throw new Exception('There is no field called ' . $by);
+                    throw new \Exception('There is no field called ' . $by);
                 }
                 
                 $dataField = $fc[$by];
@@ -427,9 +427,16 @@ abstract class Grid
             }
             
             $data = $qb->getQuery()->getResult();
-        } else {
+        } else {            
             $data = $this->getDataSource();
+            if ($this->getSortBy()) {
+                foreach ($data as $row) {    
+                    $sortBy[] = $row[$this->getSortBy()];            
+                }            
+                array_multisort($sortBy, ( $this->getSortOrder() == 'ASC' ? SORT_ASC : SORT_DESC), $data);
+            }           
             $data = array_splice($data, $this->getPagination()->getFirstRecord(), $this->getPagination()->getMaxRecords());
+     
         }
         
         return $this->prepareData($data);
@@ -595,27 +602,33 @@ abstract class Grid
         
         $sData = [];
         
-        foreach ($data as $rid => $row) {
-            
-            if (is_object($row)) {
-                $sData[] = $row;
-            } else {
+        if ($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY) {
+            foreach ($data as $rid => $row) {
                 
-                $id = $rid;
-                foreach ($row as $key => $value) {
+                if (is_object($row)) {
+                    $sData[] = $row;
+                } else {
                     
-                    if (is_numeric($key) && is_object($value)) {
+                    $id = $rid;
+                    foreach ($row as $key => $value) {
                         
-                        if ($this->getAccessor()->isReadable($value, 'id'))
-                            $id = $this->getAccessor()->getValue($value, 'id');
-                        
-                        $sData[] = $value;
-                    } elseif (! is_numeric($key)) {
-                        $this->metaFields[$id][$key] = $value;
+                        if (is_numeric($key) && is_object($value)) {
+                            
+                            if ($this->getAccessor()->isReadable($value, 'id'))
+                                $id = $this->getAccessor()->getValue($value, 'id');
+                            
+                            $sData[] = $value;
+                        } elseif (! is_numeric($key)) {
+                            $this->metaFields[$id][$key] = $value;
+                        }
                     }
                 }
             }
         }
+        else {
+            $sData =& $data;
+        }
+  
         foreach ($sData as $rid => $row) {
             $prow = new \stdClass();
             $prow->cols = array();

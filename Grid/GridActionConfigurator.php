@@ -144,13 +144,17 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
     /**
      * Get route parameters by source
      *
-     * @param sting $source            
+     * @param sting $source          
+     * @param array additional parameters  
      * @return multitype Array of parameters with theire values
      */
-    public function getParametersBySource($source)
+    public function getParametersBySource($source, $parameters = [])
     {
         $pArray = array();
-        foreach ($this->mappedParameters as $key => $value) {
+        
+        $mappedParameters = array_merge($this->mappedParameters, $parameters);
+        
+        foreach ( $mappedParameters as $key => $value) {
             
             $val = $this->grid->getColBySource($source, $value);
             if (! is_numeric($key))

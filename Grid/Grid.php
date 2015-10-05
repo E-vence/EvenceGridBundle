@@ -199,14 +199,14 @@ abstract class Grid
      *
      * @var string
      */
-    private $sortBy = null;
+    public $sortBy = null;
 
     /**
      * Default sort order
      *
      * @var string
      */
-    private $sortOrder = 'ASC';
+    public $sortOrder = 'ASC';
 
     /**
      * Grid field configurator

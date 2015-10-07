@@ -41,6 +41,7 @@ use Evence\Bundle\GridBundle\Grid\Type\HtmlType;
 use Evence\Bundle\GridBundle\Grid\Type\AgeType;
 use Evence\Bundle\GridBundle\Grid\Type\ImageType;
 use Evence\Bundle\GridBundle\Grid\Type\DecimalType;
+use Evence\Bundle\GridBundle\Grid\Type\InputType;
 
 /**
  * Grid field configurator
@@ -199,6 +200,9 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
                 break;
             case "html":
                 return new HtmlType();
+            break;
+            case "input":
+                return new InputType();
             break;
         }
         

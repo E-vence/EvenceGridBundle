@@ -35,6 +35,10 @@
     {{ block('text_type') }}
 {% endblock %}
 
+{%  block input_type %}
+    <input type="text" value="{{ value }}" class="grid-input{%if options.class is defined %} {{ options.class }}{% endif %}" style="{% if options.width is defined %}width:{{ options.width }};{% endif %}">
+{% endblock %}
+
 {%  block age_type %}
     {{ block('text_type') }}
 {% endblock %}

@@ -45,12 +45,9 @@
 
 {%  block link_type %}
     {% spaceless %}
-        <a href="{{ value }}" target="{{ options.target }}">
-            {% if not options.label %}
-                {{ value }}
-            {% else %}
-                {{ options.label }}
-            {% endif %}
+        
+        <a href="{{ value.url  }}" target="{{ options.target }}">
+            {{ value.label }}
         </a>
     {% endspaceless %}
 {% endblock %}

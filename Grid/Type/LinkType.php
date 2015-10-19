@@ -41,7 +41,8 @@ class LinkType extends TextType
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
     public function renderType($value, $source ){        
-       return $value;  
+       $urlCallback = $this->getOption('urlCallback');       
+       return ['label' => ($this->getOption('label') ?: $value), 'url' => $urlCallback($value, $source)];
     }
     
     /* (non-PHPdoc)
@@ -51,8 +52,14 @@ class LinkType extends TextType
         return 'link';
     }    
     
+    
+    public function getUrl($value){        
+        
+    }
+    
+    
     public function configureOptions(OptionsResolver $resolver){
-        $resolver->setDefaults( array('label' => false, 'target' => '_blank'));
+        $resolver->setDefaults( array('label' => false, 'target' => '_blank', 'urlCallback' => function($value, $source){ return $value; } ));
 
     }
 }

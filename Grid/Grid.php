@@ -382,7 +382,9 @@ abstract class Grid
             
             $this->filterQuery($qb);
             
-            return $qb->getQuery()->getSingleScalarResult();
+            $val = $qb->getQuery()->getSingleScalarResult();
+          
+            return $val;
         }
         return count($this->dataSource);
     }
@@ -776,6 +778,8 @@ abstract class Grid
         }
         
         $data = $this->getData($options);
+        
+
         
         $grid = $this->templating->render($options['template'], array(
             'fields' => $this->fieldConfigurator,

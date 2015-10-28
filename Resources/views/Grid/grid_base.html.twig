@@ -231,7 +231,8 @@
     				  
 					   {% block pagination %}
         				   <div class="col-lg-4">
-        				   {% if gridOptions.pagination %}       					
+        				   {% if gridOptions.pagination %}
+        							
             						{% if pagination.getPages()|length() > 1 %}
             						<ul class="pagination pull-right">
             							{% if pagination.hasPreviousPage() %}

@@ -1,26 +1,26 @@
 <?php
 /*
- Copyright (c) 2015 - Ruben Harms <info@rubenharms.nl>
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-
+ * Copyright (c) 2015 - Ruben Harms <info@rubenharms.nl>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
  */
 namespace Evence\Bundle\GridBundle\Pagination;
 
@@ -43,7 +43,7 @@ class Pagination implements \Iterator, \Countable
      *
      * @var array
      */
-    private $array = array(); 
+    private $array = array();
 
     /**
      * Current offset
@@ -86,14 +86,13 @@ class Pagination implements \Iterator, \Countable
      */
     private $current;
 
-     protected $limitParam = 'l';    
-    protected $pageParam = 'p';    
-    
-    private $init = false;
-    
-    private $totalRecords = null;
+    protected $limitParam = 'l';
 
-    
+    protected $pageParam = 'p';
+
+    private $init = false;
+
+    private $totalRecords = null;
 
     /*
      * (non-PHPdoc)
@@ -141,9 +140,7 @@ class Pagination implements \Iterator, \Countable
     {
         $this->init();
         return isset($this->array[$this->position]);
-    }  
-
-
+    }
 
     /**
      *
@@ -247,7 +244,7 @@ class Pagination implements \Iterator, \Countable
      */
     public function getCurrentLimit()
     {
-        return ($this->getRequest()->get($this->limitParam) ?: $this->getLimit());
+        return ($this->getRequest()->get($this->limitParam) ?  : $this->getLimit());
     }
 
     /**
@@ -277,24 +274,22 @@ class Pagination implements \Iterator, \Countable
     {
         $totalRecords = $this->getTotalRecords();
         
-        return ($totalRecords > 0 ? ceil($totalRecords / $this->getCurrentLimit()) : 0 );
+        return ($totalRecords > 0 ? ceil($totalRecords / $this->getCurrentLimit()) : 0);
     }
 
-  
-    public function setTotalRows($rows){
+    public function setTotalRows($rows)
+    {
         $this->totalRecords = $rows;
     }
-    
-    
-    public function getTotalRecords(){
-                
-        return $this->totalRecords;        
+
+    public function getTotalRecords()
+    {
+        return $this->totalRecords;
     }
-    
 
     /**
      * Initalizes the pages inside the iterator
-     * 
+     *
      * @return boolean
      */
     public function init()
@@ -302,97 +297,106 @@ class Pagination implements \Iterator, \Countable
         if ($this->init)
             return false;
         
-        for ($i = 0; $i < $this->getTotalPages(); $i ++) {           
+        for ($i = 0; $i < $this->getTotalPages(); $i ++) {
             $page = new PaginationPage();
             $page->setPagination($this)
                 ->setCurrent($i == $this->getCurrentPage())
-                ->setName($i + 1)         
+                ->setName($i + 1)
                 ->setNumber($i);
             $this->array[] = $page;
         }
         
         return $this->init = true;
     }
-    
+
     /**
      * Get the first page
-     * 
+     *
      * @return PaginationPage
      */
-    public function getFirstPage(){
-       return begin($this->array); 
+    public function getFirstPage()
+    {
+        return begin($this->array);
     }
-    
+
     /**
      * Get the last page
-     * 
+     *
      * @return PaginationPage
      */
-    public function getLastPage(){
-       return end($this->array); 
+    public function getLastPage()
+    {
+        return end($this->array);
     }
-    
-    
+
     /**
      * Whether or not there is a next page.
-     * 
+     *
      * @return boolean
      */
-    public function hasNextPage(){
-        $p = $this->getCurrentPage()+1;
-        return (!empty($this->array[$p]) ? true : false);
-    }    
-    
+    public function hasNextPage()
+    {
+        $p = $this->getCurrentPage() + 1;
+        return (! empty($this->array[$p]) ? true : false);
+    }
 
     /**
      * Whether or not there is a previous page.
      *
      * @return boolean
      */
-    public function hasPreviousPage(){
-        $p = $this->getCurrentPage()-1;
-        return (!empty($this->array[$p]) ? true : false);
+    public function hasPreviousPage()
+    {
+        $p = $this->getCurrentPage() - 1;
+        return (! empty($this->array[$p]) ? true : false);
     }
-    
-    
+
     /**
      * Get the next page
      *
      * @throws \Exception If there is no next page available
      * @return PaginationPage
      */
-    public function getNextPage(){  
-
-       if(!$this->hasNextPage()) throw new \Exception('There is no next page');
-       $p = $this->getCurrentPage()+1;  
-       return $this->array[$p];
+    public function getNextPage()
+    {
+        if (! $this->hasNextPage())
+            throw new \Exception('There is no next page');
+        $p = $this->getCurrentPage() + 1;
+        return $this->array[$p];
     }
-    
-     /**
+
+    /**
      * Get the previous page
      *
      * @throws \Exception If there is no previous page available
      * @return PaginationPage
      */
-    public function getPreviousPage(){
-        $p = $this->getCurrentPage()-1;         
+    public function getPreviousPage()
+    {
+        $p = $this->getCurrentPage() - 1;
         
-       if(!$this->hasPreviousPage()) throw new \Exception('There is no previous page');
+        if (! $this->hasPreviousPage())
+            throw new \Exception('There is no previous page');
         return $this->array[$p];
     }
-    
+
     /**
      * Generate the url for the target page
-     * 
-     * @param PaginationPage $page
+     *
+     * @param PaginationPage $page            
      */
-    public function generateUrl(PaginationPage $page){     
-        return $this->getRouter()->generate($this->getRequest()->get('_route'), array_merge($this->getRouteVars(), array($this->pageParam => $page->getNumber(), $this->limitParam => $this->getCurrentLimit())));
+    public function generateUrl(PaginationPage $page)
+    {
+        return $this->getRouter()->generate($this->getRequest()
+            ->get('_route'), array_merge($this->getRouteVars(), array(
+            $this->pageParam => $page->getNumber(),
+            $this->limitParam => $this->getCurrentLimit()
+        )));
     }
 
     /**
      * Get the Symfony's router service
-     * 
+     *
      * @return \Symfony\Component\HttpFoundation\Request
      */
     public function getRouter()
@@ -402,8 +406,8 @@ class Pagination implements \Iterator, \Countable
 
     /**
      * Set the Symfony's router service
-     * 
-     * @param unknown $router
+     *
+     * @param unknown $router            
      * @return \Evence\Bundle\GridBundle\Pagination\Pagination
      */
     public function setRouter($router)
@@ -411,52 +415,59 @@ class Pagination implements \Iterator, \Countable
         $this->router = $router;
         return $this;
     }
-    
+
     /**
      * Get pages
-     * 
-     * @param integer (optional) $maxPages Maximum page numbers to show
+     *
+     * @param
+     *            integer (optional) $maxPages Maximum page numbers to show
      * @return \Evence\Bundle\GridBundle\Pagination\Pagination
      */
-    public function getPages($maxPages = null){
-        
-        if(!$maxPages) return $this;
-        
+    public function getPages($maxPages = null)
+    {
         $this->init();
-            
-        $pagesLeft = floor($maxPages/2);
-        $start = $this->getCurrentPage()-$pagesLeft;
-        if($start < 0){
-            $pagesLeft-= abs($start);
+        if (! $maxPages)
+            return $this;
+        
+        $pagesLeft = floor($maxPages / 2);
+        $start = $this->getCurrentPage() - $pagesLeft;
+        if ($start < 0) {
+            $pagesLeft -= abs($start);
             $start = 0;
-        }   
+        }
         
         return array_slice($this->array, $start, $maxPages);
     }
-    
+
     /**
-     * Get all route vars from symfony's router service 
+     * Get all route vars from symfony's router service
      */
-    private function getRouteVars (){
-        return array_merge($this->getRequest()->query->all(), $this->getRequest()->attributes->get('_route_params'));        
+    private function getRouteVars()
+    {
+        return array_merge($this->getRequest()->query->all(), $this->getRequest()->attributes->get('_route_params'));
     }
-    
+
     /**
      * Get items per page
-     * 
-     * @param string $steps Square of the numbers
-     * @return multitype:\stdClass 
+     *
+     * @param string $steps
+     *            Square of the numbers
+     * @return multitype:\stdClass
      */
-    public function getItemsPerPage($steps){
+    public function getItemsPerPage($steps)
+    {
         $pp = $steps;
         $i = 0;
         $limitArray = array();
         for ($i = 0; $i < 5; $i ++) {
             $page = new \stdClass();
-            $page->url =  $this->getRouter()->generate($this->getRequest()->get('_route'), array_merge($this->getRouteVars(), array($this->limitParam => $pp)));
+            $page->url = $this->getRouter()->generate($this->getRequest()
+                ->get('_route'), array_merge($this->getRouteVars(), array(
+                $this->limitParam => $pp
+            )));
             $page->name = $pp;
             $page->current = ($this->getCurrentLimit() == $pp);
-        
+            
             $limitArray[] = $page;
             $pp *= 2;
         }
@@ -465,8 +476,8 @@ class Pagination implements \Iterator, \Countable
 
     /**
      * Set limitParam
-     * 
-     * @param unknown $limitParam
+     *
+     * @param unknown $limitParam            
      * @return \Evence\Bundle\GridBundle\Pagination\Pagination
      */
     public function setLimitParam($limitParam)
@@ -477,8 +488,8 @@ class Pagination implements \Iterator, \Countable
 
     /**
      * Set pageParam
-     * 
-     * @param unknown $pageParam
+     *
+     * @param unknown $pageParam            
      * @return \Evence\Bundle\GridBundle\Pagination\Pagination
      */
     public function setPageParam($pageParam)
@@ -489,7 +500,7 @@ class Pagination implements \Iterator, \Countable
 
     /**
      * Get limitParam
-     * 
+     *
      * @return string
      */
     public function getLimitParam()
@@ -499,14 +510,11 @@ class Pagination implements \Iterator, \Countable
 
     /**
      * Get pageParam
-     * 
+     *
      * @return string
      */
     public function getPageParam()
     {
         return $this->pageParam;
     }
- 
- 
- 
 }

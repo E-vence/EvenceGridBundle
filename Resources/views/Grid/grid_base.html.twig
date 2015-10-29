@@ -99,6 +99,8 @@
         		   {%  if gridOptions.numbers %} {% block col_number %}<td  {{ g.attributes(tdAttributes) }}>{{ row_no+fromItem  }}</td>{% endblock %}  {% endif %}
         		          		            		
         			{% for col in row.cols %} 
+        			       			
+        			
             			{% set fieldname = col.value.getType().getField().getIdentifier() %}        	
             			{% set type = col.value.getType() %}		
             			{% set value = col.value.getValue() %}
@@ -185,8 +187,43 @@
     	
     	
     	<tfoot>
-    	{% block footer %}    	
-    	   {%  if gridOptions.footer %}
+    	
+    	{% block footer %}    
+    	   {% if fields.hasFooter() %}
+    	       <tr>
+    	           {% for field in fields %}    	                  			
+          			{% if field.getFootCallback() %}
+              			{%  set data = field.getFooterData() %}        			
+            			{% set fieldname = field.getIdentifier() %}        	
+            			{% set type = data.getType() %}		
+            			{% set value = data.getValue() %}
+            			{% set options = data.getOptions() %}
+            			{% set blockName = data.type.name~ '_type' %}             			
+            			{% set colAttributes = tdAttributes %}            			
+            			{% set style = '' %}
+            			{% set class = '' %}            		            			
+            			{% if colAttributes.style is defined %}            			 
+            			     {% set style = colAttributes.style %}           			 
+            			{% endif %}            			 
+        			 	{% if colAttributes.class  is defined %}            			 
+            			     {% set class = colAttributes.class %}           			 
+            			{% endif %}            			             			
+            			{% if options.align is defined %}           			 
+            			 {% set colAttributes = colAttributes|merge({'style': 'text-align: '~options.align~'; ' ~ style})  %}          			 
+            			{% endif %}
+            			{% set colAttributes = colAttributes|merge({'class': 'footer-col-'~ fieldname ~ ' ' ~ class})  %}           			
+            			
+            			{% block footerCol %}      						       			
+            		      <th {{ g.attributes(colAttributes)}}>{{ block(blockName) }}</th> 
+            			{% endblock %}           
+    	              
+    	            {% else %}
+    	               <td></td>
+    	            {% endif %}
+    	           {% endfor %}
+    	       </tr>
+    	   {% endif %}	
+    	   {%  if gridOptions.footer %}    	   
     		<tr>
     			<td colspan="{{  totalFields +3 }}">
     				<div class="row">    				

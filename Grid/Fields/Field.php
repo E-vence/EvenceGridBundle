@@ -86,6 +86,14 @@ class Field
      * @var mixed Callback
      */
     protected $callback = null;
+    
+
+    /**
+     * Callback
+     *
+     * @var foot Callback
+     */
+    protected $footCallback = null;
 
     /**
      * Current value of the class
@@ -164,6 +172,12 @@ class Field
         return $this->getValue($source);
     }
     
+    public function getFooterCallbackValue($rows){
+    
+        if($this->footCallback)      return call_user_func_array($this->footCallback, array($rows, $this));
+        return;
+    }
+    
     public function getSortUrl(){
         return $this->configurator->getGrid()->generateSortUrl( $this->identifier, $this->getNextSortOrder());
     }
@@ -237,6 +251,25 @@ class Field
     public function getDataSourceType(){
         return $this->configurator->getGrid()->getDataSourceType();
     }
+
+    public function getFootCallback()
+    {
+        return $this->footCallback;
+    }
+
+    public function setFootCallback($footCallback)
+    {
+        $this->footCallback = $footCallback;
+        return $this;
+    }
  
+ 
+    /**
+     * Get Data
+     */
+    public function getFooterData() {
+    
+        return $this->getType()->getData( $this->getFooterCallbackValue($this->configurator->getGrid()->getRawData()), null);
+    }
     
 }

@@ -100,6 +100,7 @@ abstract class AbstractType implements InterfaceType
         $resolver = new OptionsResolver();
         $resolver->setDefault('objectReference', true);
         $resolver->setDefault('mapped', true);
+        $resolver->setDefault('foot', false);
         $resolver->setDefault('align', false);
         $resolver->setDefault('class', '');        
         $this->configureOptions($resolver);

@@ -275,6 +275,12 @@ abstract class Grid
      * @var MetaFields
      */
     private $metaFields = [];
+    
+    /**
+     * @var array
+     */
+    
+    private $rawData =[];
 
     /**
      * Set symfony's templating service
@@ -441,6 +447,8 @@ abstract class Grid
      
         }
         
+        $this->rawData = $data;
+        
         return $this->prepareData($data);
     }
 
@@ -597,7 +605,8 @@ abstract class Grid
      * @return multitype:\stdClass
      */
     public function prepareData($data)
-    {
+    {     
+        
         $preparedData = new \stdClass();
         $preparedData->rows = array();
         $preparedData->multipleActions = array();
@@ -1122,5 +1131,11 @@ abstract class Grid
         }
         return $this->accessor;
     }
+
+    public function getRawData()
+    {
+        return $this->rawData;
+    }
+ 
 }
     

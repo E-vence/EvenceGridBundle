@@ -91,7 +91,8 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
            $this->fields[$alias]->setObjectReference($options['objectReference']);
     
         
-      
+        if(isset($options['foot']))
+            $this->fields[$alias]->setFootCallback($options['foot']);
        
         
         if (! empty($options['mapped']))
@@ -102,6 +103,12 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
             ->resolveOptions($options);
         
         return $this;
+    }
+    
+    public function hasFooter(){
+        foreach ($this->fields as $field)
+            if($field->getFootCallback() !== null) return true;
+        
     }
 
     /**

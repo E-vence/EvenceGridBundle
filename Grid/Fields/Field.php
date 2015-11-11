@@ -271,5 +271,11 @@ class Field
     
         return $this->getType()->getData( $this->getFooterCallbackValue($this->configurator->getGrid()->getRawData()), null);
     }
+
+    public function getConfigurator()
+    {
+        return $this->configurator;
+    }
+ 
     
 }

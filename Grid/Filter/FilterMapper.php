@@ -216,7 +216,10 @@ class FilterMapper {
      */
     public function filterQuery(QueryBuilder $qb, FormInterface $form, $prefix = 'e'){
         
-        $id = $prefix.'.'.$this->id;
+        if(!strstr($this->id,"."))
+            $id = $prefix.'.'.$this->id;
+        else $id = $this->id;
+        
         $data = $this->getData($form);
         
         if(!$data) return;

@@ -61,6 +61,7 @@
             {% block table_tag %}<table {{ g.attributes(tableAttributes) }}>{% endblock %}
         {% endif %}
         {% block innertable %}
+          {%  if gridOptions.mode == 'view' %}
     	<thead>   	
     		{% block fields %}
     		<tr>
@@ -92,6 +93,7 @@
     		{% endblock %}
     	</thead>
     	<tbody>
+    	   {% endif %}
     		{% block rows %}     		
         		{% for row_no, row in rows %}       		
         		<tr {{ g.attributes(trAttributes) }}{{ g.attributes(row.mappedParams, 'data-') }}>
@@ -314,51 +316,75 @@
     </form>
     {% endif %}
     {% endblock form %}
-    {% block script %}
-        <script>          
-        (function() {         
-            var checkId = "check_all_{{ grid.getPrefix()}}";
-            if( document.getElementById(checkId) !== null){
-                document.getElementById(checkId).addEventListener("click", 
-                    function(){
-                        var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");                
-                        var aa= table[0].getElementsByTagName("input");
-                        for (var i =0; i < aa.length; i++){
-                        	if (aa[i].id != checkId){
-                                if (aa[i].type == 'checkbox'){
-        
-                                	if(    aa[i].checked == false)
-                                	    aa[i].checked = true;
-                                	else
-                                		aa[i].checked = false;
-                                }
-                        	}
+    
+    {%  if gridOptions.mode == 'view' %}
+        {% block script %}
+            <script>          
+            (function() {         
+                var checkId = "check_all_{{ grid.getPrefix()}}";
+                if( document.getElementById(checkId) !== null){
+                    document.getElementById(checkId).addEventListener("click", 
+                        function(){
+                            var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");                
+                            var aa= table[0].getElementsByTagName("input");
+                            for (var i =0; i < aa.length; i++){
+                            	if (aa[i].id != checkId){
+                                    if (aa[i].type == 'checkbox'){
+            
+                                    	if(    aa[i].checked == false)
+                                    	    aa[i].checked = true;
+                                    	else
+                                    		aa[i].checked = false;
+                                    }
+                            	}
+                            }
                         }
-                    }
-                ); 
-            }
-            var form =  document.querySelector("form[data-grid-id={{ grid.getPrefix() }}]");        
-            form.addEventListener("submit",function(e){              
-
-                if(document.getElementById("bulkSelect{{ grid.getPrefix() }}") !== null){
-                	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");      
-                	selectOption = select.options[select.selectedIndex];
-                	if(selectOption.dataset.confirm !== undefined && selectOption.dataset.confirm){
-             		   if(!confirm(selectOption.dataset.confirm)){
-            			 e.preventDefault();
-            			 return false;
-            		    }
-                    }            	           
-                    if(!select.value){
-                    	e.preventDefault();
-                        return false;
-                    } 	      	            	
-                    form.action = select.value;
+                    ); 
                 }
-            });             
-        })()                  
-        </script>
-    {% endblock %}    
+                var form =  document.querySelector("form[data-grid-id={{ grid.getPrefix() }}]");        
+                form.addEventListener("submit",function(e){              
+    
+                    if(document.getElementById("bulkSelect{{ grid.getPrefix() }}") !== null){
+                    	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");      
+                    	selectOption = select.options[select.selectedIndex];
+                    	if(selectOption.dataset.confirm !== undefined && selectOption.dataset.confirm){
+                 		   if(!confirm(selectOption.dataset.confirm)){
+                			 e.preventDefault();
+                			 return false;
+                		    }
+                        }            	           
+                        if(!select.value){
+                        	e.preventDefault();
+                            return false;
+                        } 	      	            	
+                        form.action = select.value;
+                    }
+                }); 
+
+                            
+            })()        
+            
+            
+                function gridReload{{ grid.getPrefix()}}(){
+
+                	
+                                      
+                    if($ !== undefined){
+
+                    
+                        var url = {{ path(app.request.attributes.get('_route'),
+                                app.request.attributes.get('_route_params')|merge({'grid_id': grid.getPrefix(), 'grid_mode': 'body' }) )|json_encode|raw }};
+                    	
+                        $.get(url, function(response){
+                            $('table[data-grid-id="{{ grid.getPrefix()}}"] tbody').html(response);
+                        });
+                    	
+                    }
+                }
+                          
+            </script>
+        {% endblock %}    
+    {% endif %}
 {% endblock %}
 {% block javascripts %}
 

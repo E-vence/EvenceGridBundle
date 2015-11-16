@@ -111,7 +111,7 @@ class GridFilterConfigurator
         
     
         
-        $options = array_merge(array('mapped' => true), $options);
+        $options = array_merge(array('mapped' => true, 'csrf_protection' => false), $options);
         
         $this->formBuilder = $formFactory->createNamedBuilder($this->grid->getPrefix(),'form', $this->formData, $options)->setMethod('GET');        
         $this->filterMapper = new FilterMapperCollection();

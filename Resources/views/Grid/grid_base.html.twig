@@ -364,7 +364,7 @@
                             
             })()        
             
-            
+        
                 function gridReload{{ grid.getPrefix()}}(){
 
                 	
@@ -373,7 +373,7 @@
 
                     
                         var url = {{ path(app.request.attributes.get('_route'),
-                                app.request.attributes.get('_route_params')|merge({'grid_id': grid.getPrefix(), 'grid_mode': 'body' }) )|json_encode|raw }};
+                                app.request.attributes.get('_route_params')|merge(app.request.query.all)|merge({'grid_id': grid.getPrefix(), 'grid_mode': 'body' }) )|json_encode|raw }};
                     	
                         $.get(url, function(response){
                             $('table[data-grid-id="{{ grid.getPrefix()}}"] tbody').html(response);

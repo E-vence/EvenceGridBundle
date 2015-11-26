@@ -28,6 +28,7 @@ namespace Evence\Bundle\GridBundle\Grid\Misc;
 class Value {
     
     private $value;  
+    private $original;
     private $type;
 
     public function __toString(){
@@ -59,6 +60,18 @@ class Value {
     public function getOptions(){
         return $this->getType()->getOptions();
     }
+
+    public function getOriginal()
+    {
+        return $this->original;
+    }
+
+    public function setOriginal($original)
+    {
+        $this->original = $original;
+        return $this;
+    }
+ 
     
 }
 

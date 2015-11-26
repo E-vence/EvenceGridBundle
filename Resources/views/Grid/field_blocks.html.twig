@@ -54,7 +54,7 @@
 
 
 {%  block money_type %}
-   <div style="text-align: right;"> {{ block('text_type') }}</div>
+   <div style="text-align: right;{% if valueObject.original < 0 %}color:#ff0000;{% endif %}">{{ block('text_type') }}</div>
 {% endblock %}
 
 {%  block choice_type %}

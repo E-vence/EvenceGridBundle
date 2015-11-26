@@ -101,11 +101,11 @@
         		   {%  if gridOptions.numbers %} {% block col_number %}<td  {{ g.attributes(tdAttributes) }}>{{ row_no+fromItem  }}</td>{% endblock %}  {% endif %}
         		          		            		
         			{% for col in row.cols %} 
-        			       			
         			
             			{% set fieldname = col.value.getType().getField().getIdentifier() %}        	
             			{% set type = col.value.getType() %}		
             			{% set value = col.value.getValue() %}
+            			{% set valueObject = col.value %}
             			{% set options = col.value.getOptions() %}
             			{% set blockName = col.fieldname~ '_type' %} 
             			

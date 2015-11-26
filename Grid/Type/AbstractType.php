@@ -111,7 +111,7 @@ abstract class AbstractType implements InterfaceType
     
     public function getData($value, $source = null){
         $val = new Value();
-        $val->setType($this)->setValue($this->renderType($value, $source));
+        $val->setType($this)->setOriginal($value)->setValue($this->renderType($value, $source));
 
         return $val;
     }

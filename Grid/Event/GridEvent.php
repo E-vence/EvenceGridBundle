@@ -40,7 +40,7 @@ class GridEvent extends Event
 
     const POST_SET_QUERY = 'grid.event.set.query.post';
 
-    const POST_SET_COUNT_QUERY = 'grid.event.set.query.post';
+    const POST_SET_COUNT_QUERY = 'grid.event.set.count.query.post';
     
     const PRE_MODIFY_ARRAY = 'grid.event.modify.array.pre';
 

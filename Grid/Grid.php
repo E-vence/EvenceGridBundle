@@ -433,9 +433,10 @@ abstract class Grid
             $event->setGrid($this)->setQuerybuilder($qb);                  
             $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);
             
-           
-            
+          
+        
             $this->filterQuery($qb);
+        
             
             if ($this->getSortBy()) {
                 
@@ -454,6 +455,7 @@ abstract class Grid
             }
             
             $data = $qb->getQuery()->getResult();
+           
         } else {            
 
             $data = $this->getDataSource();

@@ -11,6 +11,7 @@ $container->setDefinition('evence.grid', new Definition('Evence\Bundle\GridBundl
     new Reference('session'),
     new Reference('security.context'),
     new Reference('form.factory'),
+    new Reference('event_dispatcher')
 )));
 
 

@@ -42,6 +42,8 @@ use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\VarDumper\VarDumper;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Evence\Bundle\GridBundle\Grid\Event\GridEvent;
 
 /**
  * E-vence: Grid
@@ -158,6 +160,13 @@ abstract class Grid
      * @var Registry
      */
     protected $doctrine = null;
+    
+    /**
+     * Symfony's Event Dispatcher
+     *
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher = null;
 
     /**
      * Symfony's sercurityContext service
@@ -386,6 +395,10 @@ abstract class Grid
             
             $qb->select('count(e.id)');
             
+            $event = new GridEvent();
+            $event->setGrid($this)->setQuerybuilder($qb);            
+            $this->eventDispatcher->dispatch(GridEvent::POST_SET_COUNT_QUERY, $event);
+            
             $this->filterQuery($qb);
             
             $val = $qb->getQuery()->getSingleScalarResult();
@@ -416,6 +429,12 @@ abstract class Grid
                 self::QUERY_SELECT
             ));
             
+            $event = new GridEvent();
+            $event->setGrid($this)->setQuerybuilder($qb);                  
+            $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);
+            
+           
+            
             $this->filterQuery($qb);
             
             if ($this->getSortBy()) {
@@ -436,7 +455,16 @@ abstract class Grid
             
             $data = $qb->getQuery()->getResult();
         } else {            
+
             $data = $this->getDataSource();
+            
+            $event = new GridEvent();
+            $event->setGrid($this)->setData($data);
+            $this->eventDispatcher->dispatch(GridEvent::PRE_MODIFY_ARRAY, $event);
+            
+            
+            $data = $event->getData();
+            
             if ($this->getSortBy()) {
                 foreach ($data as $row) {    
                     $sortBy[] = $row[$this->getSortBy()];            
@@ -766,6 +794,13 @@ abstract class Grid
         ));
         $options = $resolver->resolve(array_merge($this->getOptions(), $options));
         
+        
+        $event = new GridEvent();
+        $event->setGrid($this);
+        
+        $this->eventDispatcher->dispatch(GridEvent::PRE_CONFIGURE, $event);
+        
+        
         if ($this->fieldConfigurator == null)
             $this->configureFields($this->createFieldConfigurator());
         
@@ -774,6 +809,8 @@ abstract class Grid
         
         if ($this->filterConfigurator == null)
             $this->configureFilter($this->createFilterConfigurator());
+        
+        $this->eventDispatcher->dispatch(GridEvent::POST_CONFIGURE, $event);
         
         $filter = $this->filterConfigurator;
         
@@ -1084,7 +1121,7 @@ abstract class Grid
 
     public function getIdentifier()
     {
-        return $this->identifier;
+        return ( $this->identifier ?: $this->getPrefix());
     }
 
     public function getFieldConfigurator()
@@ -1136,6 +1173,13 @@ abstract class Grid
     {
         return $this->rawData;
     }
+
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        return $this;
+    }
+ 
  
 }
     

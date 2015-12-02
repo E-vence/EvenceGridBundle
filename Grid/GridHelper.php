@@ -35,6 +35,7 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Grid helper: Helps creating a Grid
@@ -122,7 +123,8 @@ class GridHelper
             ->setRouter($this->router)
             ->setSession($this->session)
             ->setSecurityContext($this->securityContext)
-            ->setFormFactory($this->formFactory);
+            ->setFormFactory($this->formFactory)
+            ->setEventDispatcher($this->dispatcher);
         
         $grid->setPrefix($prefix); 
         
@@ -151,8 +153,8 @@ class GridHelper
         ->setRouter($this->router)
         ->setSession($this->session)
         ->setSecurityContext($this->securityContext)
-        ->setFormFactory($this->formFactory)
-        ->setIdentifier($prefix);
+        ->setFormFactory($this->formFactory)      
+        ->setEventDispatcher($this->dispatcher);
         
        
     
@@ -179,7 +181,7 @@ class GridHelper
      * @param Router $router            
      * @param Session $session            
      */
-    public function __construct(Registry $doctrine, TwigEngine $templating, RequestStack $request, Router $router, Session $session, SecurityContext $securityContext, FormFactoryInterface $formFactory)
+    public function __construct(Registry $doctrine, TwigEngine $templating, RequestStack $request, Router $router, Session $session, SecurityContext $securityContext, FormFactoryInterface $formFactory, EventDispatcherInterface $dispatcher)
     {
         $this->doctrine = $doctrine;
         $this->templating = $templating;
@@ -188,6 +190,7 @@ class GridHelper
         $this->session = $session;
         $this->securityContext = $securityContext;
         $this->formFactory = $formFactory;
+        $this->dispatcher = $dispatcher;
     }
     
 

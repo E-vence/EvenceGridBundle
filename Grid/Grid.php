@@ -44,6 +44,9 @@ use Symfony\Component\VarDumper\VarDumper;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Evence\Bundle\GridBundle\Grid\Event\GridEvent;
+use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\MongoDB\Query\Builder;
 
 /**
  * E-vence: Grid
@@ -90,6 +93,13 @@ abstract class Grid
      * @return string
      */
     abstract public function getEntityName();
+    
+    /**
+     * Returns the name of the document for the data source
+     *
+     * @return string
+     */
+    abstract public function getDocumentName();
 
     /**
      * Returns the Data source type
@@ -106,11 +116,18 @@ abstract class Grid
     CONST DATA_SOURCE_ARRAY = 'array';
 
     /**
-     * Data source: Array
+     * Data source: Entity
      *
      * @var string
      */
     CONST DATA_SOURCE_ENTITY = 'entity';
+    
+    /**
+     * Data source: Document
+     *
+     * @var string
+     */
+    CONST DATA_SOURCE_DOCUMENT = 'document';
 
     /**
      * Sort order: Ascending
@@ -160,6 +177,13 @@ abstract class Grid
      * @var Registry
      */
     protected $doctrine = null;
+    
+    /**
+     * Symfony's MongoDb
+     *
+     * @var ManagerRegistry
+     */
+    protected $doctrineMongoDb = null;
     
     /**
      * Symfony's Event Dispatcher
@@ -377,6 +401,23 @@ abstract class Grid
         
         return $qb;
     }
+    
+    /**
+     * Get getQueryBuilder for the current entity
+     *
+     * @return Builder
+     */
+    public function getDocumentBuilder()
+    {
+        /**
+         *
+         * @var DocumentManager
+         */
+        $dm = $this->doctrineMongoDb->getManager();        
+
+    
+        return $dm->createQueryBuilder($this->getDocumentName());
+    }
 
     /**
      * Count rows for current data source
@@ -405,6 +446,19 @@ abstract class Grid
           
             return $val;
         }
+        else if ($this->getDataSourceType() == self::DATA_SOURCE_DOCUMENT) {
+            $qb = $this->getDocumentBuilder();
+            
+            call_user_func_array($options['documentbuilder_callback'], array(
+                $qb,
+                self::QUERY_COUNT
+            ));
+            
+            $count = $qb->count()->getQuery()->getSingleResult();
+        
+           return $count;
+        }
+        
         return count($this->dataSource);
     }
 
@@ -455,7 +509,45 @@ abstract class Grid
             }
             
             $data = $qb->getQuery()->getResult();
-           
+        }
+        else if ($this->getDataSourceType() == self::DATA_SOURCE_DOCUMENT) {
+                $qb = $this->getDocumentBuilder()->limit($this->getPagination()
+                ->getMaxRecords())->skip($this->getPagination()
+                ->getFirstRecord());
+                
+                call_user_func_array($options['documentbuilder_callback'], array(
+                    $qb,
+                    self::QUERY_SELECT
+                ));
+                
+
+                $event = new GridEvent();
+                $event->setGrid($this);
+                $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);                
+
+                $this->filterQuery($qb);
+                
+                if($this->getSortBy()){
+
+                    $by = $this->getSortBy();
+                    $fc = $this->getFieldConfigurator();
+                    if (empty($fc[$by])) {
+                        throw new \Exception('There is no field called ' . $by);
+                    }
+                    
+                    $dataField = $fc[$by];
+                    
+                    if($qb instanceof Builder){
+                        $qb->sort($this->getSortBy(), $this->getSortOrder());
+                    }
+                }
+                
+            
+                
+                $data = $qb->getQuery()->execute();
+            
+             
+            
         } else {            
 
             $data = $this->getDataSource();
@@ -481,8 +573,10 @@ abstract class Grid
         
         return $this->prepareData($data);
     }
+    
 
-    public function filterQuery(\Doctrine\ORM\QueryBuilder $qb)
+
+    public function filterQuery($qb)
     {
         
         /* Filters here */
@@ -505,8 +599,13 @@ abstract class Grid
                         
                         $data = $item->getData();
                         if ($data) {
-                            $qb->andWhere('e.' . $name . ' = :' . $name);
-                            $qb->setParameter($name, $data);
+                            if($qb instanceof Builder){
+                                $qb->field($name)->equals($data);
+                            }
+                            elseif( $qb instanceof \Doctrine\ORM\QueryBuilder) {
+                                $qb->andWhere('e.' . $name . ' = :' . $name);
+                                $qb->setParameter($name, $data);
+                            }
                         }
                     }
                 }
@@ -534,6 +633,12 @@ abstract class Grid
     public function getColBySource($source, $col)
     {
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
+            
+            if ($this->isAssociation($col)) {
+                return $this->getAssociation($col, $source);
+            }
+            return $this->getValueFromSource($source, $col);
+        } else if ($this->getDataSourceType() == self::DATA_SOURCE_DOCUMENT) {
             
             if ($this->isAssociation($col)) {
                 return $this->getAssociation($col, $source);
@@ -588,6 +693,13 @@ abstract class Grid
                 return $this->getAccessor()->getValue($this->metaFields[$source->getId()], '[' . $id . ']');
             else
                 return $this->getAccessor()->getValue($source, $id);
+        }
+        else if ($this->getDataSourceType() == Grid::DATA_SOURCE_DOCUMENT) {
+            $dataField = null;
+            $fc = $this->getFieldConfigurator();
+            if (! empty($fc[$id]))
+                $dataField = $fc[$id];            
+            return $this->getAccessor()->getValue($source, $id);        
         } elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY) {
             if (! array_key_exists($id, $source))
                 throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source, true));
@@ -635,13 +747,17 @@ abstract class Grid
      * @return multitype:\stdClass
      */
     public function prepareData($data)
-    {     
+    {         
         
         $preparedData = new \stdClass();
         $preparedData->rows = array();
         $preparedData->multipleActions = array();
         
         $sData = [];
+        
+
+     
+        
         
         if ($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY) {
             foreach ($data as $rid => $row) {
@@ -665,6 +781,15 @@ abstract class Grid
                     }
                 }
             }
+        }
+        elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_DOCUMENT) {
+            
+       
+            foreach ($data as $rid => $row) {
+                $sData[] = $row;
+              
+            }
+      
         }
         else {
             $sData =& $data;
@@ -791,6 +916,10 @@ abstract class Grid
             'querybuilder_callback' => array(
                 $this,
                 'qbCallback'
+            ),
+            'documentbuilder_callback' => array(
+                $this,
+                'dbCallback'
             ),
             'template' => $this->getTemplate()
         ));
@@ -1087,6 +1216,10 @@ abstract class Grid
 
     public function qbCallback(\Doctrine\ORM\QueryBuilder $qb)
     {}
+    
+    public function dbCallback(Builder $qb)
+    {}
+    
 
     /**
      * Get formFactory
@@ -1181,6 +1314,24 @@ abstract class Grid
         $this->eventDispatcher = $eventDispatcher;
         return $this;
     }
+
+    public function getDoctrineMongoDb()
+    {
+        return $this->doctrineMongoDb;
+    }
+
+    public function setDoctrineMongoDb(ManagerRegistry $doctrineMongoDb)
+    {
+        $this->doctrineMongoDb = $doctrineMongoDb;
+        return $this;
+    }
+
+    public function getDoctrine()
+    {
+        return $this->doctrine;
+    }
+ 
+ 
  
  
 }

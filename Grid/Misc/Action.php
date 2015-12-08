@@ -118,12 +118,16 @@ class Action
     {
         if ($this->getRoles() != null && count($this->getRoles()) > 0) {
             
+            $denied = true;
+            
             foreach ($this->getRoles() as $row) {
                 if ($this->configurator->getGrid()
                     ->getSecurityContext()
-                    ->isGranted($row) === false)
-                    return false;
+                    ->isGranted($row) !== false)
+                    $denied = false;
             }
+            if ($denied)
+                return false;
         }
         
         /**

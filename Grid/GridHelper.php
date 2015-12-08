@@ -1,28 +1,27 @@
 <?php
 /*
-Copyright (c) 2015 - Ruben Harms <info@rubenharms.nl>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
+ * Copyright (c) 2015 - Ruben Harms <info@rubenharms.nl>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
 namespace Evence\Bundle\GridBundle\Grid;
 
 use Symfony\Bridge\Twig\TwigEngine;
@@ -36,6 +35,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\DependencyInjection\ContainerAware;
 
 /**
  * Grid helper: Helps creating a Grid
@@ -46,212 +46,82 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @package evence/grid-bundle
  * @subpackage Grid
  */
-class GridHelper
+class GridHelper extends ContainerAware
 {
 
     /**
-     * Symfony's Twig service
-     *
-     * @var TwigEngine
-     */
-    private $templating = null;
-
-    /**
-     * Symfony's Request
-     *
-     * @var Request
-     */
-    private $request = null;
-
-    /**
-     * Symfony's Router service
-     *
-     * @var Router
-     */
-    private $router = null;
-
-    /**
-     * Symfony's Session service
-     *
-     * @var Session
-     */
-    private $session = null;
-
-    
-    /**
-     * Symfony's Security Context service
-     * 
-     * @var securityContext
-     */
-    
-    private $securityContext = null;
-    
-    /**
-     * Doctrine Registry service
-     *
-     * @var Registry
-     */
-    private $doctrine = null;
-    
-    /**
      * Array of grids
-     * @var multitype:Grid 
+     * 
+     * @var multitype:Grid
      */
     private $grids = null;
-    
-    /**
-     * Symfony's FormFactoryInterface
-     *
-     * @var FormFactoryInterface
-     */
-    private $formFactory = null;
-    
-    
+
     /**
      * Helper to create a grid
      *
-     * @param Grid $grid Grid object
+     * @param Grid $grid
+     *            Grid object
      * @return Grid With services populated Grid object
      */
     public function createGrid(Grid $grid)
     {
-        $prefix = 'g'.count($this->grids);
+        $prefix = 'g' . count($this->grids);
         
-        $grid->setTemplating($this->templating)
-            ->setDoctrine($this->doctrine)
-            ->setRequest($this->request)
-            ->setRouter($this->router)
-            ->setSession($this->session)
-            ->setSecurityContext($this->securityContext)
-            ->setFormFactory($this->formFactory)
-            ->setEventDispatcher($this->dispatcher);
+        $grid->setTemplating($this->container->get('templating'))
+            ->setDoctrine($this->container->get('doctrine'))
+            ->setRequest($this->container->get('request'))
+            ->setRouter($this->container->get('router'))
+            ->setSession($this->container->get('session'))
+            ->setSecurityContext($this->container->get('security.context'))
+            ->setFormFactory($this->container->get('form.factory'))
+            ->setEventDispatcher($this->container->get('event_dispatcher'));
         
-        $grid->setPrefix($prefix); 
+        if ($this->container->has('doctrine_mongodb')) {
+            $grid->setDoctrineMongoDb($this->container->get('doctrine_mongodb'));
+        }
+        
+        $grid->setPrefix($prefix);
         
         $this->grids[$prefix] = $grid;
         
-        
-        
         return $grid;
     }
-    
+
     /**
-     * Creates gridBuilder 
-     * 
+     * Creates gridBuilder
+     *
      * @return GridBuilder With services populated Grid object
      */
     public function createGridBuilder($source, $dataSourceType = Grid::DATA_SOURCE_ENTITY, $options = array())
     {
-       
         $grid = new GridBuilder($source, $dataSourceType, $options);
-
-        $prefix = 'g'.count($this->grids);
         
-        $grid->setTemplating($this->templating)
-        ->setDoctrine($this->doctrine)
-        ->setRequest($this->request)
-        ->setRouter($this->router)
-        ->setSession($this->session)
-        ->setSecurityContext($this->securityContext)
-        ->setFormFactory($this->formFactory)      
-        ->setEventDispatcher($this->dispatcher);
+        $prefix = 'g' . count($this->grids);
         
-       
-    
+        $grid->setTemplating($this->container->get('templating'))
+            ->setDoctrine($this->container->get('doctrine'))
+            ->setRequest($this->container->get('request'))
+            ->setRouter($this->container->get('router'))
+            ->setSession($this->container->get('session'))
+            ->setSecurityContext($this->container->get('security.context'))
+            ->setFormFactory($this->container->get('form.factory'))
+            ->setEventDispatcher($this->container->get('event_dispatcher'));
+        
+        if ($this->container->has('doctrine_mongodb')) {
+            $grid->setDoctrineMongoDb($this->container->get('doctrine_mongodb'));
+        }
+        
         $grid->setPrefix($prefix);
         $this->grids[$prefix] = $grid;
-    
-    
-    
+        
         return $grid;
     }
-    
-    public function hasGrid($gridId){
-        if(!empty($this->grids[$gridId])){
+
+    public function hasGrid($gridId)
+    {
+        if (! empty($this->grids[$gridId])) {
             return true;
         }
-    }
-
-    /**
-     * Inject services
-     *
-     * @param Registry $doctrine            
-     * @param TwigEngine $templating            
-     * @param Request $request            
-     * @param Router $router            
-     * @param Session $session            
-     */
-    public function __construct(Registry $doctrine, TwigEngine $templating, RequestStack $request, Router $router, Session $session, SecurityContext $securityContext, FormFactoryInterface $formFactory, EventDispatcherInterface $dispatcher)
-    {
-        $this->doctrine = $doctrine;
-        $this->templating = $templating;
-        $this->request = $request->getCurrentRequest();
-        $this->router = $router;
-        $this->session = $session;
-        $this->securityContext = $securityContext;
-        $this->formFactory = $formFactory;
-        $this->dispatcher = $dispatcher;
-    }
-    
-
-    /**
-     * Set templating service
-     *
-     * @param TwigEngine $templating            
-     * @return \Evence\Bundle\GridBundle\Grid\GridHelper
-     */
-    public function setTemplating(TwigEngine $templating)
-    {
-        $this->templating = $templating;
-        return $this;
-    }
-
-    /**
-     * Set request service
-     * 
-     * @param Request $request
-     * @return \Evence\Bundle\GridBundle\Grid\GridHelper
-     */
-    public function setRequest(Request $request)
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    /**
-     * Set Router service
-     * 
-     * @param Router $router
-     * @return \Evence\Bundle\GridBundle\Grid\GridHelper
-     */
-    public function setRouter(Router $router)
-    {
-        $this->router = $router;
-        return $this;
-    }
-
-    /**
-     * Set session service
-     * 
-     * @param Session $session
-     * @return \Evence\Bundle\GridBundle\Grid\GridHelper
-     */
-    public function setSession(Session $session)
-    {
-        $this->session = $session;
-        return $this;
-    }
-
-    /**
-     * Set Doctrine service
-     * 
-     * @param Registry $doctrine
-     * @return \Evence\Bundle\GridBundle\Grid\GridHelper
-     */
-    public function setDoctrine(Registry $doctrine)
-    {
-        $this->doctrine = $doctrine;
-        return $this;
     }
 
     /**
@@ -268,25 +138,21 @@ class GridHelper
      */
     public function gridResponse($view, array $parameters = array(), Response $response = null)
     {
-        if($gmode = $this->request->get('grid_mode')){
-            if($gid = $this->request->get('grid_id')){
-                if($this->hasGrid($gid)){
+        $request = $this->container->get('request');
+        
+        if ($gmode = $request->get('grid_mode')) {
+            if ($gid = $request->get('grid_id')) {
+                if ($this->hasGrid($gid)) {
                     $grid = $this->grids[$gid];
-                    $options = $this->request->get('grid_options', array());
-                    $options = array_merge($options, array('mode' => $gmode));           
-                    return new Response($grid->renderView($options));                    
+                    $options = $request->get('grid_options', array());
+                    $options = array_merge($options, array(
+                        'mode' => $gmode
+                    ));
+                    return new Response($grid->renderView($options));
                 }
             }
         }
         
-        
-        return $this->templating->renderResponse($view, $parameters, $response);
+        return $this->container->get('templating')->renderResponse($view, $parameters, $response);
     }
-
-    public function setFormFactory(FormFactoryInterface $formFactory)
-    {
-        $this->formFactory = $formFactory;
-        return $this;
-    }
- 
 }

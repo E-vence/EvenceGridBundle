@@ -35,6 +35,7 @@ use Evence\Bundle\GridBundle\Grid\Type\DateType;
 use Evence\Bundle\GridBundle\Grid\Type\DateTimeType;
 use Evence\Bundle\GridBundle\Grid\Type\TimeType;
 use Evence\Bundle\GridBundle\Grid\Type\EntityType;
+use Evence\Bundle\GridBundle\Grid\Type\EntityReferenceType;
 use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
 use Evence\Bundle\GridBundle\Grid\Type\LinkType;
 use Evence\Bundle\GridBundle\Grid\Type\HtmlType;
@@ -195,6 +196,9 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
                 break;
             case "entity":
                 return new EntityType();
+            break;
+            case "EntityReference":
+                return new EntityReferenceType($this->grid->getDoctrine());
             break;
             case "money":
                 return new MoneyType();

@@ -1,45 +1,53 @@
 <?php
-
 namespace Evence\Bundle\GridBundle\Grid;
 
-class GridBuilder extends Grid {
+class GridBuilder extends Grid
+{
 
     private $fieldConfigurator = null;
+
     private $actionConfigurator = null;
+
     private $filterConfigurator = null;
+
     private $entityName = null;
+
+    private $documentName = null;
+
     private $dataSourceType = null;
 
-   
-      
-    public function getEntityName() {     
+    public function getEntityName()
+    {
         return $this->entityName;
     }
-    public function setEntityName() {
+
+    public function setEntityName()
+    {
         return $this->entityName;
     }
-   
-    
-    public function __construct($source, $dataSourceType = Grid::DATA_SOURCE_ENTITY, $options = array()){
-        
-        if($dataSourceType ==  Grid::DATA_SOURCE_ENTITY){
+
+    public function __construct($source, $dataSourceType = Grid::DATA_SOURCE_ENTITY, $options = array())
+    {
+        if ($dataSourceType == Grid::DATA_SOURCE_ENTITY) {
             $this->entityName = $source;
-        } elseif($dataSourceType ==  Grid::DATA_SOURCE_ARRAY){
-            $this->setDataSource($source);  
-        }
+        } else 
+            if ($dataSourceType == Grid::DATA_SOURCE_DOCUMENT) {
+                $this->documentName = $source;
+            } elseif ($dataSourceType == Grid::DATA_SOURCE_ARRAY) {
+                $this->setDataSource($source);
+            }
         $this->options = $options;
         $this->dataSourceType = $dataSourceType;
         $this->fieldConfigurator = $this->createFieldConfigurator();
         $this->actionConfigurator = $this->createActionConfigurator();
-       
-    }   
-   
-    public function getFilterConfigurator(){
-        if(!$this->filterConfigurator) $this->filterConfigurator = $this->createFilterConfigurator();
+    }
+
+    public function getFilterConfigurator()
+    {
+        if (! $this->filterConfigurator)
+            $this->filterConfigurator = $this->createFilterConfigurator();
         return $this->filterConfigurator;
     }
-   
-    
 
     /**
      * Add datafield to the grid
@@ -50,16 +58,15 @@ class GridBuilder extends Grid {
      *            Label of the field (for heading in the grid)
      * @param AbstractType|string $type
      *            Desired data type
-     * @param array $options
+     * @param array $options            
      * @return \Evence\Bundle\GridBundle\Grid\GridFieldConfigurator
      */
-    
-    public function addDataField($alias, $label, $type = null, $options = array()){
+    public function addDataField($alias, $label, $type = null, $options = array())
+    {
         $this->fieldConfigurator->addDataField($alias, $label, $type, $options);
         return $this;
     }
-    
-    
+
     /**
      * Add a custom field to the grid
      *
@@ -75,12 +82,13 @@ class GridBuilder extends Grid {
      *            Array of options
      * @return GridBuilder
      */
-    public function  addCustomField($alias, $label, $type, $callable, $options = array()){
+    public function addCustomField($alias, $label, $type, $callable, $options = array())
+    {
         $this->fieldConfigurator->addCustomField($alias, $label, $type, $callable, $options);
         
         return $this;
     }
-    
+
     /**
      * Add an action to the grid
      *
@@ -103,7 +111,7 @@ class GridBuilder extends Grid {
         $this->actionConfigurator->addAction($identifier, $label, $routeName, $routeParameters, $roles, $options);
         return $this;
     }
-    
+
     /**
      * Add an multiple action to the grid
      *
@@ -126,8 +134,7 @@ class GridBuilder extends Grid {
         $this->actionConfigurator->addMultipleAction($identifier, $label, $routeName, $routeParameters, $roles, $options);
         return $this;
     }
-    
-    
+
     /**
      * Set mapped parameters
      *
@@ -139,20 +146,18 @@ class GridBuilder extends Grid {
         $this->actionConfigurator->setMappedParameters($parameters);
         return $this;
     }
-    
-    
 
-        
     /**
-     * Adds a new field to this group. A field must have a unique name within
+     * Adds a new field to this group.
+     * A field must have a unique name within
      * the group. Otherwise the existing field is overwritten.
      *
      * If you add a nested group, this group should also be represented in the
      * object hierarchy.
      *
-     * @param string|int|FormBuilderInterface $child
-     * @param string|FormTypeInterface        $type
-     * @param array                           $options
+     * @param string|int|FormBuilderInterface $child            
+     * @param string|FormTypeInterface $type            
+     * @param array $options            
      *
      * @return GridFilterConfigurator The builder object.
      */
@@ -161,36 +166,51 @@ class GridBuilder extends Grid {
         $this->getFilterConfigurator()->add($child, $type, $options);
         return $this;
     }
-    
-    
-    public function getDataSourceType(){
+
+    public function getDataSourceType()
+    {
         return $this->dataSourceType;
     }
-    
-    public function configureActions(GridActionConfigurator $actionConfigurator){
-        //Do nothing
-    }
-    
 
-    public function configureFields(GridFieldConfigurator $FieldConfigurator){
-        //Do nothing
+    public function configureActions(GridActionConfigurator $actionConfigurator)
+    {
+        // Do nothing
     }
-    
-    
-    public function configureFilter(GridFilterConfigurator $filterConfigurator){
-        //Do nothing    
+
+    public function configureFields(GridFieldConfigurator $FieldConfigurator)
+    {
+        // Do nothing
     }
-    
-    public function getOptions(){
+
+    public function configureFilter(GridFilterConfigurator $filterConfigurator)
+    {
+        // Do nothing
+    }
+
+    public function getOptions()
+    {
         return $this->options;
     }
-    
-    
-    public function setOption($key, $value){
+
+    public function setOption($key, $value)
+    {
         return $this->options[$key] = $value;
     }
 
-    public function setOptions($options){
+    public function setOptions($options)
+    {
         $this->options = $options;
     }
+
+    public function getDocumentName()
+    {
+        return $this->documentName;
+    }
+
+    public function setDocumentName($documentName)
+    {
+        $this->documentName = $documentName;
+        return $this;
+    }
+ 
 }

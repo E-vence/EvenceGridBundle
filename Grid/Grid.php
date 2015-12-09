@@ -99,7 +99,9 @@ abstract class Grid
      *
      * @return string
      */
-    abstract public function getDocumentName();
+    public function getDocumentName() {
+        return $this->getEntityName();   
+    }
 
     /**
      * Returns the Data source type

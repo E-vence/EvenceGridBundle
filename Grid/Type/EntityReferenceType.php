@@ -53,6 +53,8 @@ class EntityReferenceType extends AbstractType
      */
     public function renderType($value, $source)
     {
+        if(!$value) return;
+        
         return $this->doctrine->getRepository($this->getOption('class'))
             ->find($value);
     }

@@ -23,7 +23,7 @@
 
  */
 
-namespace Evence\Bundle\CoreBundle\Controller;
+namespace Evence\Bundle\GridBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 

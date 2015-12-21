@@ -808,8 +808,14 @@ abstract class Grid
                 $prow->cols[$key]->fieldname = $field->getType()->getName();
                 
                 $prow->multipleIdentifier = null;
-                if ($this->getMultipleIdentifierField() != null)
-                    $prow->multipleIdentifier = $this->getColBySource($row, $this->getMultipleIdentifierField());
+                
+                try {
+                    if ($this->getMultipleIdentifierField() != null)
+                        $prow->multipleIdentifier = $this->getColBySource($row, $this->getMultipleIdentifierField());
+                }
+                catch ( \Exception $e){
+                    
+                }
                 
                 $prow->actions = array();
                 $prow->mappedParams = $this->actionConfigurator->getParametersBySource($row);

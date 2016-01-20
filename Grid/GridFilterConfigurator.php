@@ -103,11 +103,14 @@ class GridFilterConfigurator
         $this->grid = $grid;
         $this->formFactory = $formFactory;
         
-        if($grid->getDataSourceType() == Grid::DATA_SOURCE_ENTITY){
-            $entityInfo =  $grid->getEntityClassMeta();
+        if($grid->getDataSourceType() == Grid::DATA_SOURCE_ENTITY || $grid->getDataSourceType() == Grid::DATA_SOURCE_DOCUMENT ){
+            
             //$this->formData = new $entityInfo->name();
             $this->formData = new FilterObject();
         }
+        
+        if($grid->getDataSourceType() == Grid::DATA_SOURCE_ENTITY)
+            $entityInfo =  $grid->getEntityClassMeta();
         
     
         

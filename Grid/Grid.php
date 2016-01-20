@@ -47,6 +47,9 @@ use Evence\Bundle\GridBundle\Grid\Event\GridEvent;
 use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\MongoDB\Query\Builder;
+use Symfony\Component\Form\Extension\DataCollector\Proxy\ResolvedTypeDataCollectorProxy;
+use Evence\Bundle\GridBundle\Grid\Event\GridFilterEvent;
+use Evence\Bundle\GridBundle\Grid\Event\Evence\Bundle\GridBundle\Grid\Event;
 
 /**
  * E-vence: Grid
@@ -487,9 +490,7 @@ abstract class Grid
                 self::QUERY_SELECT
             ));
             
-            $event = new GridEvent();
-            $event->setGrid($this)->setQuerybuilder($qb);                  
-            $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);
+       
             
           
         
@@ -583,6 +584,8 @@ abstract class Grid
     public function filterQuery($qb)
     {
         
+
+        
         /* Filters here */
         if (! $this->filterConfigurator->hasFields())
             return;
@@ -599,11 +602,13 @@ abstract class Grid
                 
                 if ($name != '_identifier' && $name != '_search') {
                     
-                    if (! $this->filterConfigurator->getFilterMapper()->hasField($name)) {
+                    if (! $this->filterConfigurator->getFilterMapper()->hasField($name)) {                             
                         
                         $data = $item->getData();
+                      
                         if ($data) {
                             if($qb instanceof Builder){
+                                if($item->getNormData() && method_exists($data, 'getId')) $data = $data->getId();
                                 $qb->field($name)->equals($data);
                             }
                             elseif( $qb instanceof \Doctrine\ORM\QueryBuilder) {
@@ -614,7 +619,8 @@ abstract class Grid
                     }
                 }
             }
-            
+          
+           
             foreach ($this->filterConfigurator->getFilterMapper() as $mapper) {
                 /**
                  *
@@ -886,7 +892,10 @@ abstract class Grid
      */
     public function createFilterConfigurator()
     {
+        
         return $this->filterConfigurator = new GridFilterConfigurator($this, $this->formFactory);
+  
+        
     }
 
     /**
@@ -944,7 +953,7 @@ abstract class Grid
         
         if ($this->fieldConfigurator == null)
             $this->configureFields($this->createFieldConfigurator());
-        
+             
         if ($this->actionConfigurator == null)
             $this->configureActions($this->createActionConfigurator());
         

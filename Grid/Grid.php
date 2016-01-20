@@ -459,6 +459,8 @@ abstract class Grid
                 self::QUERY_COUNT
             ));
             
+            $this->filterQuery($qb);
+            
             $count = $qb->getQuery()->execute()->count();
          
             

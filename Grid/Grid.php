@@ -487,14 +487,20 @@ abstract class Grid
                 ->setFirstResult($this->getPagination()
                 ->getFirstRecord());
             
+            $event = new GridEvent();
+            $event->setGrid($this)->setQuerybuilder($qb);
+          
+         //   $this->eventDispatcher->dispatch(GridEvent::PRE_SET_QUERY, $event);
+            
+            
             call_user_func_array($options['querybuilder_callback'], array(
                 $qb,
                 self::QUERY_SELECT
             ));
             
        
-            
-          
+            $event->setGrid($this)->setQuerybuilder($qb);
+            $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);
         
             $this->filterQuery($qb);
         

@@ -198,6 +198,7 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
                 return new EntityType();
             break;
             case "EntityReference":
+            case "entityReference":
                 return new EntityReferenceType($this->grid->getDoctrine());
             break;
             case "money":

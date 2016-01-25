@@ -459,6 +459,11 @@ abstract class Grid
                 self::QUERY_COUNT
             ));
             
+            $event = new GridEvent();
+            $event->setGrid($this)->setQuerybuilder($qb);
+            $this->eventDispatcher->dispatch(GridEvent::POST_SET_COUNT_QUERY, $event);
+            
+            
             $this->filterQuery($qb);
             
             $count = $qb->getQuery()->execute()->count();
@@ -535,7 +540,7 @@ abstract class Grid
                 
 
                 $event = new GridEvent();
-                $event->setGrid($this);
+                $event->setGrid($this)->setQuerybuilder($qb);
                 $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);                
 
                 $this->filterQuery($qb);

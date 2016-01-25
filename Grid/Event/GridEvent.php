@@ -78,7 +78,7 @@ class GridEvent extends Event
         return $this->querybuilder;
     }
 
-    public function setQuerybuilder(QueryBuilder $querybuilder)
+    public function setQuerybuilder($querybuilder)
     {
         $this->querybuilder = $querybuilder;
         return $this;

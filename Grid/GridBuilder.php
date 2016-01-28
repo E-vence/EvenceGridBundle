@@ -42,13 +42,6 @@ class GridBuilder extends Grid
         $this->actionConfigurator = $this->createActionConfigurator();
     }
 
-    public function getFilterConfigurator()
-    {
-        if (! $this->filterConfigurator)
-            $this->filterConfigurator = $this->createFilterConfigurator();
-        return $this->filterConfigurator;
-    }
-
     /**
      * Add datafield to the grid
      *

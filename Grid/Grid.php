@@ -50,6 +50,8 @@ use Doctrine\MongoDB\Query\Builder;
 use Symfony\Component\Form\Extension\DataCollector\Proxy\ResolvedTypeDataCollectorProxy;
 use Evence\Bundle\GridBundle\Grid\Event\GridFilterEvent;
 use Evence\Bundle\GridBundle\Grid\Event\Evence\Bundle\GridBundle\Grid\Event;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * E-vence: Grid
@@ -204,6 +206,26 @@ abstract class Grid
      */
     private $securityContext = null;
 
+
+    /**
+     * Symfony's TokenStorage service
+     *
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage = null;
+    
+    
+
+    /**
+     * Symfony's AuthorizationChecker service
+     *
+     * @var AuthorizationCheckerInterface
+     */
+    private $authorizationChecker = null;
+    
+    
+    
+    
     /**
      * Default template resource to use
      *
@@ -1208,18 +1230,46 @@ abstract class Grid
      */
     public function getSecurityContext()
     {
+        @trigger_error("getSecurityContext() is deprecated and will be removed", E_USER_DEPRECATED);
         return $this->securityContext;
     }
 
     /**
      * Set Symfony's securityContext service
      *
-     * @param SecurityContext $securityContext            
+     * @param SecurityContext $securityContext    
+     * @deprecated         
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setSecurityContext(SecurityContext $securityContext)
     {
+        @trigger_error("setSecurityContext() is deprecated and will be removed", E_USER_DEPRECATED);
         $this->securityContext = $securityContext;
+        return $this;
+    }
+    
+
+    /**
+     * Get Symfony's tokenStorage service
+     *
+     * @return TokenStorageInterface
+     */
+    public function getTokenStorage()
+    {
+       
+        return $this->tokenStorage;
+    }
+    
+    
+    /**
+     * Set Symfony's securityContext service
+     *
+     * @param TokenStorageInterface $tokenStorage
+     * @return \Evence\Bundle\GridBundle\Grid\Grid
+     */
+    public function setTokenStorage(TokenStorageInterface $tokenStorage)
+    {
+        $this->tokenStorage = $tokenStorage;
         return $this;
     }
 
@@ -1362,8 +1412,35 @@ abstract class Grid
     {
         return $this->doctrine;
     }
+
+    /**
+     * @return \Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface
+     */
+    public function getAuthorizationChecker()
+    {
+        return $this->authorizationChecker;
+    }
+
+    /**
+     * @param AuthorizationCheckerInterface $authorizationChecker
+     * @return \Evence\Bundle\GridBundle\Grid\Grid
+     */
+    public function setAuthorizationChecker(AuthorizationCheckerInterface $authorizationChecker)
+    {
+        
+        $this->authorizationChecker = $authorizationChecker;
+        return $this;
+    }
  
  
+
+    public function getFilterConfigurator()
+    {
+        if (! $this->filterConfigurator)
+            $this->filterConfigurator = $this->createFilterConfigurator();
+        return $this->filterConfigurator;
+    }
+    
  
  
 }

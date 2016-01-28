@@ -72,7 +72,9 @@ class GridHelper extends ContainerAware
             ->setRequest($this->container->get('request'))
             ->setRouter($this->container->get('router'))
             ->setSession($this->container->get('session'))
-            ->setSecurityContext($this->container->get('security.context'))
+            ->setTokenStorage($this->container->get('security.token_storage'))
+            ->setAuthorizationChecker($this->container->get('security.authorization_checker'))
+          
             ->setFormFactory($this->container->get('form.factory'))
             ->setEventDispatcher($this->container->get('event_dispatcher'));
         
@@ -103,7 +105,9 @@ class GridHelper extends ContainerAware
             ->setRequest($this->container->get('request'))
             ->setRouter($this->container->get('router'))
             ->setSession($this->container->get('session'))
-            ->setSecurityContext($this->container->get('security.context'))
+       
+            ->setTokenStorage($this->container->get('security.token_storage'))
+            ->setAuthorizationChecker($this->container->get('security.authorization_checker'))
             ->setFormFactory($this->container->get('form.factory'))
             ->setEventDispatcher($this->container->get('event_dispatcher'));
         

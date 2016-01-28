@@ -122,7 +122,7 @@ class Action
             
             foreach ($this->getRoles() as $row) {
                 if ($this->configurator->getGrid()
-                    ->getSecurityContext()
+                    ->getAuthorizationChecker()
                     ->isGranted($row) !== false)
                     $denied = false;
             }

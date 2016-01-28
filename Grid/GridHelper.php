@@ -35,7 +35,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\DependencyInjection\ContainerAware;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Grid helper: Helps creating a Grid
@@ -46,9 +46,12 @@ use Symfony\Component\DependencyInjection\ContainerAware;
  * @package evence/grid-bundle
  * @subpackage Grid
  */
-class GridHelper extends ContainerAware
+class GridHelper
 {
 
+    use ContainerAwareTrait;
+    
+    
     /**
      * Array of grids
      * 

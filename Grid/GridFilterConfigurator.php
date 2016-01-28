@@ -40,6 +40,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Evence\Bundle\GridBundle\Grid\Filter\FilterMapperCollection;
 use Evence\Bundle\GridBundle\Grid\Filter\FilterObject;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 
 /**
  * Grid filter configurator
@@ -116,7 +117,7 @@ class GridFilterConfigurator
         
         $options = array_merge(array('mapped' => true, 'csrf_protection' => false), $options);
         
-        $this->formBuilder = $formFactory->createNamedBuilder($this->grid->getPrefix(),'form', $this->formData, $options)->setMethod('GET');        
+        $this->formBuilder = $formFactory->createNamedBuilder($this->grid->getPrefix(),FormType::class, $this->formData, $options)->setMethod('GET');        
         $this->filterMapper = new FilterMapperCollection();
     } 
     

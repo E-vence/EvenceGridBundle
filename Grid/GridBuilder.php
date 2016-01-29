@@ -54,9 +54,9 @@ class GridBuilder extends Grid
      * @param array $options            
      * @return \Evence\Bundle\GridBundle\Grid\GridFieldConfigurator
      */
-    public function addDataField($alias, $label, $type = null, $options = array())
+    public function addDataField($alias, $type = null, $options = [], $deprecatedOptions = null)
     {
-        $this->fieldConfigurator->addDataField($alias, $label, $type, $options);
+        $this->fieldConfigurator->addDataField($alias, $type, $options, $deprecatedOptions);
         return $this;
     }
 
@@ -75,9 +75,9 @@ class GridBuilder extends Grid
      *            Array of options
      * @return GridBuilder
      */
-    public function addCustomField($alias, $label, $type, $callable, $options = array())
+    public function addCustomField($alias, $type, $callable, $options = [], $deprecatedOptions = null)
     {
-        $this->fieldConfigurator->addCustomField($alias, $label, $type, $callable, $options);
+        $this->fieldConfigurator->addCustomField($alias, $type, $callable, $options, $deprecatedOptions);
         
         return $this;
     }
@@ -99,9 +99,9 @@ class GridBuilder extends Grid
      *            Options for the action
      * @return GridBuilder
      */
-    public function addAction($identifier, $label, $routeName, $routeParameters = array(), $roles = null, $options = array())
+    public function addAction($identifier, $routeName, $routeParameters = array(), $roles = null, $options = array(), $deprecatedOptions = [])
     {
-        $this->actionConfigurator->addAction($identifier, $label, $routeName, $routeParameters, $roles, $options);
+        $this->actionConfigurator->addAction($identifier, $routeName, $routeParameters, $roles, $options, $deprecatedOptions);
         return $this;
     }
 
@@ -122,9 +122,9 @@ class GridBuilder extends Grid
      *            Options for the action
      * @return GridBuilder
      */
-    public function addMultipleAction($identifier, $label, $routeName, $routeParameters = array(), $roles = null, $options = array())
+    public function addMultipleAction($identifier, $routeName, $routeParameters = array(), $roles = null, $options = array(), $deprecatedOptions = [])
     {
-        $this->actionConfigurator->addMultipleAction($identifier, $label, $routeName, $routeParameters, $roles, $options);
+        $this->actionConfigurator->addMultipleAction($identifier, $routeName, $routeParameters, $roles, $options, $deprecatedOptions);
         return $this;
     }
 

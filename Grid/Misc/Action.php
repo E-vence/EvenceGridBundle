@@ -88,11 +88,11 @@ class Action
 
     protected $options;
 
-    public function __construct(GridActionConfigurator $configurator, $identifier, $label, $options = array())
+    public function __construct(GridActionConfigurator $configurator, $identifier, $options = array())
     {
         $this->configurator = $configurator;
         $this->identifier = $identifier;
-        $this->label = $label;
+      
         
         $resolver = new OptionsResolver();
         
@@ -108,11 +108,20 @@ class Action
             'isVisible' => function (Action $action, $source) {
                 return true;
             },
-            'mappedParameters' => []
+            'mappedParameters' => [],
+            'label' => $this->humanize($identifier)
         ));
         
-        $this->options = $resolver->resolve($options);
+        $this->options = $resolver->resolve($options);        
+        $this->label = $this->options ['label'];
     }
+    
+    public function humanize($input){
+        $input = preg_replace("/([a-z]{1})([A-Z_-]{1})/", "\\1 \\2", $input);
+        return ucfirst(strtolower($input));
+    }
+    
+    
 
     public function isVisible($source = '')
     {

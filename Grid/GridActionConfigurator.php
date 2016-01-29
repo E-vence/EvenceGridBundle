@@ -83,9 +83,29 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
      *            Options for the action
      * @return \Evence\Bundle\GridBundle\Grid\GridActionConfigurator
      */
-    public function addAction($identifier, $label, $routeName, $routeParameters = array(), $roles = null, $options = array())
+    public function addAction($identifier,  $routeName, $routeParameters = array(), $roles = null, $options = array(), $deprecatedOptions = array())
     {
-        $action = new Action($this, $identifier, $label, $options);
+        if(!is_array($routeParameters)){
+            
+            @trigger_error('Use of parameter 2 as label in add' . (isset($deprecatedOptions['multiple']) ? 'Multiple' : '') . 'Action is depracted since 1.1 and will be removed in 1.2, please use the label index as option', E_USER_DEPRECATED);
+            
+            
+            $bakName = $routeName;           
+            $bakParams = $routeParameters;
+            $bakRoles = $roles;
+            $bakOptions = $options;
+            $bakdeprecatedOptions = $deprecatedOptions;
+            
+            $options['label'] = $routeName;
+            $routeName = $routeParameters;
+            $routeParameters = $roles;
+            $roles = $options;
+            $options = $deprecatedOptions;
+        }
+            
+        
+        
+        $action = new Action($this, $identifier, $options, $deprecatedOptions);
         $action->setRoute($routeName)
             ->setRouteParameters($routeParameters)
             ->setRoles($roles);
@@ -113,10 +133,14 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
      *            Options for the action
      * @return \Evence\Bundle\GridBundle\Grid\GridActionConfigurator
      */
-    public function addMultipleAction($identifier, $label, $routeName, $routeParameters = array(), $roles = null, $options = array())
+    public function addMultipleAction($identifier, $routeName, $routeParameters = array(), $roles = null, $options = array(), $deprecatedOptions = array())
     {       
-        $options['multiple'] = true;
-        return $this->addAction($identifier, $label, $routeName, $routeParameters, $roles, $options);
+        if(!is_array($routeParameters))
+            $deprecatedOptions['multiple'] = true;       
+        else 
+            $options['multiple'] = true;
+        
+        return $this->addAction($identifier, $routeName, $routeParameters, $roles, $options, $deprecatedOptions);
     }
     
 

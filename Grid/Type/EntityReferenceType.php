@@ -40,13 +40,6 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 class EntityReferenceType extends AbstractType
 {
 
-    private $doctrine = null;
-
-    public function __construct(RegistryInterface $doctrine)
-    {
-        $this->doctrine = $doctrine;
-    }
-
     /*
      * (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
@@ -55,7 +48,7 @@ class EntityReferenceType extends AbstractType
     {
         if(!$value) return;
         
-        return $this->doctrine->getRepository($this->getOption('class'))
+        return $this->configurator->getGrid()->getDoctrine()->getRepository($this->getOption('class'))
             ->find($value);
     }
 

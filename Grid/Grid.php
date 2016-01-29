@@ -52,6 +52,8 @@ use Evence\Bundle\GridBundle\Grid\Event\GridFilterEvent;
 use Evence\Bundle\GridBundle\Grid\Event\Evence\Bundle\GridBundle\Grid\Event;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 /**
  * E-vence: Grid
@@ -1001,8 +1003,8 @@ abstract class Grid
         
         if ($filter->hasFields()) {
             if (! $filter->getFormBuilder()->has('_search'))
-                $filter->getFormBuilder()->add('_search', 'submit');
-            $filter->getFormBuilder()->add('_identifier', 'hidden', array(
+                $filter->getFormBuilder()->add('_search', SubmitType::class);
+            $filter->getFormBuilder()->add('_identifier', HiddenType::class, array(
                 'data' => $this->getIdentifier(),
                 'mapped' => false
             ));

@@ -28,6 +28,7 @@ namespace Evence\Bundle\GridBundle\Grid\Type;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Evence\Bundle\GridBundle\Grid\Fields\Field;
 use Evence\Bundle\GridBundle\Grid\Misc\Value;
+use Evence\Bundle\GridBundle\Grid\GridFieldConfigurator;
 /**
  * Abstract class for type
  *
@@ -39,6 +40,11 @@ use Evence\Bundle\GridBundle\Grid\Misc\Value;
  */ 
 abstract class AbstractType implements InterfaceType
 {
+    
+    /**
+     * @var GridFieldConfigurator
+     */
+    protected $configurator;
     
     /**
      * @var Field Field class
@@ -102,7 +108,9 @@ abstract class AbstractType implements InterfaceType
         $resolver->setDefault('mapped', true);
         $resolver->setDefault('foot', false);
         $resolver->setDefault('align', false);
-        $resolver->setDefault('class', '');        
+        $resolver->setDefault('class', '');
+        $resolver->setDefault('label', '');
+                
         $this->configureOptions($resolver);
         
         
@@ -128,6 +136,9 @@ abstract class AbstractType implements InterfaceType
        
     }
     
+    public function setConfigurator(GridFieldConfigurator $fieldConfigurator){
+        $this->configurator = $fieldConfigurator;  
+    }
 }
 
 ?>

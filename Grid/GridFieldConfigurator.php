@@ -43,6 +43,7 @@ use Evence\Bundle\GridBundle\Grid\Type\AgeType;
 use Evence\Bundle\GridBundle\Grid\Type\ImageType;
 use Evence\Bundle\GridBundle\Grid\Type\DecimalType;
 use Evence\Bundle\GridBundle\Grid\Type\InputType;
+use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Grid field configurator
@@ -74,15 +75,46 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
      *
      * @param string $alias
      *            Alias or dataname of the datasource
-     * @param string $label
-     *            Label of the field (for heading in the grid)
      * @param AbstractType|string $type
      *            Desired data type
      * @param array $options            
+     * @param array $deprecatedOptions will removed in 1.2
      * @return \Evence\Bundle\GridBundle\Grid\GridFieldConfigurator
      */
-    public function addDataField($alias, $label, $type = null, $options = array())
+    public function addDataField($alias, $type = null, $options = [], $deprecatedOptions = null)
     {
+        $label = null;
+        
+        if(null == $type){
+            $type = TextType::class;
+        }
+        
+        if(!class_exists($type) && !is_object($type)){
+            VarDumper::dump($options);
+           
+            if(!$options || is_string($options)){           
+                @trigger_error("Use of parameter 2 as label is depracted since 1.1 and will be removed in 1.2, please use the label index as option", E_USER_DEPRECATED);
+                $label = $type;                  
+
+                $type = $this->getType($this->detectType($options));
+                $options = $deprecatedOptions;
+            }
+            else {
+                $type = $this->getType($this->detectType($type));           
+            }            
+        }
+        else {
+           $type = $this->getType($type);
+        }
+        
+        if(!$label){
+            if(isset($options['label']))
+                $label = $options['label'];
+            else
+                $label = $this->humanize($alias);
+        }
+        
+  
         $this->fields[$alias] = new DataField($this, $alias, $label);
         if ($this->grid->getSortBy() == $alias) {
             $this->fields[$alias]->setCurrentSort(true);
@@ -115,7 +147,7 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
     /**
      * Add a custom field to the grid
      *
-     * @param string $alias
+     * @param string $alias 
      *            Alias for the custom fieldname
      * @param string $label
      *            Label of the field (for heading in the grid)
@@ -127,14 +159,55 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
      *            Array of options
      * @return \Evence\Bundle\GridBundle\Grid\GridFieldConfigurator
      */
-    public function addCustomField($alias, $label, $type, $callable, $options = array())
-    {
+    public function addCustomField($alias, $type, $callable, $options = [], $deprecatedOptions = null)
+    {                             //'subscriber', 'Subscriber', 'text',
+        
+        $label = null;
+        
+        if(null == $type){
+            $type = TextType::class;
+        }
+        
+        if(!is_callable($callable)){
+      
+             
+            if(!$callable || is_string($callable)){
+                @trigger_error("Use of parameter 2 as label is depracted since 1.1 and will be removed in 1.2, please use the label index as option", E_USER_DEPRECATED);
+
+                $backupType =  $type;
+                $backupCallable = $callable;
+                $backupOptions = $options;
+                $backupDeprecatedOptions = $deprecatedOptions;
+                
+                $label = $type;        
+                $type = $this->getType($this->detectType($backupCallable));
+                $callable = $backupOptions;                
+                $options = $deprecatedOptions;     
+               
+            }
+            else {
+                
+                $type = $this->getType($this->detectType($type));
+            }
+        }
+        else {
+            $type = $this->getType($type);
+        }
+        
+        if(!$label){
+            if(isset($options['label']))
+                $label = $options['label'];
+            else
+                $label = $this->humanize($alias);
+        }
+        
+        
         $options['mapped'] = false;
         
         $this->fields[$alias] = new CustomField($this, $alias, $label);
         $this->fields[$alias]->setMapped($options['mapped'])
             ->setCallback($callable)
-            ->setType($this->detectType($type))
+            ->setType($type)
             ->getType()
             ->setField($this->fields[$alias])
             ->resolveOptions($options);
@@ -152,6 +225,20 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
         $this->grid = $grid;
     }
 
+    public function getType($type){
+        
+        if(!is_object($type))
+            $type = new $type();
+        
+        
+        if (! $type instanceof AbstractType)
+            throw new \Exception('Object is not an instance of Evence\Bundle\GridBundle\Grid\Type\AbstractType');
+        else            
+            $type->setConfigurator($this);
+        
+        return $type;
+    }
+    
     /**
      * Try to detect the given (data) type and return an object
      *
@@ -169,56 +256,80 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
         }
         
         switch ($type) {
-            case "boolean":
+            case "boolean":         
+                $this->typeDeprecation($type, BooleanType::class);                       
                 return new BooleanType();
                 break;
             case "":
             case "text":
+                $this->typeDeprecation($type, TextType::class);
                 return new TextType();
                 break;
             case "choice":
+                $this->typeDeprecation($type, ChoiceType::class);
                 return new ChoiceType();
                 break;
             case "age":
+                $this->typeDeprecation($type, AgeType::class);
                 return new AgeType();
                 break;
             case "date":
+                $this->typeDeprecation($type, DateType::class);
                 return new DateType();
             break;            
             case "decimal":
+                $this->typeDeprecation($type, DecimalType::class);
                 return new DecimalType();
             break;
             case "datetime":
+                $this->typeDeprecation($type, DateTimeType::class);
                 return new DateTimeType();
                 break;
             case "time":
+                $this->typeDeprecation($type, TimeType::class);
                 return new TimeType();
                 break;
             case "entity":
+                $this->typeDeprecation($type, EntityType::class);
                 return new EntityType();
             break;
             case "EntityReference":
             case "entityReference":
+                $this->typeDeprecation($type, EntityReferenceType::class);
                 return new EntityReferenceType($this->grid->getDoctrine());
             break;
             case "money":
+                $this->typeDeprecation($type, MoneyType::class);
                 return new MoneyType();
             break;
             case "link":
+                $this->typeDeprecation($type, LinkType::class);
                 return new LinkType();
             break;
             case "image":
+                $this->typeDeprecation($type, ImageType::class);
                 return new ImageType();
                 break;
             case "html":
+                $this->typeDeprecation($type, HtmlType::class);
                 return new HtmlType();
             break;
             case "input":
+                $this->typeDeprecation($type, InputType::class);
                 return new InputType();
             break;
         }
         
         throw new \Exception('Non existing type ' . $type);
+    }
+    
+    private function typeDeprecation($name, $class){
+        return @trigger_error('Use of \''. $name. '\' as string is deprecated in 1.1 and will be removed in 1.2. Please use the fully qualified class name '. $class. '.' , E_USER_DEPRECATED);
+    }
+    
+    public function humanize($input){
+        $input = preg_replace("/([a-z]{1})([A-Z_-]{1})/", "\\1 \\2", $input);
+        return ucfirst(strtolower($input));        
     }
 
     /**

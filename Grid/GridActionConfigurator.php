@@ -32,6 +32,7 @@ use Evence\Bundle\GridBundle\Grid\Type\TextType;
 use Evence\Bundle\GridBundle\Grid\Type\ChoiceType;
 use Evence\Bundle\GridBundle\Grid\actions\CustomField;
 use Evence\Bundle\GridBundle\Grid\Misc\Action;
+use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Grid field configurator
@@ -88,19 +89,18 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
         if(!is_array($routeParameters)){
             
             @trigger_error('Use of parameter 2 as label in add' . (isset($deprecatedOptions['multiple']) ? 'Multiple' : '') . 'Action is depracted since 1.1 and will be removed in 1.2, please use the label index as option', E_USER_DEPRECATED);
-            
-            
+                       
             $bakName = $routeName;           
             $bakParams = $routeParameters;
             $bakRoles = $roles;
             $bakOptions = $options;
             $bakdeprecatedOptions = $deprecatedOptions;
-            
-            $options['label'] = $routeName;
+                     
             $routeName = $routeParameters;
             $routeParameters = $roles;
             $roles = $options;
             $options = $deprecatedOptions;
+            $options['label'] = $routeName;
         }
             
         

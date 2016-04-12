@@ -601,7 +601,7 @@ abstract class Grid
             
             $data = $event->getData();
             
-            if ($this->getSortBy()) {
+            if ($this->getSortBy() && !empty($data)) {
                 foreach ($data as $row) {    
                     $sortBy[] = $row[$this->getSortBy()];            
                 }            

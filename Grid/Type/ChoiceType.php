@@ -25,7 +25,9 @@ THE SOFTWARE.
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 
+use Evence\Bundle\CoreBundle\Utils\FormUtils;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * Field type class for Boolean
  *
@@ -34,49 +36,57 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @link https://www.github.com/RubenHarms
  * @package evence/grid-bundle
  * @subpackage Type
- */ 
- 
-class ChoiceType extends AbstractType 
+ */
+class ChoiceType extends AbstractType
 {
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source ){
-        
+    public function renderType($value, $source)
+    {
+
         $valArray = array();
-        
-        if (!is_array($value)){
-            $value = array($value);    
-        }   
+
+        if (!is_array($value)) {
+            $value = array($value);
+        }
 
         $choices = $this->getOption('choices');
-        
-        foreach ($value as $val){
-            
-            if(!empty($choices[$val]))
-            $valArray[$val] = $choices[$val];
+
+        if ($this->getOption('choices_as_values')) $choices = FormUtils::flipChoices($choices);
+
+        foreach ($value as $val) {
+
+            if (!empty($choices[$val]))
+                $valArray[$val] = $choices[$val];
         }
-        
+
+      //  if (empty($valArray) && $this->getOption('empty_data'))
+        //    $valArray[] = $this->getOption('empty_data');
+
         return $valArray;
     }
 
-    
+
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::getName()
      */
-    public function getName(){
+    public function getName()
+    {
         return 'choice';
-    }    
-    
-    public function configureOptions(OptionsResolver $resolver){
-         $resolver->setDefaults( array('separator' => ', ', 'bootstrap' => ['label_callback' => null]));
-         $resolver->setRequired('choices');         
     }
-    
-    public function getLabel($key){
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array('separator' => ', ', 'bootstrap' => ['label_callback' => null], 'choices_as_values' => false, /* 'empty_data' => ''*/));
+        $resolver->setRequired('choices');
+    }
+
+    public function getLabel($key)
+    {
         $bootstrap = $this->getOption('bootstrap');
-        if($bootstrap['label_callback']){
-            return call_user_func_array($bootstrap['label_callback'],[$key]);
+        if ($bootstrap['label_callback']) {
+            return call_user_func_array($bootstrap['label_callback'], [$key]);
         }
     }
 }

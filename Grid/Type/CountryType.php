@@ -32,9 +32,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class CountryType extends ChoiceType
 {
-
-
-
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::getName()
      */
@@ -46,17 +43,7 @@ class CountryType extends ChoiceType
     public function configureOptions(OptionsResolver $resolver)
     {
         parent::configureOptions($resolver);
-
         $resolver->setDefault('choices', Intl::getRegionBundle()->getCountryNames());
-
-    }
-
-    public function getLabel($key)
-    {
-        $bootstrap = $this->getOption('bootstrap');
-        if ($bootstrap['label_callback']) {
-            return call_user_func_array($bootstrap['label_callback'], [$key]);
-        }
     }
 }
 

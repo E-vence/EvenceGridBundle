@@ -64,7 +64,7 @@
         {% if options.bootstrap.label_callback %}
             <span class="label label-{{ type.getLabel(key) }}">{{ val|trans }}</span>
         {%else%}
-            {{ val|trans }}
+            {{ type.getChoiceLabel(source, val|trans, key) }}
         {%endif%}
         {% set index = index+1 %}
     {% endfor %}

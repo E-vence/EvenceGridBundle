@@ -30,6 +30,7 @@ class Value {
     private $value;  
     private $original;
     private $type;
+    private $source;
 
     public function __toString(){
         return $this->value;
@@ -71,7 +72,26 @@ class Value {
         $this->original = $original;
         return $this;
     }
- 
+
+    /**
+     * @return mixed
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param mixed $source
+     * @return Value
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
+        return $this;
+    }
+
+
     
 }
 

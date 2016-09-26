@@ -107,6 +107,7 @@
             			{% set value = col.value.getValue() %}
             			{% set valueObject = col.value %}
             			{% set options = col.value.getOptions() %}
+						{% set source = valueObject.getSource() %}
             			{% set blockName = col.fieldname~ '_type' %} 
             			
             			{% set colAttributes = tdAttributes %}

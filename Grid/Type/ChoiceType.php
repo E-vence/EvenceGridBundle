@@ -27,6 +27,7 @@ namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Evence\Bundle\CoreBundle\Utils\FormUtils;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Field type class for Boolean
@@ -47,21 +48,19 @@ class ChoiceType extends AbstractType
 
         $valArray = array();
 
-        if (!is_array($value)) {
-            $value = array($value);
-        }
 
         $choices = $this->getOption('choices');
+        if (!$this->getOption('choices_as_values')) $choices = array_flip($choices);
 
-        if ($this->getOption('choices_as_values')) $choices = FormUtils::flipChoices($choices);
 
-        foreach ($value as $val) {
+        foreach ((array)$value as $key => $val) {
 
-            if (!empty($choices[$val]))
-                $valArray[$val] = $choices[$val];
+            if (array_search($val, $choices) !== false)
+                $valArray[] = array_search($val, $choices);
         }
 
-      //  if (empty($valArray) && $this->getOption('empty_data'))
+
+        //  if (empty($valArray) && $this->getOption('empty_data'))
         //    $valArray[] = $this->getOption('empty_data');
 
         return $valArray;
@@ -76,10 +75,19 @@ class ChoiceType extends AbstractType
         return 'choice';
     }
 
+    public function choiceLabelCallback($source, $key, $index){
+        return $key;
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array('separator' => ', ', 'bootstrap' => ['label_callback' => null], 'choices_as_values' => false, /* 'empty_data' => ''*/));
+        $resolver->setDefaults(array('separator' => ', ', 'bootstrap' => ['label_callback' => null], 'choices_as_values' => false, 'choice_label' => [$this, 'choiceLabelCallback'] /* 'empty_data' => ''*/));
         $resolver->setRequired('choices');
+    }
+
+    public function getChoiceLabel($source, $key, $val){
+        $choiceLabel = call_user_func_array($this->getOption('choice_label'), [$source, (string) $key, $val]);
+        return $choiceLabel;
     }
 
     public function getLabel($key)

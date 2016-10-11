@@ -72,7 +72,7 @@ class GridHelper
         
         $grid->setTemplating($this->container->get('templating'))
             ->setDoctrine($this->container->get('doctrine'))
-            ->setRequest($this->container->get('request'))
+            ->setRequest($this->container->get('request_stack')->getMasterRequest())
             ->setRouter($this->container->get('router'))
             ->setSession($this->container->get('session'))
             ->setTokenStorage($this->container->get('security.token_storage'))
@@ -105,7 +105,7 @@ class GridHelper
         
         $grid->setTemplating($this->container->get('templating'))
             ->setDoctrine($this->container->get('doctrine'))
-            ->setRequest($this->container->get('request'))
+            ->setRequest($this->container->get('request_stack')->getMasterRequest())
             ->setRouter($this->container->get('router'))
             ->setSession($this->container->get('session'))
        
@@ -145,7 +145,7 @@ class GridHelper
      */
     public function gridResponse($view, array $parameters = array(), Response $response = null)
     {
-        $request = $this->container->get('request');
+        $request = $this->container->get('request_stack')->getMasterRequest();
         
         if ($gmode = $request->get('grid_mode')) {
             if ($gid = $request->get('grid_id')) {

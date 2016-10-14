@@ -27,6 +27,8 @@ namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Doctrine\ORM\PersistentCollection;
+use Symfony\Component\VarDumper\VarDumper;
+
 /**
  * Entity Type class
  *
@@ -42,8 +44,13 @@ class EntityType extends AbstractType
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
     public function renderType($value, $source ){
-    
-        if (is_object($value) && ! $value instanceof  PersistentCollection){        
+
+
+
+        if (is_object($value) && ! $value instanceof  PersistentCollection){
+
+            ;
+
             if(($property = $this->getOption('property')) !== false){            
                 $getter = 'get'. ucfirst($property);
                 if(!method_exists($value, $getter)){

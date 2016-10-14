@@ -325,6 +325,7 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
 
     public function humanize($input)
     {
+        $input = str_replace("_", " ", $input);
         $input = preg_replace("/([a-z]{1})([A-Z_-]{1})/", "\\1 \\2", $input);
         return ucfirst(strtolower($input));
     }

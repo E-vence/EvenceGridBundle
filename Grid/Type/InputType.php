@@ -26,6 +26,7 @@
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * Input type
  *

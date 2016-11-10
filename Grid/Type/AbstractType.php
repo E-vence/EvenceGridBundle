@@ -25,10 +25,11 @@
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Evence\Bundle\GridBundle\Grid\Fields\Field;
-use Evence\Bundle\GridBundle\Grid\Misc\Value;
 use Evence\Bundle\GridBundle\Grid\GridFieldConfigurator;
+use Evence\Bundle\GridBundle\Grid\Misc\Value;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * Abstract class for type
  *

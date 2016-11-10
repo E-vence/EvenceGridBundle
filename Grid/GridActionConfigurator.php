@@ -24,15 +24,10 @@
  */
 namespace Evence\Bundle\GridBundle\Grid;
 
+use Evence\Bundle\GridBundle\Grid\actions\CustomField;
 use Evence\Bundle\GridBundle\Grid\actions\DataField;
 use Evence\Bundle\GridBundle\Grid\actions\Field;
-use Evence\Bundle\GridBundle\Grid\Type\AbstractType;
-use Evence\Bundle\GridBundle\Grid\Type\BooleanType;
-use Evence\Bundle\GridBundle\Grid\Type\TextType;
-use Evence\Bundle\GridBundle\Grid\Type\ChoiceType;
-use Evence\Bundle\GridBundle\Grid\actions\CustomField;
 use Evence\Bundle\GridBundle\Grid\Misc\Action;
-use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Grid field configurator

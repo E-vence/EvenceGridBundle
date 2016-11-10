@@ -24,18 +24,9 @@
  */
 namespace Evence\Bundle\GridBundle\Grid;
 
-use Symfony\Bridge\Twig\TwigEngine;
-use Symfony\Component\BrowserKit\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Route;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\SecurityContext;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Grid helper: Helps creating a Grid

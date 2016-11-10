@@ -25,9 +25,8 @@
 
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Doctrine\ORM\PersistentCollection;
-use Symfony\Component\VarDumper\VarDumper;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Entity Type class

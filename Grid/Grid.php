@@ -24,36 +24,34 @@
  */
 namespace Evence\Bundle\GridBundle\Grid;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\MongoDB\Query\Builder;
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Evence\Bundle\GridBundle\Grid\Event\Evence\Bundle\GridBundle\Grid\Event;
+use Evence\Bundle\GridBundle\Grid\Event\GridEvent;
+use Evence\Bundle\GridBundle\Grid\Event\GridFilterEvent;
+use Evence\Bundle\GridBundle\Grid\Exception\UnknownGridFieldException;
+use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
+use Evence\Bundle\GridBundle\Grid\Misc\Action;
+use Evence\Bundle\GridBundle\Pagination\Pagination;
 use Symfony\Bridge\Twig\TwigEngine;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Evence\Bundle\GridBundle\Grid\Exception\UnknownGridFieldException;
-use Evence\Bundle\GridBundle\Pagination\Pagination;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\SecurityContext;
-use Evence\Bundle\GridBundle\Grid\Misc\Action;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
-use Symfony\Component\Form\FormFactoryInterface;
-use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
 use Symfony\Component\PropertyAccess\PropertyAccess;
-use Symfony\Component\VarDumper\VarDumper;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Evence\Bundle\GridBundle\Grid\Event\GridEvent;
-use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\MongoDB\Query\Builder;
-use Symfony\Component\Form\Extension\DataCollector\Proxy\ResolvedTypeDataCollectorProxy;
-use Evence\Bundle\GridBundle\Grid\Event\GridFilterEvent;
-use Evence\Bundle\GridBundle\Grid\Event\Evence\Bundle\GridBundle\Grid\Event;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Security\Core\SecurityContext;
 
 /**
  * E-vence: Grid

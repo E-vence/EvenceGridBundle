@@ -17,7 +17,6 @@
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 
-use Evence\Bundle\CoreBundle\Utils\FormUtils;
 use Symfony\Component\Intl\Intl;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

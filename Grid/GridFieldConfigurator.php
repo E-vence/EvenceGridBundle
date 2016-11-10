@@ -24,26 +24,25 @@
  */
 namespace Evence\Bundle\GridBundle\Grid;
 
+use Evence\Bundle\GridBundle\Grid\Fields\CustomField;
 use Evence\Bundle\GridBundle\Grid\Fields\DataField;
 use Evence\Bundle\GridBundle\Grid\Fields\Field;
 use Evence\Bundle\GridBundle\Grid\Type\AbstractType;
-use Evence\Bundle\GridBundle\Grid\Type\BooleanType;
-use Evence\Bundle\GridBundle\Grid\Type\TextType;
-use Evence\Bundle\GridBundle\Grid\Type\ChoiceType;
-use Evence\Bundle\GridBundle\Grid\Fields\CustomField;
-use Evence\Bundle\GridBundle\Grid\Type\DateType;
-use Evence\Bundle\GridBundle\Grid\Type\DateTimeType;
-use Evence\Bundle\GridBundle\Grid\Type\TimeType;
-use Evence\Bundle\GridBundle\Grid\Type\EntityType;
-use Evence\Bundle\GridBundle\Grid\Type\EntityReferenceType;
-use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
-use Evence\Bundle\GridBundle\Grid\Type\LinkType;
-use Evence\Bundle\GridBundle\Grid\Type\HtmlType;
 use Evence\Bundle\GridBundle\Grid\Type\AgeType;
-use Evence\Bundle\GridBundle\Grid\Type\ImageType;
+use Evence\Bundle\GridBundle\Grid\Type\BooleanType;
+use Evence\Bundle\GridBundle\Grid\Type\ChoiceType;
+use Evence\Bundle\GridBundle\Grid\Type\DateTimeType;
+use Evence\Bundle\GridBundle\Grid\Type\DateType;
 use Evence\Bundle\GridBundle\Grid\Type\DecimalType;
+use Evence\Bundle\GridBundle\Grid\Type\EntityReferenceType;
+use Evence\Bundle\GridBundle\Grid\Type\EntityType;
+use Evence\Bundle\GridBundle\Grid\Type\HtmlType;
+use Evence\Bundle\GridBundle\Grid\Type\ImageType;
 use Evence\Bundle\GridBundle\Grid\Type\InputType;
-use Symfony\Component\VarDumper\VarDumper;
+use Evence\Bundle\GridBundle\Grid\Type\LinkType;
+use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
+use Evence\Bundle\GridBundle\Grid\Type\TextType;
+use Evence\Bundle\GridBundle\Grid\Type\TimeType;
 
 /**
  * Grid field configurator

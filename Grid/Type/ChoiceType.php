@@ -25,9 +25,7 @@ THE SOFTWARE.
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 
-use Evence\Bundle\CoreBundle\Utils\FormUtils;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Field type class for Boolean

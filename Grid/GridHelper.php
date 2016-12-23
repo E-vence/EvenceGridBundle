@@ -146,7 +146,10 @@ class GridHelper
                     $options = array_merge($options, array(
                         'mode' => $gmode
                     ));
-                    return new Response($grid->renderView($options));
+
+                    $res = $grid->renderView($options);
+                    if($res instanceof Response) return $res;
+                    else   return new Response($res);
                 }
             }
         }

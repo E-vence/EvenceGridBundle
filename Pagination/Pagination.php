@@ -94,6 +94,10 @@ class Pagination implements \Iterator, \Countable
 
     private $totalRecords = null;
 
+    private $forceLimit = null;
+
+    private $forcePage  = null;
+
     /*
      * (non-PHPdoc)
      * @see Iterator::rewind()
@@ -254,7 +258,7 @@ class Pagination implements \Iterator, \Countable
      */
     public function getFirstRecord()
     {
-        return $this->getCurrentLimit() * $this->getCurrentPage();
+        return ($this->forceLimit !== null ? $this->forceLimit : $this->getCurrentLimit()) *  ($this->forcePage !== null ? $this->forcePage : $this->getCurrentPage());
     }
 
     /**
@@ -262,7 +266,7 @@ class Pagination implements \Iterator, \Countable
      */
     public function getMaxRecords()
     {
-        return $this->getCurrentLimit();
+        return ($this->forceLimit !== null ? $this->forceLimit : $this->getCurrentLimit());
     }
 
     /**
@@ -270,7 +274,7 @@ class Pagination implements \Iterator, \Countable
      *
      * @return number
      */
-    private function getTotalPages()
+    public function getTotalPages()
     {
         $totalRecords = $this->getTotalRecords();
         
@@ -517,4 +521,42 @@ class Pagination implements \Iterator, \Countable
     {
         return $this->pageParam;
     }
+
+    /**
+     * @return null
+     */
+    public function getForceLimit()
+    {
+        return $this->forceLimit;
+    }
+
+    /**
+     * @param null $forceLimit
+     * @return Pagination
+     */
+    public function setForceLimit($forceLimit)
+    {
+        $this->forceLimit = $forceLimit;
+        return $this;
+    }
+
+    /**
+     * @return null
+     */
+    public function getForcePage()
+    {
+        return $this->forcePage;
+    }
+
+    /**
+     * @param null $forcePage
+     * @return Pagination
+     */
+    public function setForcePage($forcePage)
+    {
+        $this->forcePage = $forcePage;
+        return $this;
+    }
+
+
 }

@@ -231,27 +231,58 @@
     			<td colspan="{{  totalFields +3 }}">
     				<div class="row">    				
     				    {% block bulkAction %}   	
-        				    <div class="col-lg-2">
-            				   
-            				    
-            				        {% if multipleActions|length() > 0 %}			      			        
-        	      			        <div class="input-group input-group-sm">                             
-                				        <select class="bulk-select form-control" id="bulkSelect{{ grid.getPrefix() }}">
-                				            <option value>-- {% trans %}Select a bulk action{% endtrans %} --</option>
-                				            {% for action in multipleActions %}
-                				                <option data-confirm="{{ action.options.confirm|trans }}" value="{{ action.url }}">{{ action.label|trans }}</option>
-                				            {% endfor %}
-                				        </select>
-                				        
-                				         <span class="input-group-btn">   
-                				            <button class="btn btn-success" type="submit">Ga</button>	
-                				         </span>    
-            				         </div>			
-            				         {% endif %}        				   
+        				    <div class="col-lg-3">
+
+								{% if multipleActions|length() > 0 %}
+									<div class="input-group input-group-sm">
+										<select class="bulk-select form-control" id="bulkSelect{{ grid.getPrefix() }}">
+											<option value>-- {% trans %}Select a bulk action{% endtrans %} --</option>
+											{% for action in multipleActions %}
+												<option data-confirm="{{ action.options.confirm|trans }}" value="{{ action.url }}">{{ action.label|trans }}</option>
+											{% endfor %}
+										</select>
+
+										<span class="input-group-btn">
+                				            <button class="btn btn-success" type="submit">Ga</button>
+                				         </span>
+
+
+
+
+									</div>
+
+
+								{% endif %}
+
+
+								<div class="input-group input-group-sm">
+									<span class="input-group-addon" id="sizing-addon2">Download</span>
+
+									<div class="btn-group" role="group" aria-label="...">
+
+
+										<div class="btn-group" role="group">
+											<div class="dropup">
+												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+													<i class="fa fa-file-excel-o" aria-hidden="true"></i>
+													&nbsp; <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu">
+													<li><a href="{{ grid.generateDownloadUrl('csv') }}">Huidige weergave</a></li>
+													<li><a href="{{ grid.generateDownloadUrl('csv', true) }}">Alles</a></li>
+												</ul>
+											</div>
+										</div>
+									</div>
+
+
+								</div>
+
         				    </div>      				    
     				    {% endblock %}        
-				        {%  block paginationInfo %}       		
-        					<div class="col-lg-4 col-lg-offset-2"> 
+				        {%  block paginationInfo %}
+
+        					<div class="col-lg-4 col-lg-offset-1">
         					{%  if gridOptions.paginationInfo %} 
         					  			    
             					     

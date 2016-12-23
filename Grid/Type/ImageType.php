@@ -41,13 +41,17 @@ class ImageType extends AbstractType
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source){
+    public function renderType($value, $source, $options ){
                 
         
         $modifier = $this->getOption('modifier');
         $prefix  = $this->getOption('prefix');
-        
-        return ['url' => $prefix.$modifier($value, $source, $this), 'width' => $this->getOption('width'), 'height' => $this->getOption('height')];
+
+        $url =  $prefix.$modifier($value, $source, $this);
+
+        if($options['mode'] == 'csv') return $url;
+
+        return ['url' => $url, 'width' => $this->getOption('width'), 'height' => $this->getOption('height')];
     }
     
     /* (non-PHPdoc)

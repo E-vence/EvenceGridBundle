@@ -45,7 +45,7 @@ class PercentType extends AbstractType
      * (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source)
+    public function renderType($value, $source, $options )
     {
 
         if($this->getOption('type') == self::TYPE_FRACTIONAL) $value =  $value * 100;

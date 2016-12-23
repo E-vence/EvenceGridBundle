@@ -66,7 +66,7 @@ abstract class AbstractType implements InterfaceType
      * 
      * @return mixed
      */
-    abstract public function renderType($value, $source);
+    abstract public function renderType($value, $source, $options);
     
     
     /**
@@ -118,9 +118,9 @@ abstract class AbstractType implements InterfaceType
         $this->options = $resolver->resolve($options);
     }
     
-    public function getData($value, $source = null){
+    public function getData($value, $source = null, $options = []){
         $val = new Value();
-        $val->setType($this)->setOriginal($value)->setSource($source)->setValue($this->renderType($value, $source));
+        $val->setType($this)->setOriginal($value)->setSource($source)->setValue($this->renderType($value, $source, $options));
 
         return $val;
     }

@@ -41,7 +41,10 @@ class MoneyType extends TextType
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source ){        
+    public function renderType($value, $source, $options ){
+
+        if($options['mode'] == 'csv') return $value;
+
         $fmt = new \NumberFormatter($this->getOption('locale'), \NumberFormatter::CURRENCY );        
         return  $fmt->formatCurrency($value, $this->getOption('currency'));
     }

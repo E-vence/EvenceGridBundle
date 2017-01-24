@@ -24,8 +24,6 @@
  */
 namespace Evence\Bundle\GridBundle\Grid\Fields;
 
-use Evence\Bundle\GridBundle\Grid\Grid;
-
 /**
  * Class for DataField (array or entity)
  *

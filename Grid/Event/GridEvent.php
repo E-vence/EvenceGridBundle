@@ -16,8 +16,8 @@
  */
 namespace Evence\Bundle\GridBundle\Grid\Event;
 
-use Evence\Bundle\GridBundle\Grid\Grid;
 use Doctrine\ORM\QueryBuilder;
+use Evence\Bundle\GridBundle\Grid\Grid;
 use Symfony\Component\EventDispatcher\Event;
 
 class GridEvent extends Event

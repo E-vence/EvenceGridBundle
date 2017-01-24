@@ -26,6 +26,7 @@
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * Text Type class
  *
@@ -40,7 +41,7 @@ class TextType extends AbstractType
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source ){
+    public function renderType($value, $source, $options  ){
         
         $truncate = $this->getOption('truncate');
         if($truncate && strlen($value) > $truncate) $value = substr($value,0,$truncate).'...';

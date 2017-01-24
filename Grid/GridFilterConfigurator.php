@@ -24,23 +24,11 @@
  */
 namespace Evence\Bundle\GridBundle\Grid;
 
-use Evence\Bundle\GridBundle\Grid\Fields\DataField;
-use Evence\Bundle\GridBundle\Grid\Fields\Field;
-use Evence\Bundle\GridBundle\Grid\Type\AbstractType;
-use Evence\Bundle\GridBundle\Grid\Type\BooleanType;
-use Evence\Bundle\GridBundle\Grid\Type\TextType;
-use Evence\Bundle\GridBundle\Grid\Type\ChoiceType;
-use Evence\Bundle\GridBundle\Grid\Fields\CustomField;
-use Evence\Bundle\GridBundle\Grid\Type\DateType;
-use Evence\Bundle\GridBundle\Grid\Type\DateTimeType;
-use Evence\Bundle\GridBundle\Grid\Type\TimeType;
-use Evence\Bundle\GridBundle\Grid\Type\EntityType;
-use Evence\Bundle\GridBundle\Grid\Type\MoneyType;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\FormBuilderInterface;
 use Evence\Bundle\GridBundle\Grid\Filter\FilterMapperCollection;
 use Evence\Bundle\GridBundle\Grid\Filter\FilterObject;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 
 /**
  * Grid filter configurator

@@ -26,6 +26,7 @@
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * Link type class
  *
@@ -40,7 +41,7 @@ class LinkType extends TextType
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source ){        
+    public function renderType($value, $source, $options  ){
        $urlCallback = $this->getOption('urlCallback');       
        return ['label' => ($this->getOption('label') ?: $value), 'url' => $urlCallback($value, $source)];
     }

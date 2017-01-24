@@ -15,9 +15,9 @@
  */
 namespace Evence\Bundle\GridBundle\Grid\Filter;
 
+use Doctrine\MongoDB\Query\Builder;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Form\FormInterface;
-use Doctrine\MongoDB\Query\Builder;
 
 /**
  * Filter mapper class

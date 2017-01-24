@@ -25,9 +25,8 @@
 
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Doctrine\ORM\PersistentCollection;
-use Symfony\Component\VarDumper\VarDumper;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Entity Type class
@@ -43,7 +42,7 @@ class EntityType extends AbstractType
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source ){
+    public function renderType($value, $source, $options  ){
 
 
 

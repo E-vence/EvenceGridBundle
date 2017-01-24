@@ -25,8 +25,8 @@ THE SOFTWARE.
 
 namespace Evence\Bundle\GridBundle\Tests;
 
-use Evence\Bundle\GridBundle\Grid\Misc\Action;
 use Evence\Bundle\GridBundle\Grid\Grid;
+use Evence\Bundle\GridBundle\Grid\Misc\Action;
 
 /**
  *  Test class for Action class
@@ -89,8 +89,8 @@ class ActionTest extends \PHPUnit_Framework_TestCase {
      * @param string $granted
      * @return PHPUnit_Framework_MockObject_MockObject
      */
-    public function getSecurityContext($granted = true){
-        $stub = $this->getMockBuilder('Symfony\Component\Security\Core\SecurityContext')->disableOriginalConstructor()->getMock();
+    public function getTokenStorage($granted = true){
+        $stub = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage')->disableOriginalConstructor()->getMock();
         //$obj = $stub->method('isGranted')->will($this->returnValue(false));
      
         
@@ -107,8 +107,7 @@ class ActionTest extends \PHPUnit_Framework_TestCase {
         if(!$this->action){            
             
             $grid = $this->getGrid();
-            $grid->setSecurityContext($this->getSecurityContext());
-            
+            $grid->setTokenStorage($this->getTokenStorage());
             $configurator = $this->getMockBuilder('Evence\Bundle\GridBundle\Grid\GridActionConfigurator')                  
             ->setConstructorArgs(array($grid))
             ->getMock();

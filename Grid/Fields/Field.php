@@ -128,9 +128,9 @@ class Field
     /**
      * Get Data
      */
-    public function getData($source = null) {       
+    public function getData($source = null, $options) {
         
-        return $this->getType()->getData( $this->getCallbackValue($source), $source);        
+        return $this->getType()->getData( $this->getCallbackValue($source), $source, $options);
     }
 
     public function getIdentifier()

@@ -25,8 +25,6 @@
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Doctrine\ORM\PersistentCollection;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * Entity Reference Type class
@@ -44,7 +42,7 @@ class EntityReferenceType extends AbstractType
      * (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source)
+    public function renderType($value, $source, $options )
     {
         if(!$value) return;
         

@@ -25,10 +25,11 @@
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Evence\Bundle\GridBundle\Grid\Fields\Field;
-use Evence\Bundle\GridBundle\Grid\Misc\Value;
 use Evence\Bundle\GridBundle\Grid\GridFieldConfigurator;
+use Evence\Bundle\GridBundle\Grid\Misc\Value;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * Abstract class for type
  *
@@ -65,7 +66,7 @@ abstract class AbstractType implements InterfaceType
      * 
      * @return mixed
      */
-    abstract public function renderType($value, $source);
+    abstract public function renderType($value, $source, $options);
     
     
     /**
@@ -117,9 +118,9 @@ abstract class AbstractType implements InterfaceType
         $this->options = $resolver->resolve($options);
     }
     
-    public function getData($value, $source = null){
+    public function getData($value, $source = null, $options = []){
         $val = new Value();
-        $val->setType($this)->setOriginal($value)->setSource($source)->setValue($this->renderType($value, $source));
+        $val->setType($this)->setOriginal($value)->setSource($source)->setValue($this->renderType($value, $source, $options));
 
         return $val;
     }

@@ -25,9 +25,7 @@ THE SOFTWARE.
 namespace Evence\Bundle\GridBundle\Grid\Type;
 
 
-use Evence\Bundle\CoreBundle\Utils\FormUtils;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Field type class for Boolean
@@ -43,7 +41,7 @@ class ChoiceType extends AbstractType
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source)
+    public function renderType($value, $source, $options )
     {
 
         $valArray = array();

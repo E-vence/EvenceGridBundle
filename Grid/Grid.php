@@ -24,36 +24,37 @@
  */
 namespace Evence\Bundle\GridBundle\Grid;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\MongoDB\Query\Builder;
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Evence\Bundle\GridBundle\Grid\Event\Evence\Bundle\GridBundle\Grid\Event;
+use Evence\Bundle\GridBundle\Grid\Event\GridEvent;
+use Evence\Bundle\GridBundle\Grid\Event\GridFilterEvent;
+use Evence\Bundle\GridBundle\Grid\Exception\UnknownGridFieldException;
+use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
+use Evence\Bundle\GridBundle\Grid\Misc\Action;
+use Evence\Bundle\GridBundle\Pagination\Pagination;
+use Exporter\Writer\CsvWriter;
 use Symfony\Bridge\Twig\TwigEngine;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Evence\Bundle\GridBundle\Grid\Exception\UnknownGridFieldException;
-use Evence\Bundle\GridBundle\Pagination\Pagination;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\SecurityContext;
-use Evence\Bundle\GridBundle\Grid\Misc\Action;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
-use Symfony\Component\Form\FormFactoryInterface;
-use Evence\Bundle\GridBundle\Grid\Filter\FilterMapper;
 use Symfony\Component\PropertyAccess\PropertyAccess;
-use Symfony\Component\VarDumper\VarDumper;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Evence\Bundle\GridBundle\Grid\Event\GridEvent;
-use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\MongoDB\Query\Builder;
-use Symfony\Component\Form\Extension\DataCollector\Proxy\ResolvedTypeDataCollectorProxy;
-use Evence\Bundle\GridBundle\Grid\Event\GridFilterEvent;
-use Evence\Bundle\GridBundle\Grid\Event\Evence\Bundle\GridBundle\Grid\Event;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Security\Core\SecurityContext;
+use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * E-vence: Grid
@@ -74,14 +75,14 @@ abstract class Grid
     /**
      * Configures actions for the grid
      *
-     * @param GridActionConfigurator $actionConfigurator            
+     * @param GridActionConfigurator $actionConfigurator
      */
     abstract public function configureActions(GridActionConfigurator $actionConfigurator);
 
     /**
      * Configures (data) fields for the grid
      *
-     * @param unknown $FieldConfigurator            
+     * @param unknown $FieldConfigurator
      * @throws UnknownGridFieldException
      */
     abstract public function configureFields(GridFieldConfigurator $FieldConfigurator);
@@ -89,7 +90,7 @@ abstract class Grid
     /**
      * Configures search filter fields
      *
-     * @param GridFilterConfigurator $filterConfigurator            
+     * @param GridFilterConfigurator $filterConfigurator
      * @throws Unknown GridFieldException
      */
     abstract public function configureFilter(GridFilterConfigurator $filterConfigurator);
@@ -100,14 +101,15 @@ abstract class Grid
      * @return string
      */
     abstract public function getEntityName();
-    
+
     /**
      * Returns the name of the document for the data source
      *
      * @return string
      */
-    public function getDocumentName() {
-        return $this->getEntityName();   
+    public function getDocumentName()
+    {
+        return $this->getEntityName();
     }
 
     /**
@@ -130,7 +132,7 @@ abstract class Grid
      * @var string
      */
     CONST DATA_SOURCE_ENTITY = 'entity';
-    
+
     /**
      * Data source: Document
      *
@@ -186,14 +188,14 @@ abstract class Grid
      * @var Registry
      */
     protected $doctrine = null;
-    
+
     /**
      * Symfony's MongoDb
      *
      * @var ManagerRegistry
      */
     protected $doctrineMongoDb = null;
-    
+
     /**
      * Symfony's Event Dispatcher
      *
@@ -215,8 +217,7 @@ abstract class Grid
      * @var TokenStorageInterface
      */
     private $tokenStorage = null;
-    
-    
+
 
     /**
      * Symfony's AuthorizationChecker service
@@ -224,10 +225,8 @@ abstract class Grid
      * @var AuthorizationCheckerInterface
      */
     private $authorizationChecker = null;
-    
-    
-    
-    
+
+
     /**
      * Default template resource to use
      *
@@ -337,17 +336,17 @@ abstract class Grid
      * @var MetaFields
      */
     private $metaFields = [];
-    
+
     /**
      * @var array
      */
-    
-    private $rawData =[];
+
+    private $rawData = [];
 
     /**
      * Set symfony's templating service
      *
-     * @param EngineInterface $templating            
+     * @param EngineInterface $templating
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setTemplating(EngineInterface $templating)
@@ -359,7 +358,7 @@ abstract class Grid
     /**
      * Set symfony's Request service
      *
-     * @param Request $request            
+     * @param Request $request
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setRequest(Request $request)
@@ -371,7 +370,7 @@ abstract class Grid
     /**
      * Set symfony's router service
      *
-     * @param Router $router            
+     * @param Router $router
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setRouter(Router $router)
@@ -383,7 +382,7 @@ abstract class Grid
     /**
      * Set symfony's session
      *
-     * @param Session $session            
+     * @param Session $session
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setSession(Session $session)
@@ -395,7 +394,7 @@ abstract class Grid
     /**
      * Set symfony's doctrine service
      *
-     * @param Registry $doctrine            
+     * @param Registry $doctrine
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setDoctrine(Registry $doctrine)
@@ -427,10 +426,10 @@ abstract class Grid
          */
         $qb = $this->doctrine->getRepository($this->getEntityName())
             ->createQueryBuilder('e');
-        
+
         return $qb;
     }
-    
+
     /**
      * Get getQueryBuilder for the current entity
      *
@@ -442,9 +441,9 @@ abstract class Grid
          *
          * @var DocumentManager
          */
-        $dm = $this->doctrineMongoDb->getManager();        
+        $dm = $this->doctrineMongoDb->getManager();
 
-    
+
         return $dm->createQueryBuilder($this->getDocumentName());
     }
 
@@ -457,46 +456,44 @@ abstract class Grid
     {
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
             $qb = $this->getQueryBuilder();
-            
+
             call_user_func_array($options['querybuilder_callback'], array(
                 $qb,
                 self::QUERY_COUNT
             ));
-            
+
             $qb->select('count(e.id)');
-            
+
             $event = new GridEvent();
-            $event->setGrid($this)->setQuerybuilder($qb);            
+            $event->setGrid($this)->setQuerybuilder($qb);
             $this->eventDispatcher->dispatch(GridEvent::POST_SET_COUNT_QUERY, $event);
-            
+
             $this->filterQuery($qb);
-            
+
             $val = $qb->getQuery()->getSingleScalarResult();
-          
+
             return $val;
-        }
-        else if ($this->getDataSourceType() == self::DATA_SOURCE_DOCUMENT) {
+        } else if ($this->getDataSourceType() == self::DATA_SOURCE_DOCUMENT) {
             $qb = $this->getDocumentBuilder();
-            
+
             call_user_func_array($options['documentbuilder_callback'], array(
                 $qb,
                 self::QUERY_COUNT
             ));
-            
+
             $event = new GridEvent();
             $event->setGrid($this)->setQuerybuilder($qb);
             $this->eventDispatcher->dispatch(GridEvent::POST_SET_COUNT_QUERY, $event);
-            
-            
+
+
             $this->filterQuery($qb);
-            
+
             $count = $qb->getQuery()->execute()->count();
-         
-            
-        
-           return $count;
+
+
+            return $count;
         }
-        
+
         return count($this->dataSource);
     }
 
@@ -508,147 +505,141 @@ abstract class Grid
     private function getData($options)
     {
         $this->getPagination()->setTotalRows($this->countRows($options));
-        
+
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
             $qb = $this->getQueryBuilder()
                 ->setMaxResults($this->getPagination()
-                ->getMaxRecords())
+                    ->getMaxRecords())
                 ->setFirstResult($this->getPagination()
-                ->getFirstRecord());
-            
+                    ->getFirstRecord());
+
             $event = new GridEvent();
             $event->setGrid($this)->setQuerybuilder($qb);
-          
-         //   $this->eventDispatcher->dispatch(GridEvent::PRE_SET_QUERY, $event);
-            
-            
+
+            //   $this->eventDispatcher->dispatch(GridEvent::PRE_SET_QUERY, $event);
+
+
             call_user_func_array($options['querybuilder_callback'], array(
                 $qb,
                 self::QUERY_SELECT
             ));
-            
-       
+
+
             $event->setGrid($this)->setQuerybuilder($qb);
             $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);
-        
+
             $this->filterQuery($qb);
-        
-            
+
+
             if ($this->getSortBy()) {
-                
+
                 $by = $this->getSortBy();
                 $fc = $this->getFieldConfigurator();
                 if (empty($fc[$by])) {
                     throw new \Exception('There is no field called ' . $by);
                 }
-                
+
                 $dataField = $fc[$by];
-                
+
                 if ($dataField->getObjectReference())
                     $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
                 else
                     $qb->orderBy($this->getSortBy(), $this->getSortOrder());
             }
-            
+
             $data = $qb->getQuery()->getResult();
-        }
-        else if ($this->getDataSourceType() == self::DATA_SOURCE_DOCUMENT) {
-                $qb = $this->getDocumentBuilder()->limit($this->getPagination()
+        } else if ($this->getDataSourceType() == self::DATA_SOURCE_DOCUMENT) {
+            $qb = $this->getDocumentBuilder()->limit($this->getPagination()
                 ->getMaxRecords())->skip($this->getPagination()
                 ->getFirstRecord());
-                
-                call_user_func_array($options['documentbuilder_callback'], array(
-                    $qb,
-                    self::QUERY_SELECT
-                ));
-                
 
-                $event = new GridEvent();
-                $event->setGrid($this)->setQuerybuilder($qb);
-                $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);                
+            call_user_func_array($options['documentbuilder_callback'], array(
+                $qb,
+                self::QUERY_SELECT
+            ));
 
-                $this->filterQuery($qb);
-                
-                if($this->getSortBy()){
 
-                    $by = $this->getSortBy();
-                    $fc = $this->getFieldConfigurator();
-                    if (empty($fc[$by])) {
-                        throw new \Exception('There is no field called ' . $by);
-                    }
-                    
-                    $dataField = $fc[$by];
-                    
-                    if($qb instanceof Builder){
-                        $qb->sort($this->getSortBy(), $this->getSortOrder());
-                    }
+            $event = new GridEvent();
+            $event->setGrid($this)->setQuerybuilder($qb);
+            $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);
+
+            $this->filterQuery($qb);
+
+            if ($this->getSortBy()) {
+
+                $by = $this->getSortBy();
+                $fc = $this->getFieldConfigurator();
+                if (empty($fc[$by])) {
+                    throw new \Exception('There is no field called ' . $by);
                 }
-                
-            
-                
-                $data = $qb->getQuery()->execute();
-            
-             
-            
-        } else {            
+
+                $dataField = $fc[$by];
+
+                if ($qb instanceof Builder) {
+                    $qb->sort($this->getSortBy(), $this->getSortOrder());
+                }
+            }
+
+
+            $data = $qb->getQuery()->execute();
+
+
+        } else {
 
             $data = $this->getDataSource();
-            
+
             $event = new GridEvent();
             $event->setGrid($this)->setData($data);
             $this->eventDispatcher->dispatch(GridEvent::PRE_MODIFY_ARRAY, $event);
-            
-            
+
+
             $data = $event->getData();
-            
+
             if ($this->getSortBy() && !empty($data)) {
-                foreach ($data as $row) {    
-                    $sortBy[] = $row[$this->getSortBy()];            
-                }            
-                array_multisort($sortBy, ( $this->getSortOrder() == 'ASC' ? SORT_ASC : SORT_DESC), $data);
-            }           
+                foreach ($data as $row) {
+                    $sortBy[] = $row[$this->getSortBy()];
+                }
+                array_multisort($sortBy, ($this->getSortOrder() == 'ASC' ? SORT_ASC : SORT_DESC), $data);
+            }
             $data = array_splice($data, $this->getPagination()->getFirstRecord(), $this->getPagination()->getMaxRecords());
-     
+
         }
-        
+
         $this->rawData = $data;
-        
-        return $this->prepareData($data);
+
+        return $this->prepareData($data, $options);
     }
-    
 
 
     public function filterQuery($qb)
     {
-        
 
-        
+
         /* Filters here */
-        if (! $this->filterConfigurator->hasFields())
+        if (!$this->filterConfigurator->hasFields())
             return;
         $form = $this->filterConfigurator->getFormBuilder()->getForm();
         $form->handleRequest($this->request);
-        
+
         $identifier = $form->get('_identifier')->getData();
-        
+
         if ($identifier == $this->getIdentifier() && $form->isValid()) {
-            
+
             foreach ($form->all() as $item) {
-                
+
                 $name = $item->getName();
-                
+
                 if ($name != '_identifier' && $name != '_search') {
-                    
-                    if (! $this->filterConfigurator->getFilterMapper()->hasField($name)) {                             
-                        
+
+                    if (!$this->filterConfigurator->getFilterMapper()->hasField($name)) {
+
                         $data = $item->getData();
-                      
+
                         if ($data) {
-                            if($qb instanceof Builder){
-                                if($item->getNormData() && method_exists($data, 'getId')) $data = $data->getId();
+                            if ($qb instanceof Builder) {
+                                if ($item->getNormData() && method_exists($data, 'getId')) $data = $data->getId();
                                 $qb->field($name)->equals($data);
-                            }
-                            elseif( $qb instanceof \Doctrine\ORM\QueryBuilder) {
+                            } elseif ($qb instanceof \Doctrine\ORM\QueryBuilder) {
                                 $qb->andWhere('e.' . $name . ' = :' . $name);
                                 $qb->setParameter($name, $data);
                             }
@@ -656,8 +647,8 @@ abstract class Grid
                     }
                 }
             }
-          
-           
+
+
             foreach ($this->filterConfigurator->getFilterMapper() as $mapper) {
                 /**
                  *
@@ -671,7 +662,7 @@ abstract class Grid
     /**
      * Get col value by the given source
      *
-     * @param mixed $source            
+     * @param mixed $source
      * @param string $col
      *            Fieldname of the source
      * @throws UnknownGridFieldException Whether the field name doens't exists.
@@ -680,13 +671,13 @@ abstract class Grid
     public function getColBySource($source, $col)
     {
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
-            
+
             if ($this->isAssociation($col)) {
                 return $this->getAssociation($col, $source);
             }
             return $this->getValueFromSource($source, $col);
         } else if ($this->getDataSourceType() == self::DATA_SOURCE_DOCUMENT) {
-            
+
             if ($this->isAssociation($col)) {
                 return $this->getAssociation($col, $source);
             }
@@ -694,7 +685,7 @@ abstract class Grid
         } elseif ($this->getDataSourceType() == self::DATA_SOURCE_ARRAY) {
             if (isset($source[$col]))
                 return $source[$col];
-            
+
             throw new UnknownGridFieldException('Field ' . $col . " doesn't exists in array.");
         }
     }
@@ -702,8 +693,8 @@ abstract class Grid
     /**
      * Get Association for col
      *
-     * @param integer $id            
-     * @param mixed $source            
+     * @param integer $id
+     * @param mixed $source
      * @return mixed new Source
      */
     public function getAssociation($id, $source)
@@ -713,7 +704,7 @@ abstract class Grid
             $id = array_shift($path);
             $source = $this->getValueFromSource($source, $id);
         }
-        
+
         return $source;
     }
 
@@ -730,30 +721,29 @@ abstract class Grid
     public function getValueFromSource($source, $id)
     {
         if ($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY) {
-            
+
             $dataField = null;
             $fc = $this->getFieldConfigurator();
-            if (! empty($fc[$id]))
+            if (!empty($fc[$id]))
                 $dataField = $fc[$id];
-            
-            if ($dataField && ! $dataField->getObjectReference())
+
+            if ($dataField && !$dataField->getObjectReference())
                 return $this->getAccessor()->getValue($this->metaFields[$source->getId()], '[' . $id . ']');
             else
                 return $this->getAccessor()->getValue($source, $id);
-        }
-        else if ($this->getDataSourceType() == Grid::DATA_SOURCE_DOCUMENT) {
+        } else if ($this->getDataSourceType() == Grid::DATA_SOURCE_DOCUMENT) {
             $dataField = null;
             $fc = $this->getFieldConfigurator();
-            if (! empty($fc[$id]))
-                $dataField = $fc[$id];            
-            return $this->getAccessor()->getValue($source, $id);        
+            if (!empty($fc[$id]))
+                $dataField = $fc[$id];
+            return $this->getAccessor()->getValue($source, $id);
         } elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY) {
-            if (! array_key_exists($id, $source))
+            if (!array_key_exists($id, $source))
                 throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source, true));
-            
+
             return $source[$id];
         }
-        
+
         /*
          * $method = 'get' . str_replace("_", "", ucfirst($id));
          *
@@ -793,122 +783,116 @@ abstract class Grid
      *            Raw data
      * @return multitype:\stdClass
      */
-    public function prepareData($data)
-    {         
-        
+    public function prepareData($data, $options = [])
+    {
+
         $preparedData = new \stdClass();
         $preparedData->rows = array();
         $preparedData->multipleActions = array();
-        
-        $sData = [];
-        
 
-     
-        
-        
+        $sData = [];
+
+
         if ($this->getDataSourceType() == Grid::DATA_SOURCE_ENTITY) {
             foreach ($data as $rid => $row) {
-                
+
                 if (is_object($row)) {
                     $sData[] = $row;
                 } else {
-                    
+
                     $id = $rid;
                     foreach ($row as $key => $value) {
-                        
+
                         if (is_numeric($key) && is_object($value)) {
-                            
+
                             if ($this->getAccessor()->isReadable($value, 'id'))
                                 $id = $this->getAccessor()->getValue($value, 'id');
-                            
+
                             $sData[] = $value;
-                        } elseif (! is_numeric($key)) {
+                        } elseif (!is_numeric($key)) {
                             $this->metaFields[$id][$key] = $value;
                         }
                     }
                 }
             }
-        }
-        elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_DOCUMENT) {
-            
-       
+        } elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_DOCUMENT) {
+
+
             foreach ($data as $rid => $row) {
                 $sData[] = $row;
-              
+
             }
-      
-        }
-        else {
+
+        } else {
             $sData =& $data;
         }
-  
+
         foreach ($sData as $rid => $row) {
             $prow = new \stdClass();
             $prow->cols = array();
             foreach ($this->fieldConfigurator as $key => $field) {
                 $prow->cols[$key] = new \stdClass();
-                $prow->cols[$key]->value = $field->getData($row);
+                $prow->cols[$key]->value = $field->getData($row, $options);
                 $prow->cols[$key]->fieldname = $field->getType()->getName();
-                
+
                 $prow->multipleIdentifier = null;
-                
+
                 try {
                     if ($this->getMultipleIdentifierField() != null)
                         $prow->multipleIdentifier = $this->getColBySource($row, $this->getMultipleIdentifierField());
+                } catch (\Exception $e) {
+
                 }
-                catch ( \Exception $e){
-                    
-                }
-                
+
                 $prow->actions = array();
                 $prow->mappedParams = $this->actionConfigurator->getParametersBySource($row);
             }
             foreach ($this->actionConfigurator as $key => $action) {
-                
+
                 $opt = $action->getOptions();
-                
-                if (! $opt['multiple']) {
-                    
+
+                if (!$opt['multiple']) {
+
                     /**
                      *
                      * @var $action Action
                      */
                     if ($action->isVisible($row)) {
                         $act = new \stdClass();
-                        
+
                         $act->url = $action->generateUrl($row);
                         $act->label = $action->getLabel();
                         $act->options = $action->getOptions();
-                        
+
                         $prow->actions[] = $act;
                     }
                 }
             }
             $preparedData->rows[] = $prow;
         }
-        
+
         foreach ($this->actionConfigurator as $key => $action) {
-            
+
             $opt = $action->getOptions();
-            
+
             if ($opt['multiple']) {
-                
+
                 /**
                  *
                  * @var $action Action
                  */
                 if ($action->isVisible()) {
                     $act = new \stdClass();
-                    
+
                     $act->url = $action->generateUrl();
                     $act->label = $action->getLabel();
                     $act->options = $action->getOptions();
-                    
+
                     $preparedData->multipleActions[] = $act;
                 }
             }
         }
-        
+
         return $preparedData;
     }
 
@@ -929,10 +913,10 @@ abstract class Grid
      */
     public function createFilterConfigurator()
     {
-        
+
         return $this->filterConfigurator = new GridFilterConfigurator($this, $this->formFactory);
-  
-        
+
+
     }
 
     /**
@@ -948,7 +932,7 @@ abstract class Grid
     /**
      * Renders the view
      *
-     * @param array $options            
+     * @param array $options
      * @return Response
      */
     public function renderView($options)
@@ -969,6 +953,7 @@ abstract class Grid
             'tdAttributes' => array(),
             'actionAttributes' => array(),
             'footer' => true,
+            'full' => false,
             'querybuilder_callback' => array(
                 $this,
                 'qbCallback'
@@ -980,41 +965,39 @@ abstract class Grid
             'template' => $this->getTemplate()
         ));
         $options = $resolver->resolve(array_merge($this->getOptions(), $options));
-        
-        
+
+
         $event = new GridEvent();
         $event->setGrid($this);
-        
+
         $this->eventDispatcher->dispatch(GridEvent::PRE_CONFIGURE, $event);
-        
-        
+
+
         if ($this->fieldConfigurator == null)
             $this->configureFields($this->createFieldConfigurator());
-             
+
         if ($this->actionConfigurator == null)
             $this->configureActions($this->createActionConfigurator());
-        
+
         if ($this->filterConfigurator == null)
             $this->configureFilter($this->createFilterConfigurator());
-        
+
         $this->eventDispatcher->dispatch(GridEvent::POST_CONFIGURE, $event);
-        
+
         $filter = $this->filterConfigurator;
-        
+
         if ($filter->hasFields()) {
-            if (! $filter->getFormBuilder()->has('_search'))
+            if (!$filter->getFormBuilder()->has('_search'))
                 $filter->getFormBuilder()->add('_search', SubmitType::class);
             $filter->getFormBuilder()->add('_identifier', HiddenType::class, array(
                 'data' => $this->getIdentifier(),
                 'mapped' => false
             ));
         }
-        
-        $data = $this->getData($options);
-        
 
-        
-        $grid = $this->templating->render($options['template'], array(
+        $data = $this->getData($options);
+
+        $args = array(
             'fields' => $this->fieldConfigurator,
             'filter' => $this->filterConfigurator,
             'pagination' => $this->getPagination(),
@@ -1025,9 +1008,94 @@ abstract class Grid
             'multipleActions' => $data->multipleActions,
             'form' => $this->filterConfigurator->getForm()
                 ->createView()
-        ));
-        
+        );
+
+        if ($options['mode'] == 'csv') {
+            return $this->renderCsv($options, $args);
+        }
+
+
+        $grid = $this->templating->render($options['template'], $args);
+
         return $grid;
+    }
+
+
+    public function renderCsv($options, $args)
+    {
+        $stream = function () use ($options, $args) {
+
+            $pagination = $args['pagination'];
+
+            $cols = array();
+            foreach ($args['fields'] as $field) {
+                $cols[] = $this->strToCsv($field->getLabel());
+            }
+            print implode(";", $cols) . "\n";
+
+
+            if ($options['full'])
+                $totalPages = $pagination->getTotalPages();
+            else
+                $totalPages = 1;
+
+
+            $i = 0;
+
+            do {
+
+                $this->csvPage($i, $args, $options);
+
+                $i++;
+                $pagination->setForcePage($i);
+
+
+            } while ($i < $totalPages);
+        };
+
+
+        $res = new StreamedResponse($stream, 200, []);
+        $res->headers->set('Content-Disposition', 'attachment; filename="grid-' .str_replace(array(" ", "_", "'"), "-", $options['title']) . ($options['full'] ? '-full' : ''). '.csv";');
+        $res->headers->set('Content-Type', 'application/csv');
+
+
+        return $res;
+    }
+
+    public function csvPage($i, $args, $options){
+
+        if($i > 0)
+            $data = $this->getData($options);
+        else
+            $data = ['rows' =>$args['rows']];
+
+        foreach ($args['rows'] as $row) {
+
+
+            $rowArray = array();
+            foreach ($row->cols as $col) {
+                $rowArray[] = $this->strToCsv($col->value->getValue());
+            }
+            print implode(";", $rowArray) . "\n";
+        }
+    }
+
+    public function strToCsv($str, $delimter = ';', $enclose = '"')
+    {
+
+
+        if (is_array($str)) {
+            $str = implode(",", $str);
+        }
+
+        $str = str_replace($enclose, $enclose . $enclose, $str);
+
+
+        $testStr = trim($str);
+        if ($testStr != $str || stristr($str, $delimter) || stristr($str, $enclose)) ;
+        return $enclose . $str . $enclose;
+
+        return $str;
     }
 
     /**
@@ -1043,7 +1111,7 @@ abstract class Grid
     /**
      * Set default limit
      *
-     * @param integer $limit            
+     * @param integer $limit
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setLimit($limit)
@@ -1065,7 +1133,7 @@ abstract class Grid
     /**
      * Set current datasource
      *
-     * @param array $dataSource            
+     * @param array $dataSource
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setDataSource($dataSource)
@@ -1111,17 +1179,17 @@ abstract class Grid
      */
     public function getSortBy()
     {
-        if (! $sortBy = $this->request->get($this->getPrefix() . 's', $this->getDefaultSortBy())) {
-            
+        if (!$sortBy = $this->request->get($this->getPrefix() . 's', $this->getDefaultSortBy())) {
+
             return $this->sortBy;
-            
+
             /*
              * if (! $this->fieldConfigurator->hasField($sortBy)) {
              * throw new UnknownGridFieldException('Unknown grid field ' . $sortBy);
              * }
              */
         }
-        
+
         return $sortBy;
     }
 
@@ -1133,10 +1201,10 @@ abstract class Grid
     public function getSortOrder()
     {
         $sortOrder = $this->request->get($this->getPrefix() . 'o', $this->getDefaultSortOrder());
-        
+
         if ($sortOrder != self::SORT_ORDER_ASC && $sortOrder != self::SORT_ORDER_DESC)
             $sortOrder = self::SORT_ORDER_ASC;
-        
+
         return $sortOrder;
     }
 
@@ -1177,7 +1245,7 @@ abstract class Grid
     /**
      * Generates the limit URL
      *
-     * @param unknown $limit            
+     * @param unknown $limit
      */
     public function generateLimitUrl($limit)
     {
@@ -1185,6 +1253,17 @@ abstract class Grid
             $this->getPrefix() . 'l' => $limit
         )));
     }
+
+
+    public function generateDownloadUrl($mode, $full = false)
+    {
+        return $this->router->generate($this->request->get('_route'), array_merge(array_merge($this->request->query->all(), $this->request->attributes->get('_route_params')), array(
+            'grid_id' =>  $this->getPrefix(),
+            'grid_mode' => $mode,
+            'grid_options' => ['full'=> $full]
+        )));
+    }
+
 
     /**
      * Returns an array for items per page
@@ -1216,7 +1295,7 @@ abstract class Grid
     /**
      * Set parameter prefix
      *
-     * @param string $prefix            
+     * @param string $prefix
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setPrefix($prefix)
@@ -1239,8 +1318,8 @@ abstract class Grid
     /**
      * Set Symfony's securityContext service
      *
-     * @param SecurityContext $securityContext    
-     * @deprecated         
+     * @param SecurityContext $securityContext
+     * @deprecated
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setSecurityContext(SecurityContext $securityContext)
@@ -1249,7 +1328,7 @@ abstract class Grid
         $this->securityContext = $securityContext;
         return $this;
     }
-    
+
 
     /**
      * Get Symfony's tokenStorage service
@@ -1258,11 +1337,11 @@ abstract class Grid
      */
     public function getTokenStorage()
     {
-       
+
         return $this->tokenStorage;
     }
-    
-    
+
+
     /**
      * Set Symfony's securityContext service
      *
@@ -1299,11 +1378,13 @@ abstract class Grid
     }
 
     public function qbCallback(\Doctrine\ORM\QueryBuilder $qb)
-    {}
-    
+    {
+    }
+
     public function dbCallback(Builder $qb)
-    {}
-    
+    {
+    }
+
 
     /**
      * Get formFactory
@@ -1318,7 +1399,7 @@ abstract class Grid
     /**
      * Set formFactory
      *
-     * @param FormFactoryInterface $formFactory            
+     * @param FormFactoryInterface $formFactory
      * @return \Evence\Bundle\GridBundle\Grid\Grid
      */
     public function setFormFactory(FormFactoryInterface $formFactory)
@@ -1340,7 +1421,7 @@ abstract class Grid
 
     public function getIdentifier()
     {
-        return ( $this->identifier ?: $this->getPrefix());
+        return ($this->identifier ?: $this->getPrefix());
     }
 
     public function getFieldConfigurator()
@@ -1382,7 +1463,7 @@ abstract class Grid
      */
     public function getAccessor()
     {
-        if (! $this->accessor) {
+        if (!$this->accessor) {
             $this->accessor = PropertyAccess::createPropertyAccessor();
         }
         return $this->accessor;
@@ -1429,21 +1510,19 @@ abstract class Grid
      */
     public function setAuthorizationChecker(AuthorizationCheckerInterface $authorizationChecker)
     {
-        
+
         $this->authorizationChecker = $authorizationChecker;
         return $this;
     }
- 
- 
+
 
     public function getFilterConfigurator()
     {
-        if (! $this->filterConfigurator)
+        if (!$this->filterConfigurator)
             $this->filterConfigurator = $this->createFilterConfigurator();
         return $this->filterConfigurator;
     }
-    
- 
- 
+
+
 }
     

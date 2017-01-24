@@ -103,8 +103,7 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
             $options['label'] = $routeName;
         }
             
-        
-        
+
         $action = new Action($this, $identifier, $options, $deprecatedOptions);
         $action->setRoute($routeName)
             ->setRouteParameters($routeParameters)

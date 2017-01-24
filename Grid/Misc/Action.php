@@ -152,7 +152,7 @@ class Action
 
     public function getLabel()
     {
-        return $this->label;
+        return ($this->options['label'] ?: $this->label);
     }
 
     public function setLabel($label)

@@ -610,6 +610,31 @@ abstract class Grid
         return $this->prepareData($data, $options);
     }
 
+    public function clear()
+    {
+        foreach ($this->rawData as $rid => $row) {
+
+            if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
+
+                if (is_object($row)) {
+                    $sData[] = $row;
+                } else {
+                    $id = $rid;
+                    foreach ($row as $key => $value) {
+                        if (is_numeric($key) && is_object($value)) {
+                            $this->doctrine->getManager()->detach($value);
+                            unset($row[$key]);
+                        }
+                    }
+                }
+
+            }
+            unset($this->rawData[$rid]);
+        }
+
+        $this->rawData = [];
+    }
+
 
     public function filterQuery($qb)
     {
@@ -820,7 +845,6 @@ abstract class Grid
 
             foreach ($data as $rid => $row) {
                 $sData[] = $row;
-
             }
 
         } else {
@@ -1057,6 +1081,7 @@ abstract class Grid
 
                 $self->csvPage($i, $args, $options);
 
+
                 $i++;
                 $pagination->setForcePage($i);
 
@@ -1066,19 +1091,19 @@ abstract class Grid
 
 
         $res = new StreamedResponse($stream, 200, []);
-        $res->headers->set('Content-Disposition', 'attachment; filename="grid-' .str_replace(array(" ", "_", "'"), "-", $options['title']) . ($options['full'] ? '-full' : ''). '.csv";');
+        $res->headers->set('Content-Disposition', 'attachment; filename="grid-' . str_replace(array(" ", "_", "'"), "-", $options['title']) . ($options['full'] ? '-full' : '') . '.csv";');
         $res->headers->set('Content-Type', 'application/csv');
 
 
         return $res;
     }
 
-    public function csvPage($i, $args, $options){
+    public function csvPage($i, $args, $options)
+    {
 
-        if($i > 0){
+        if ($i > 0) {
             $data = $this->getData($options);
-        }
-        else {
+        } else {
             $data = new \stdClass();
             $data->rows = $args['rows'];
         }
@@ -1092,6 +1117,11 @@ abstract class Grid
             }
             print implode(";", $rowArray) . "\n";
         }
+
+        unset($data->rows);
+        unset($data);
+
+        $this->clear();
     }
 
     public function strToCsv($str, $delimter = ';', $enclose = '"')
@@ -1272,9 +1302,9 @@ abstract class Grid
     public function generateDownloadUrl($mode, $full = false)
     {
         return $this->router->generate($this->request->get('_route'), array_merge(array_merge($this->request->query->all(), $this->request->attributes->get('_route_params')), array(
-            'grid_id' =>  $this->getPrefix(),
+            'grid_id' => $this->getPrefix(),
             'grid_mode' => $mode,
-            'grid_options' => ['full'=> $full]
+            'grid_options' => ['full' => $full]
         )));
     }
 

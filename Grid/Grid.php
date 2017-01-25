@@ -995,6 +995,12 @@ abstract class Grid
             ));
         }
 
+
+        if ($options['mode'] == 'csv') {
+            return $this->getPagination()->setForceLimit(500);
+        }
+
+
         $data = $this->getData($options);
 
         $args = array(
@@ -1023,8 +1029,13 @@ abstract class Grid
 
     public function renderCsv($options, $args)
     {
-        $stream = function () use ($options, $args) {
 
+        $self = $this;
+        $stream = function () use ($options, $args, $self) {
+
+            /**
+             * @var Pagination $pagination
+             */
             $pagination = $args['pagination'];
 
             $cols = array();
@@ -1044,7 +1055,7 @@ abstract class Grid
 
             do {
 
-                $this->csvPage($i, $args, $options);
+                $self->csvPage($i, $args, $options);
 
                 $i++;
                 $pagination->setForcePage($i);
@@ -1064,12 +1075,15 @@ abstract class Grid
 
     public function csvPage($i, $args, $options){
 
-        if($i > 0)
+        if($i > 0){
             $data = $this->getData($options);
-        else
-            $data = ['rows' =>$args['rows']];
+        }
+        else {
+            $data = new \stdClass();
+            $data->rows = $args['rows'];
+        }
 
-        foreach ($args['rows'] as $row) {
+        foreach ($data->rows as $row) {
 
 
             $rowArray = array();

@@ -997,7 +997,7 @@ abstract class Grid
 
 
         if ($options['mode'] == 'csv') {
-            return $this->getPagination()->setForceLimit(500);
+            $this->getPagination()->setForceLimit(500);
         }
 
 

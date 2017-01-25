@@ -617,7 +617,7 @@ abstract class Grid
             if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
 
                 if (is_object($row)) {
-                    $sData[] = $row;
+                    $this->doctrine->getManager()->detach($row);
                 } else {
                     $id = $rid;
                     foreach ($row as $key => $value) {

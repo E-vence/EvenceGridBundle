@@ -41,45 +41,28 @@ class MoneyType extends TextType
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source, $options)
-    {
+    public function renderType($value, $source, $options ){
 
-        if ($options['mode'] == 'csv') return $value;
+        if($options['mode'] == 'csv') return $value;
 
-        $fmt = new \NumberFormatter($this->getOption('locale'), \NumberFormatter::CURRENCY);
+        $fmt = new \NumberFormatter($this->getOption('locale'), \NumberFormatter::CURRENCY );
+        return  $fmt->formatCurrency($value, $this->getOption('currency'));
 
-        if ($this->getOption('thousand_separator'))
-            $fmt->setSymbol(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL, $this->getOption('thousand_separator'));
-        if ($this->getOption('decimal_point'))
-            $fmt->setSymbol(\NumberFormatter::DECIMAL_SEPARATOR_SYMBOL, $this->getOption('decimal_point'));
-
-        if ($this->getOption('min_decimal') !== false)
-            $fmt->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $this->getOption('min_decimal'));
-
-        if ($this->getOption('max_decimal') !== false)
-            $fmt->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $this->getOption('max_decimal'));
+        $numberFormatter->setAttribute(NumberFormatter::FRACTION_DIGITS, 0);
 
 
-        return $fmt->formatCurrency($value, $this->getOption('currency'));
+        /** LET OP: DECIMALE ZIJN NIET MOGELIJK BIJ CURRENCY FORMAT, GEBRUIK DECIMAL FORMAT, MET DE VALUATA ALS APPEND */
     }
 
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::getName()
      */
-    public function getName()
-    {
+    public function getName(){
         return 'money';
     }
 
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array('locale' => locale_get_default(), 'currency' => 'EUR',
-
-            'min_decimal' => false,
-            'max_decimal' => false,
-            'decimal_point' => false,
-            'thousand_separator' => false
-        ));
+    public function configureOptions(OptionsResolver $resolver){
+        $resolver->setDefaults( array('locale' => locale_get_default(), 'currency' => 'EUR'));
 
     }
 }

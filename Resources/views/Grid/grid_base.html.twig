@@ -2,25 +2,25 @@
 {% form_theme form 'EvenceGridBundle:Form:bootstrap.html.twig' %}
 
 {% macro attributes(array,prefix = '') %}
-   {% spaceless %}
-    {%  for key,value in array %}
-    {{prefix}}{{ key }}="{{ value }}" 
-    {% endfor %}
-   {% endspaceless %}   
+    {% spaceless %}
+        {% for key,value in array %}
+            {{ prefix }}{{ key }}="{{ value }}"
+        {% endfor %}
+    {% endspaceless %}
 {% endmacro %}
 
-{% block stylesheets %}  
-		
+{% block stylesheets %}
+
 {% endblock %} 					
     
 
 {% block grid %}
     
 {% import _self as g %}
-{% set fromItem = pagination.getFirstRecord()+1  %}					    				    
-{% set toItem = pagination.getFirstRecord() + pagination.getCurrentLimit()  %}
-{%  if pagination.getTotalRecords() < toItem %}
-    {% set toItem = pagination.getTotalRecords()  %}
+{% set fromItem = pagination.getFirstRecord()+1 %}
+{% set toItem = pagination.getFirstRecord() + pagination.getCurrentLimit() %}
+{% if pagination.getTotalRecords() < toItem %}
+    {% set toItem = pagination.getTotalRecords() %}
 {% endif %}
 
 {% set totalFields = fields|length %}
@@ -31,18 +31,18 @@
 {% set actionAttributes = gridOptions.actionAttributes %}
     					    
 
-    {%  if gridOptions.mode == 'view' %}
-    
+    {% if gridOptions.mode == 'view' %}
+
         {% block filter %}
-            {%  if filter.hasFields() %}
-            <div>
-                {% block filterForm %}
-                    {{ form_start(form) }}
-               
-                    {{ form_end(form) }}
-                {% endblock %}
-                
-            </div>
+            {% if filter.hasFields() %}
+                <div>
+                    {% block filterForm %}
+                        {{ form_start(form) }}
+
+                        {{ form_end(form) }}
+                    {% endblock %}
+
+                </div>
             {% endif %}
         {% endblock %}
 
@@ -52,370 +52,413 @@
     
         {% block form %}
     
-        {%  if gridOptions.mode == 'view' %}
-            <form {{ g.attributes(formAttributes) }}>
-        {% endif %} 
-    
-      {% block table %}       
-        {%  if gridOptions.mode == 'view' %}
-            {% block table_tag %}<table {{ g.attributes(tableAttributes) }}>{% endblock %}
+        {% if gridOptions.mode == 'view' %}
+<form {{ g.attributes(formAttributes) }}>
+    {% endif %}
+
+    {% block table %}
+    {% if gridOptions.mode == 'view' %}
+    {% block table_tag %}
+    <table {{ g.attributes(tableAttributes) }}>{% endblock %}
         {% endif %}
         {% block innertable %}
-          {%  if gridOptions.mode == 'view' %}
-    	<thead>   	
-    		{% block fields %}
-    		<tr>
-        		{%  if gridOptions.checkbox %}{% block checkall %}<th><input type="checkbox" value="1" name="check_all" id="check_all_{{ grid.getPrefix()}}" /></th>{% endblock %} {% endif %}
-    		    {%  if gridOptions.numbers %}{% block number_head %}<th>#</th>{% endblock %}{% endif %}
-    		    
-    			{% for field in fields %} {% set fieldLabel = field.getLabel() %} 
-    			     {% set mapped = field.getMapped() %}
-        			 {% set fieldSortUrl = field.getSortUrl() %} {% set fieldIsSorted = '' %}   
-        			 {% set fieldCurrentSort = field.getCurrentSort() %}
-        			 {% set fieldNextOrder = field.getNextSortOrder() %}
-        			  		 
-        			 {% block field %}
-            		      <th>{% if mapped %}<a href="{{ fieldSortUrl }}">{{ fieldLabel|trans }}</a>{% else %}{{ fieldLabel|trans }}{% endif %}
-            		          
-            		          {%  if fieldCurrentSort %}
-        			             {%  if fieldNextOrder  == 'DESC' %}{% block sortUp %}&uarr;{%endblock%}{% else %}{%  block sortDown %}&darr;{%endblock%}{% endif %}
-            		          {% endif %}
-            		      </th>
-            	     {% endblock %}    	      
-    			{% endfor %}
-        
-               {% if rows|length > 0 %}              
+        {% if gridOptions.mode == 'view' %}
+        <thead>
+        {% block fields %}
+            <tr>
+                {% if gridOptions.checkbox %}{% block checkall %}
+                    <th><input type="checkbox" value="1" name="check_all" id="check_all_{{ grid.getPrefix() }}"/>
+                    </th>{% endblock %} {% endif %}
+                {% if gridOptions.numbers %}{% block number_head %}
+                    <th>#</th>{% endblock %}{% endif %}
+
+                {% for field in fields %} {% set fieldLabel = field.getLabel() %}
+                    {% set mapped = field.getMapped() %}
+                    {% set fieldSortUrl = field.getSortUrl() %} {% set fieldIsSorted = '' %}
+                    {% set fieldCurrentSort = field.getCurrentSort() %}
+                    {% set fieldNextOrder = field.getNextSortOrder() %}
+
+                    {% block field %}
+                        <th>{% if mapped %}<a
+                                href="{{ fieldSortUrl }}">{{ fieldLabel|trans }}</a>{% else %}{{ fieldLabel|trans }}{% endif %}
+
+                            {% if fieldCurrentSort %}
+                                {% if fieldNextOrder  == 'DESC' %}{% block sortUp %}&uarr;{% endblock %}{% else %}{% block sortDown %}&darr;{% endblock %}{% endif %}
+                            {% endif %}
+                        </th>
+                    {% endblock %}
+                {% endfor %}
+
+                {% if rows|length > 0 %}
                     {% if rows[0].actions|length > 0 %}
-    			         <th>&nbsp;</th>
-    			    {% endif %}
-    		   {% endif %}
-    		</tr>
-    		{% endblock %}
-    	</thead>
-    	<tbody>
-    	   {% endif %}
-    		{% block rows %}     		
-        		{% for row_no, row in rows %}       		
-        		<tr {{ g.attributes(trAttributes) }}{{ g.attributes(row.mappedParams, 'data-') }}>
-        		   {%  if gridOptions.checkbox %}  {% block col_checkbox %}<td {{ g.attributes(tdAttributes) }}><input type="checkbox" value="{{ row.multipleIdentifier }}" name="id[]" /></td>{% endblock %} {% endif %} 
-        		   {%  if gridOptions.numbers %} {% block col_number %}<td  {{ g.attributes(tdAttributes) }}>{{ row_no+fromItem  }}</td>{% endblock %}  {% endif %}
-        		          		            		
-        			{% for col in row.cols %} 
-        			
-            			{% set fieldname = col.value.getType().getField().getIdentifier() %}        	
-            			{% set type = col.value.getType() %}		
-            			{% set value = col.value.getValue() %}
-            			{% set valueObject = col.value %}
-            			{% set options = col.value.getOptions() %}
-						{% set source = valueObject.getSource() %}
-            			{% set blockName = col.fieldname~ '_type' %} 
-            			
-            			{% set colAttributes = tdAttributes %}
-            			{% set style = '' %}
-            			{% set class = '' %}            			
-            			{% if colAttributes.style is defined %}            			 
-            			     {% set style = colAttributes.style %}           			 
-            			{% endif %}            			 
-        			 	{% if colAttributes.class  is defined %}            			 
-            			     {% set class = colAttributes.class %}           			 
-            			{% endif %}            			             			
-            			{% if options.align is defined %}           			 
-            			 {% set colAttributes = colAttributes|merge({'style': 'text-align: '~options.align~'; ' ~ style})  %}          			 
-            			{% endif %}
-            			{% set colAttributes = colAttributes|merge({'class': 'col-'~ fieldname ~ ' ' ~ class})  %}                      		
-            			
-            			{% block col %}      						       			
-            		      <td {{ g.attributes(colAttributes)}}>{{ block(blockName) }}</td> 
-            			{% endblock %} 
-            		{% endfor %}       
-            		
-            		{%  if row.actions|length > 0 %}
-                     <td class="grid-actions">
-                        {%  block actions %}                       
-                            {%  for action in row.actions  %}
-                                {%  set label = action.label %}
-                                {%  set url = action.url %}
-                                {% set options = action.options %}  
-                                
-                                {% set class = '' %}       
-                                {% if actionAttributes.class  is defined %}            			 
-                    			     {% set class = actionAttributes.class %}           			 
-                    			{% endif %} 
-                    			
-                    			 {% if options.class %}            			 
-                    			     {% set class = class ~ ' ' ~ options.class %}           			 
-                    			{% endif %}       
-                                
-                                {%  set attr = actionAttributes|merge({'href': action.url, 'class': class, 'target': options.target }) %}  
-                                
-                                {% if options.confirm %}
-                                    {% set onclick = "return confirm('" ~ options.confirm|trans|escape ~"');" %}
-                                    {%  set attr = attr|merge({'onclick': onclick}) %}    
-                                {% endif %}             
-                                
-                                {% set attr = attr|merge(options.attr)  %}                                                     
-                                                         
-                                {% block action %}                                
-                                    <a {{ g.attributes(attr) }}>                                    
-                                        {% block action_label %}
-                                            {%  if options.icon %}
-                                                {%  if options.iconType == 'fontawesome' %}
-                                                    <i class="fa fa-{{ options.icon }}"></i> 
-                                                {% elseif  options.iconType == 'glyphicons'   %}<span class="glyphicon glyphicon-{{ options.icon }}" aria-hidden="true"></span> {% endif %}
-                                            {% endif %}
-                                            
-                                            {% if not options.icon or options.iconLabel == true %}
-                                                {{ label|trans }}
-                                            {% endif %}
-                                            
-                                            
-                                        {% endblock action_label %}
-                                   </a>
-                                {% endblock action %}                                 
-                            {% endfor %}           			
-            			{% endblock actions %}
-        			</td>
-        			{% endif %}
-        		</tr>
-        		{% endfor %} 
-        		{% if rows|length() == 0 %}
-        		 		<tr>
-    			         <td colspan="{{  totalFields +3 }}">
-    			             {% trans %}No results found{% endtrans %}
-    			         </td>
-    			       </tr>
-        		{% endif %}
-    		{% endblock rows %}
-    	</tbody>
-    	
-    	
-    	<tfoot>
-    	
-    	{% block footer %}    
-    	   {% if fields.hasFooter() %}
-    	       <tr>
-    	           {% for field in fields %}    	                  			
-          			{% if field.getFootCallback() %}
-              			{%  set data = field.getFooterData() %}        			
-            			{% set fieldname = field.getIdentifier() %}        	
-            			{% set type = data.getType() %}		
-            			{% set value = data.getValue() %}
-            			{% set options = data.getOptions() %}
-            			{% set blockName = data.type.name~ '_type' %}             			
-            			{% set colAttributes = tdAttributes %}            			
-            			{% set style = '' %}
-            			{% set class = '' %}            		            			
-            			{% if colAttributes.style is defined %}            			 
-            			     {% set style = colAttributes.style %}           			 
-            			{% endif %}            			 
-        			 	{% if colAttributes.class  is defined %}            			 
-            			     {% set class = colAttributes.class %}           			 
-            			{% endif %}            			             			
-            			{% if options.align is defined %}           			 
-            			 {% set colAttributes = colAttributes|merge({'style': 'text-align: '~options.align~'; ' ~ style})  %}          			 
-            			{% endif %}
-            			{% set colAttributes = colAttributes|merge({'class': 'footer-col-'~ fieldname ~ ' ' ~ class})  %}           			
-            			
-            			{% block footerCol %}      						       			
-            		      <th {{ g.attributes(colAttributes)}}>{{ block(blockName) }}</th> 
-            			{% endblock %}           
-    	              
-    	            {% else %}
-    	               <td></td>
-    	            {% endif %}
-    	           {% endfor %}
-    	       </tr>
-    	   {% endif %}	
-    	   {%  if gridOptions.footer %}    	   
-    		<tr>
-    			<td colspan="{{  totalFields +3 }}">
-    				<div class="row">    				
-    				    {% block bulkAction %}   	
-        				    <div class="col-lg-3">
+                        <th>&nbsp;</th>
+                    {% endif %}
+                {% endif %}
+            </tr>
+        {% endblock %}
+        </thead>
+        <tbody>
+        {% endif %}
+        {% block rows %}
+        {% for row_no, row in rows %}
+        <tr {{ g.attributes(grid.renderRowAttributes(trAttributes, row)) }}{{ g.attributes(row.mappedParams, 'data-') }}>
+            {% if gridOptions.checkbox %}  {% block col_checkbox %}
+                <td {{ g.attributes(grid.renderColAttributes(tdAttributes, row, null,'checkbox')) }}><input type="checkbox"
+                                                                                                     value="{{ row.multipleIdentifier }}"
+                                                                                                     name="id[]"/>
+                </td>{% endblock %} {% endif %}
+            {% if gridOptions.numbers %} {% block col_number %}
+                <td  {{ g.attributes(grid.renderColAttributes(tdAttributes, row, null,'number')) }}>{{ row_no+fromItem }}</td>{% endblock %}  {% endif %}
 
-								{% if multipleActions|length() > 0 %}
-									<div class="input-group input-group-sm">
-										<select class="bulk-select form-control" id="bulkSelect{{ grid.getPrefix() }}">
-											<option value>-- {% trans %}Select a bulk action{% endtrans %} --</option>
-											{% for action in multipleActions %}
-												<option data-confirm="{{ action.options.confirm|trans }}" value="{{ action.url }}">{{ action.label|trans }}</option>
-											{% endfor %}
-										</select>
+            {% for col in row.cols %}
 
-										<span class="input-group-btn">
+                {% set fieldname = col.value.getType().getField().getIdentifier() %}
+                {% set type = col.value.getType() %}
+                {% set value = col.value.getValue() %}
+                {% set valueObject = col.value %}
+                {% set options = col.value.getOptions() %}
+                {% set source = valueObject.getSource() %}
+                {% set blockName = col.fieldname~ '_type' %}
+
+                {% set colAttributes = grid.renderColAttributes(tdAttributes,row, col) %}
+                {#{% set colAttributes = tdAttributes %} #}
+                {% set style = '' %}
+                {% set class = '' %}
+
+
+
+
+                {% if colAttributes.style is defined %}
+                    {% set style = colAttributes.style %}
+                {% endif %}
+                {% if colAttributes.class  is defined %}
+                    {% set class = colAttributes.class %}
+                {% endif %}
+
+
+                {% if options.align is defined %}
+                    {% set colAttributes = colAttributes|merge({'style': 'text-align: '~options.align~'; ' ~ style}) %}
+                {% endif %}
+
+                {% set colAttributes = colAttributes|merge({'class': 'col-'~ fieldname ~ ' ' ~ class}) %}
+
+                {% block col %}
+                    <td {{ g.attributes(colAttributes) }}>{{ block(blockName) }}</td>
+                {% endblock %}
+            {% endfor %}
+
+            {% if row.actions|length > 0 %}
+
+            {% set colAttributes = grid.renderColAttributes(tdAttributes, row, null, 'actions') %}
+            {% set class = '' %}
+
+            {% if colAttributes.class  is defined %}
+                {% set class = colAttributes.class %}
+            {% endif %}
+
+            {% set colAttributes = colAttributes|merge({'class':   'grid-actions ' ~ class}) %}
+
+
+
+                <td {{ g.attributes(grid.renderColAttributes(tdAttributes, row, null,'actions')) }}>
+                    {% block actions %}
+                        {% for action in row.actions %}
+                            {% set label = action.label %}
+                            {% set url = action.url %}
+                            {% set options = action.options %}
+
+                            {% set class = '' %}
+                            {% if actionAttributes.class  is defined %}
+                                {% set class = actionAttributes.class %}
+                            {% endif %}
+
+                            {% if options.class %}
+                                {% set class = class ~ ' ' ~ options.class %}
+                            {% endif %}
+
+                            {% set attr = actionAttributes|merge({'href': action.url, 'class': class, 'target': options.target }) %}
+
+                            {% if options.confirm %}
+                                {% set onclick = "return confirm('" ~ options.confirm|trans|escape ~"');" %}
+                                {% set attr = attr|merge({'onclick': onclick}) %}
+                            {% endif %}
+
+                            {% set attr = attr|merge(options.attr) %}
+
+                            {% block action %}
+                                <a {{ g.attributes(attr) }}>
+                                    {% block action_label %}
+                                        {% if options.icon %}
+                                            {% if options.iconType == 'fontawesome' %}
+                                                <i class="fa fa-{{ options.icon }}"></i>
+                                            {% elseif  options.iconType == 'glyphicons' %}<span
+                                                class="glyphicon glyphicon-{{ options.icon }}"
+                                                aria-hidden="true"></span> {% endif %}
+                                        {% endif %}
+
+                                        {% if not options.icon or options.iconLabel == true %}
+                                            {{ label|trans }}
+                                        {% endif %}
+
+
+                                    {% endblock action_label %}
+                                </a>
+                            {% endblock action %}
+                        {% endfor %}
+                    {% endblock actions %}
+                </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        {% if rows|length() == 0 %}
+            <tr>
+                <td colspan="{{ totalFields +3 }}">
+                    {% trans %}No results found{% endtrans %}
+                </td>
+            </tr>
+        {% endif %}
+        {% endblock rows %}
+        </tbody>
+
+
+        <tfoot>
+
+        {% block footer %}
+            {% if fields.hasFooter() %}
+                <tr>
+                    {% for field in fields %}
+                        {% if field.getFootCallback() %}
+                            {% set data = field.getFooterData() %}
+                            {% set fieldname = field.getIdentifier() %}
+                            {% set type = data.getType() %}
+                            {% set value = data.getValue() %}
+                            {% set options = data.getOptions() %}
+                            {% set blockName = data.type.name~ '_type' %}
+                            {% set colAttributes = tdAttributes %}
+                            {% set style = '' %}
+                            {% set class = '' %}
+                            {% if colAttributes.style is defined %}
+                                {% set style = colAttributes.style %}
+                            {% endif %}
+                            {% if colAttributes.class  is defined %}
+                                {% set class = colAttributes.class %}
+                            {% endif %}
+                            {% if options.align is defined %}
+                                {% set colAttributes = colAttributes|merge({'style': 'text-align: '~options.align~'; ' ~ style}) %}
+                            {% endif %}
+                            {% set colAttributes = colAttributes|merge({'class': 'footer-col-'~ fieldname ~ ' ' ~ class}) %}
+
+                            {% block footerCol %}
+                                <th {{ g.attributes(colAttributes) }}>{{ block(blockName) }}</th>
+                            {% endblock %}
+
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endif %}
+            {% if gridOptions.footer %}
+                <tr>
+                    <td colspan="{{ totalFields +3 }}">
+                        <div class="row">
+                            {% block bulkAction %}
+                                <div class="col-lg-3">
+
+                                    {% if multipleActions|length() > 0 %}
+                                        <div class="input-group input-group-sm">
+                                            <select class="bulk-select form-control"
+                                                    id="bulkSelect{{ grid.getPrefix() }}">
+                                                <option value>-- {% trans %}Select a bulk action{% endtrans %}--
+                                                </option>
+                                                {% for action in multipleActions %}
+                                                    <option data-confirm="{{ action.options.confirm|trans }}"
+                                                            value="{{ action.url }}">{{ action.label|trans }}</option>
+                                                {% endfor %}
+                                            </select>
+
+                                            <span class="input-group-btn">
                 				            <button class="btn btn-success" type="submit">Ga</button>
                 				         </span>
 
 
+                                        </div>
 
 
-									</div>
+                                    {% endif %}
 
 
-								{% endif %}
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-addon" id="sizing-addon2">Download</span>
+
+                                        <div class="btn-group" role="group" aria-label="...">
 
 
-								<div class="input-group input-group-sm">
-									<span class="input-group-addon" id="sizing-addon2">Download</span>
+                                            <div class="btn-group" role="group">
+                                                <div class="dropup">
+                                                    <button type="button" class="btn btn-default dropdown-toggle"
+                                                            data-toggle="dropdown" aria-haspopup="true"
+                                                            aria-expanded="false">
+                                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                                                        &nbsp; <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a href="{{ grid.generateDownloadUrl('csv') }}">Huidige
+                                                                weergave</a></li>
+                                                        <li>
+                                                            <a href="{{ grid.generateDownloadUrl('csv', true) }}">Alles</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
 
-									<div class="btn-group" role="group" aria-label="...">
+
+                                    </div>
+
+                                </div>
+                            {% endblock %}
+                            {% block paginationInfo %}
+
+                                <div class="col-lg-4 col-lg-offset-1">
+                                    {% if gridOptions.paginationInfo %}
 
 
-										<div class="btn-group" role="group">
-											<div class="dropup">
-												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-													<i class="fa fa-file-excel-o" aria-hidden="true"></i>
-													&nbsp; <span class="caret"></span>
-												</button>
-												<ul class="dropdown-menu">
-													<li><a href="{{ grid.generateDownloadUrl('csv') }}">Huidige weergave</a></li>
-													<li><a href="{{ grid.generateDownloadUrl('csv', true) }}">Alles</a></li>
-												</ul>
-											</div>
-										</div>
-									</div>
+                                    <span>{% trans %}Display{% endtrans %} <span class="pages"> <span
+                                                    class="current-offset"> {{ fromItem }}</span> - <span
+                                                    class="to">{{ toItem }}</span>
+                                            {% trans %}from{% endtrans %} <span class="totalRecords">
+            								{{ pagination.getTotalRecords() }}</span> | {% trans %}
+                                            Items per page{% endtrans %}: {% if gridOptions.selectLimit %}
 
-
-								</div>
-
-        				    </div>      				    
-    				    {% endblock %}        
-				        {%  block paginationInfo %}
-
-        					<div class="col-lg-4 col-lg-offset-1">
-        					{%  if gridOptions.paginationInfo %} 
-        					  			    
-            					     
-            						<span>{% trans %}Display{% endtrans %} <span class="pages"> <span class="current-offset"> {{ fromItem }}</span> - <span class="to">{{ toItem }}</span>
-            								{% trans %}from{% endtrans %} <span class="totalRecords">
-            								{{	pagination.getTotalRecords()}}</span> | {% trans %}Items per page{% endtrans %}: {% if gridOptions.selectLimit %}
-            								
-            								 <select onchange="top.location.href=this.value;">
-                						         {%  for itm in itemsperpage %}
-                						              <option value="{{ grid.generateLimitUrl(itm) }}" {%  if pagination.getMaxRecords  == itm %} selected="selected"{% endif %}>{{ itm }}</option>
-                						         {% endfor %}
-            						         </select>{% else %}{{ pagination.getMaxRecords }}{% endif %}
+                                                <select onchange="top.location.href=this.value;">
+                                                {% for itm in itemsperpage %}
+                                                    <option value="{{ grid.generateLimitUrl(itm) }}" {% if pagination.getMaxRecords  == itm %} selected="selected"{% endif %}>{{ itm }}</option>
+                                                {% endfor %}
+                                                </select>{% else %}{{ pagination.getMaxRecords }}{% endif %}
             						</span>
-    						  {% endif %}
-    						  </div>
-					   {% endblock paginationInfo %}
-    				  
-					   {% block pagination %}
-        				   <div class="col-lg-4">
-        				   {% if gridOptions.pagination %}
-        							
-            						{% if pagination.getPages()|length() > 1 %}
-            						<ul class="pagination pull-right">
-            							{% if pagination.hasPreviousPage() %}
-            							   {%  set url = pagination.getPreviousPage().getUrl() %}						       
-            							   {% block pagePrevious %}		
-                    							<li>
-                    							     <a href="{{ url }}">
-                    							     <i class="fa fa-angle-left"></i> {% trans %}Previous{% endtrans %}</a>
-                    							</li>
-                							{% endblock %}	
-            							{% endif %} 
-            							
-            							{% for page in pagination.getPages(3) %}
-            							     <li {% if page.getCurrent() %} class="active" {% endif %}><a href="{{ page.getUrl() }}">{{ page.getName() }}</a></li> 
-            							{% endfor %} 
-            							
-            							{% if pagination.hasNextPage() %}
-            							    {%  set url = pagination.getNextPage().getUrl() %}
-            							    {% block pageNext %}							    												    
-                    							<li>
-                    							     <a href="{{ url }}">{% trans	%}Next{% endtrans %} <i class="fa fa-angle-right"></i></a> 
-                    							</li>    		
-                							{% endblock %}					
-                					    {% endif %}
-            						</ul>
-            						{% endif %}    						
-                            {% endif %}
-        					</div>
-    					{% endblock %}
-    				</div>
-    		     </td>
-    		</tr>
-    	   {% endif %}
-    	{% endblock %}
-    	</tfoot>
-    	{% endblock innertable %}
-    {%  if gridOptions.mode == 'view' %}
-        </table>
+                                        {% endif %}
+                                </div>
+                            {% endblock paginationInfo %}
+
+                            {% block pagination %}
+                                <div class="col-lg-4">
+                                    {% if gridOptions.pagination %}
+
+                                        {% if pagination.getPages()|length() > 1 %}
+                                            <ul class="pagination pull-right">
+                                                {% if pagination.hasPreviousPage() %}
+                                                    {% set url = pagination.getPreviousPage().getUrl() %}
+                                                    {% block pagePrevious %}
+                                                        <li>
+                                                            <a href="{{ url }}">
+                                                                <i class="fa fa-angle-left"></i> {% trans %}
+                                                                Previous{% endtrans %}</a>
+                                                        </li>
+                                                    {% endblock %}
+                                                {% endif %}
+
+                                                {% for page in pagination.getPages(3) %}
+                                                    <li {% if page.getCurrent() %} class="active" {% endif %}><a
+                                                                href="{{ page.getUrl() }}">{{ page.getName() }}</a></li>
+                                                {% endfor %}
+
+                                                {% if pagination.hasNextPage() %}
+                                                    {% set url = pagination.getNextPage().getUrl() %}
+                                                    {% block pageNext %}
+                                                        <li>
+                                                            <a href="{{ url }}">{% trans %}Next{% endtrans %} <i
+                                                                        class="fa fa-angle-right"></i></a>
+                                                        </li>
+                                                    {% endblock %}
+                                                {% endif %}
+                                            </ul>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endblock %}
+        </tfoot>
+        {% endblock innertable %}
+        {% if gridOptions.mode == 'view' %}
+    </table>
     {% endif %}
     {% endblock table %}
-    {%  if gridOptions.mode == 'view' %}
-    </form>
-    {% endif %}
+    {% if gridOptions.mode == 'view' %}
+</form>
+{% endif %}
     {% endblock form %}
     
-    {%  if gridOptions.mode == 'view' %}
+    {% if gridOptions.mode == 'view' %}
         {% block script %}
-            <script>          
-            (function() {         
-                var checkId = "check_all_{{ grid.getPrefix()}}";
-                if( document.getElementById(checkId) !== null){
-                    document.getElementById(checkId).addEventListener("click", 
-                        function(){
-                            var table =  document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");                
-                            var aa= table[0].getElementsByTagName("input");
-                            for (var i =0; i < aa.length; i++){
-                            	if (aa[i].id != checkId){
-                                    if (aa[i].type == 'checkbox'){
-            
-                                    	if(    aa[i].checked == false)
-                                    	    aa[i].checked = true;
-                                    	else
-                                    		aa[i].checked = false;
+            <script>
+                (function () {
+                    var checkId = "check_all_{{ grid.getPrefix() }}";
+                    if (document.getElementById(checkId) !== null) {
+                        document.getElementById(checkId).addEventListener("click",
+                                function () {
+                                    var table = document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");
+                                    var aa = table[0].getElementsByTagName("input");
+                                    for (var i = 0; i < aa.length; i++) {
+                                        if (aa[i].id != checkId) {
+                                            if (aa[i].type == 'checkbox') {
+
+                                                if (aa[i].checked == false)
+                                                    aa[i].checked = true;
+                                                else
+                                                    aa[i].checked = false;
+                                            }
+                                        }
                                     }
-                            	}
+                                }
+                        );
+                    }
+                    var form = document.querySelector("form[data-grid-id={{ grid.getPrefix() }}]");
+                    form.addEventListener("submit", function (e) {
+
+                        if (document.getElementById("bulkSelect{{ grid.getPrefix() }}") !== null) {
+                            select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");
+                            selectOption = select.options[select.selectedIndex];
+                            if (selectOption.dataset.confirm !== undefined && selectOption.dataset.confirm) {
+                                if (!confirm(selectOption.dataset.confirm)) {
+                                    e.preventDefault();
+                                    return false;
+                                }
                             }
+                            if (!select.value) {
+                                e.preventDefault();
+                                return false;
+                            }
+                            form.action = select.value;
                         }
-                    ); 
-                }
-                var form =  document.querySelector("form[data-grid-id={{ grid.getPrefix() }}]");        
-                form.addEventListener("submit",function(e){              
-    
-                    if(document.getElementById("bulkSelect{{ grid.getPrefix() }}") !== null){
-                    	select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");      
-                    	selectOption = select.options[select.selectedIndex];
-                    	if(selectOption.dataset.confirm !== undefined && selectOption.dataset.confirm){
-                 		   if(!confirm(selectOption.dataset.confirm)){
-                			 e.preventDefault();
-                			 return false;
-                		    }
-                        }            	           
-                        if(!select.value){
-                        	e.preventDefault();
-                            return false;
-                        } 	      	            	
-                        form.action = select.value;
-                    }
-                }); 
+                    });
 
-                            
-            })()        
-            
-        
-                function gridReload{{ grid.getPrefix()}}(){
 
-                	
-                                      
-                    if($ !== undefined){
+                })()
 
-                    
+
+                function gridReload {{ grid.getPrefix() }}() {
+
+
+                    if ($ !== undefined) {
+
+
                         var url = {{ path(app.request.attributes.get('_route'),
-                                app.request.attributes.get('_route_params')|merge(app.request.query.all)|merge({'grid_id': grid.getPrefix(), 'grid_mode': 'body' }) )|json_encode|raw }};
-                    	
-                        $.get(url, function(response){
-                            $('table[data-grid-id="{{ grid.getPrefix()}}"] tbody').html(response);
+                        app.request.attributes.get('_route_params')|merge(app.request.query.all)|merge({'grid_id': grid.getPrefix(), 'grid_mode': 'body' }) )|json_encode|raw }};
+
+                        $.get(url, function (response) {
+                            $('table[data-grid-id="{{ grid.getPrefix() }}"] tbody').html(response);
                         });
-                    	
+
                     }
                 }
-                          
+
             </script>
-        {% endblock %}    
+        {% endblock %}
     {% endif %}
 {% endblock %}
 {% block javascripts %}

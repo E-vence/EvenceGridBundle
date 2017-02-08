@@ -72,6 +72,11 @@ abstract class Grid
 
     CONST QUERY_SELECT = 'select';
 
+    CONST TD_TYPE_CHECKBOX = 'checkbox';
+    CONST TD_TYPE_ACTIONS = 'actions';
+    CONST TD_TYPE_NUMBER = 'number';
+    CONST TD_TYPE_COL = 'col';
+
     /**
      * Configures actions for the grid
      *
@@ -721,6 +726,23 @@ abstract class Grid
         }
     }
 
+    public function renderColAttributes($attributes, $row, $col = null, $tdType =  self::TD_TYPE_COL){
+
+        if(is_callable($attributes))
+            return call_user_func_array($attributes, [$tdType, $row, $col]);
+
+        return $attributes;
+    }
+
+    public function renderRowAttributes($attributes, $row){
+
+
+        if(is_callable($attributes))
+            return call_user_func_array($attributes, [$row]);
+
+        return $attributes;
+    }
+
     /**
      * Get Association for col
      *
@@ -859,6 +881,7 @@ abstract class Grid
 
         foreach ($sData as $rid => $row) {
             $prow = new \stdClass();
+            $prow->orginal = $row;
             $prow->cols = array();
             foreach ($this->fieldConfigurator as $key => $field) {
                 $prow->cols[$key] = new \stdClass();

@@ -535,16 +535,20 @@ abstract class Grid
 
                 $by = $this->getSortBy();
                 $fc = $this->getFieldConfigurator();
-                if (empty($fc[$by])) {
-                    throw new \Exception('There is no field called ' . $by);
+
+
+                if (!empty($fc[$by])) {
+
+                    $dataField = $fc[$by];
+
+                    if ($dataField->getObjectReference())
+                        $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
+                    else
+                        $qb->orderBy($this->getSortBy(), $this->getSortOrder());
                 }
-
-                $dataField = $fc[$by];
-
-                if ($dataField->getObjectReference())
-                    $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
-                else
+                else {
                     $qb->orderBy($this->getSortBy(), $this->getSortOrder());
+                }
             }
 
             $data = $qb->getQuery()->getResult();
@@ -569,6 +573,8 @@ abstract class Grid
 
                 $by = $this->getSortBy();
                 $fc = $this->getFieldConfigurator();
+
+
                 if (empty($fc[$by])) {
                     throw new \Exception('There is no field called ' . $by);
                 }

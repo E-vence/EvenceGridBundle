@@ -36,28 +36,50 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @package evence/grid-bundle
  * @subpackage Type
  */
-class MoneyType extends TextType 
+class MoneyType extends TextType
 {
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::renderType()
      */
-    public function renderType($value, $source, $options ){
+    public function renderType($value, $source, $options)
+    {
 
-        if($options['mode'] == 'csv') return $value;
+        if ($options['mode'] == 'csv') return $value;
 
-        $fmt = new \NumberFormatter($this->getOption('locale'), \NumberFormatter::CURRENCY );        
-        return  $fmt->formatCurrency($value, $this->getOption('currency'));
+        $fmt = new \NumberFormatter($this->getOption('locale'), \NumberFormatter::CURRENCY);
+
+        if ($this->getOption('thousand_separator'))
+            $fmt->setSymbol(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL, $this->getOption('thousand_separator'));
+        if ($this->getOption('decimal_point'))
+            $fmt->setSymbol(\NumberFormatter::DECIMAL_SEPARATOR_SYMBOL, $this->getOption('decimal_point'));
+
+        if ($this->getOption('min_decimal') !== false)
+            $fmt->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $this->getOption('min_decimal'));
+
+        if ($this->getOption('max_decimal') !== false)
+            $fmt->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $this->getOption('max_decimal'));
+
+
+        return $fmt->formatCurrency($value, $this->getOption('currency'));
     }
-    
+
     /* (non-PHPdoc)
      * @see \Evence\Bundle\GridBundle\Grid\Type\AbstractType::getName()
      */
-    public function getName(){
+    public function getName()
+    {
         return 'money';
-    }    
-    
-    public function configureOptions(OptionsResolver $resolver){
-        $resolver->setDefaults( array('locale' => locale_get_default(), 'currency' => 'EUR'));
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array('locale' => locale_get_default(), 'currency' => 'EUR',
+
+            'min_decimal' => false,
+            'max_decimal' => false,
+            'decimal_point' => false,
+            'thousand_separator' => false
+        ));
 
     }
 }

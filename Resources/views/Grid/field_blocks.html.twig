@@ -53,6 +53,11 @@
 {% endblock %}
 
 
+{% block dateinterval_type %}
+    {{ value.format(options.format|trans) }}
+{% endblock %}
+
+
 {%  block money_type %}
  {##}  <div style="text-align: right;{% if (valueObject is defined) and (valueObject.original < 0) %}color:#ff0000;{% endif %}">{{ block('text_type') }}</div>
 {% endblock %}

@@ -171,7 +171,7 @@ abstract class Grid
      *
      * @var Request
      */
-    private $request = null;
+    protected $request = null;
 
     /**
      * Symfony's Router service

@@ -88,11 +88,11 @@ class ChoiceType extends AbstractType
         return $choiceLabel;
     }
 
-    public function getLabel($key)
+    public function getLabel($source, $value, $key)
     {
         $bootstrap = $this->getOption('bootstrap');
         if ($bootstrap['label_callback']) {
-            return call_user_func_array($bootstrap['label_callback'], [$key]);
+            return call_user_func_array($bootstrap['label_callback'], [$source, $value, $key]);
         }
     }
 }

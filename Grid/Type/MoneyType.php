@@ -43,7 +43,7 @@ class MoneyType extends TextType
      */
     public function renderType($value, $source, $options ){
 
-        if($options['mode'] == 'csv') return $value;
+        if(!empty($options['mode']) && $options['mode'] == 'csv') return $value;
 
         $fmt = new \NumberFormatter($this->getOption('locale'), \NumberFormatter::CURRENCY );
         return  $fmt->formatCurrency($value, $this->getOption('currency'));

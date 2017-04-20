@@ -218,7 +218,7 @@ class Action
             return $this->getUri();
         
         if ($source)
-            $parameters = array_merge($this->getRouteParameters(), $this->configurator->getParametersBySource($source, $this->options['mappedParameters']));
+            $parameters = array_merge($this->configurator->getParametersBySource($source, $this->options['mappedParameters']), $this->getRouteParameters());
         else
             $parameters = $this->getRouteParameters();
         

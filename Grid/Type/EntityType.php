@@ -27,6 +27,8 @@ namespace Evence\Bundle\GridBundle\Grid\Type;
 
 use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 /**
  * Entity Type class
@@ -46,14 +48,42 @@ class EntityType extends AbstractType
 
 
 
+        $properyAccessor = PropertyAccess::createPropertyAccessor();
+
+        $values = [];
+
+        if($value instanceof \Traversable){
+            foreach($value as $val)
+                $values[] = $val;
+        }
+        elseif(is_object($value)){
+            $values[] = $value;
+        }
+        else
+            throw new \Exception('Field is not an entity expected an object.');
+
+        $return =[];
+
+        foreach ($values as $val){
+            if(($propertyPath = $this->getOption('property')) !== false)
+                $return[] = $properyAccessor->getValue($val, $propertyPath);
+            else
+                $return[] = (string) $val;
+        }
+
+        return implode(", ", $return);
+
+
+
+        /*
         if (is_object($value) && ! $value instanceof  PersistentCollection){
 
             ;
 
-            if(($property = $this->getOption('property')) !== false){            
+            if(($property = $this->getOption('property')) !== false){
                 $getter = 'get'. ucfirst($property);
                 if(!method_exists($value, $getter)){
-                    throw new \Exception('Non-existing method '. $getter . ' in ' . get_class($value));                    
+                    throw new \Exception('Non-existing method '. $getter . ' in ' . get_class($value));
                 }
                 return $value->$getter();
             }
@@ -84,7 +114,7 @@ class EntityType extends AbstractType
         elseif($value !== null) {
             throw new \Exception('Field is not an entity expected an object.');
         }
-        return $value;
+        return $value;*/
     }
     
     /* (non-PHPdoc)

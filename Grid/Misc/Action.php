@@ -108,6 +108,7 @@ class Action
             'isVisible' => function (Action $action, $source) {
                 return true;
             },
+            'jsCallback' => null,
             'mappedParameters' => [],
             'label' => $this->humanize($identifier)
         ));

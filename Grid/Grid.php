@@ -348,6 +348,14 @@ abstract class Grid
 
     private $rawData = [];
 
+
+
+    /**
+     *
+     * @var array
+     */
+    public $simpleSearchFields = [];
+
     /**
      * Set symfony's templating service
      *
@@ -650,14 +658,16 @@ abstract class Grid
     public function filterQuery($qb)
     {
 
-
         /* Filters here */
-        if (!$this->filterConfigurator->hasFields())
-            return;
-        $form = $this->filterConfigurator->getFormBuilder()->getForm();
-        $form->handleRequest($this->request);
 
-        $identifier = $form->get('_identifier')->getData();
+        $identifier = null;
+
+        if ($this->filterConfigurator->hasFields()) {
+            $form = $this->filterConfigurator->getFormBuilder()->getForm();
+            $form->handleRequest($this->request);
+            $identifier = $form->get('_identifier')->getData();
+        }
+
 
         if ($identifier == $this->getIdentifier() && $form->isValid()) {
 
@@ -685,6 +695,8 @@ abstract class Grid
             }
 
 
+
+
             foreach ($this->filterConfigurator->getFilterMapper() as $mapper) {
                 /**
                  *
@@ -692,6 +704,18 @@ abstract class Grid
                  */
                 $mapper->filterQuery($qb, $form);
             }
+        }
+
+        if(($searchQuery = $this->request->get($this->getPrefix().'ss') ) && !empty($this->simpleSearchFields)){
+
+            $args = [];
+            foreach ($this->simpleSearchFields as $field){
+                $args[] = $qb->expr()->like('e.'.$field, ':sq');
+            }
+
+            $expr = $qb->expr();
+            $qb->andWhere(call_user_func_array([$expr, 'orX'], $args));
+            $qb->setParameter('sq', '%'.$searchQuery.'%');
         }
     }
 

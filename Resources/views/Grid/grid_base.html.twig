@@ -27,7 +27,7 @@
 {% set tableAttributes = gridOptions.tableAttributes|merge({"data-grid-id": grid.getPrefix()}) %}
 {% set trAttributes = gridOptions.trAttributes %}
 {% set tdAttributes = gridOptions.tdAttributes %}
-{% set formAttributes = gridOptions.formAttributes|merge({"data-grid-id": grid.getPrefix(), "method":"post", "action": ""}) %}
+{% set formAttributes = gridOptions.formAttributes|merge({"data-grid-id": grid.getPrefix(), "method":"get", "action": ""}) %}
 {% set actionAttributes = gridOptions.actionAttributes %}
     					    
 
@@ -51,10 +51,12 @@
   
     
         {% block form %}
-    
+
+            {% block formStart %}
         {% if gridOptions.mode == 'view' %}
 <form {{ g.attributes(formAttributes) }}>
     {% endif %}
+                {% endblock %}
 
     {% block table %}
     {% if gridOptions.mode == 'view' %}
@@ -273,6 +275,7 @@
                                                 </option>
                                                 {% for action in multipleActions %}
                                                     <option data-confirm="{{ action.options.confirm|trans }}"
+                                                            data-jsCallback="{{ action.options.jsCallback }}"
                                                             value="{{ action.url }}">{{ action.label|trans }}</option>
                                                 {% endfor %}
                                             </select>
@@ -388,9 +391,11 @@
     </table>
     {% endif %}
     {% endblock table %}
+            {% block formEnd %}
     {% if gridOptions.mode == 'view' %}
 </form>
 {% endif %}
+            {% endblock %}
     {% endblock form %}
     
     {% if gridOptions.mode == 'view' %}
@@ -420,6 +425,18 @@
                     var form = document.querySelector("form[data-grid-id={{ grid.getPrefix() }}]");
                     form.addEventListener("submit", function (e) {
 
+                        var ids = new Array();
+                        var table = document.querySelectorAll("table[data-grid-id={{ grid.getPrefix() }}]");
+                        var aa = table[0].getElementsByTagName("input");
+                        var j = 0;
+                        for (var i = 0; i < aa.length; i++) {
+                            if (aa[i].type == 'checkbox') {
+                                if (aa[i].checked != false){
+                                    ids[j++] = aa[i].value;
+                                }
+                            }
+                        }
+
                         if (document.getElementById("bulkSelect{{ grid.getPrefix() }}") !== null) {
                             select = document.getElementById("bulkSelect{{ grid.getPrefix() }}");
                             selectOption = select.options[select.selectedIndex];
@@ -429,11 +446,22 @@
                                     return false;
                                 }
                             }
-                            if (!select.value) {
+
+                            if (selectOption.dataset.jscallback !== undefined && selectOption.dataset.jscallback) {
+                                jscallback = selectOption.dataset.jscallback;
+
                                 e.preventDefault();
+                                ret = window[jscallback](select.value,ids);
+
+                                if(!ret)
                                 return false;
+
                             }
-                            form.action = select.value;
+
+                            if(select.value != ''){
+                                form.action = select.value;
+                                form.method = 'POST';
+                            }
                         }
                     });
 

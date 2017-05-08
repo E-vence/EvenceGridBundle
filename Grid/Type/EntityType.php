@@ -46,6 +46,7 @@ class EntityType extends AbstractType
      */
     public function renderType($value, $source, $options  ){
 
+        if(!$value) return $this->getOption('empty_value');
 
 
         $properyAccessor = PropertyAccess::createPropertyAccessor();
@@ -131,7 +132,8 @@ class EntityType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'property' => false            
+            'property' => false,
+            'empty_value' => ''
         ));
     }
 }

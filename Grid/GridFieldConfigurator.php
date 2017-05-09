@@ -127,6 +127,10 @@ class GridFieldConfigurator implements \Iterator, \ArrayAccess, \Countable
         
         if (isset($options['foot']))
             $this->fields[$alias]->setFootCallback($options['foot']);
+
+
+        if (isset($options['callback']))
+            $this->fields[$alias]->setCallback($options['callback']);
         
         if (! empty($options['mapped']))
             $this->fields[$alias]->setMapped($options['mapped']);

@@ -205,5 +205,8 @@ class GridBuilder extends Grid
         $this->documentName = $documentName;
         return $this;
     }
- 
+
+    public function hasSimpleSearch(){
+        return !empty($this->simpleSearchFields);
+    }
 }

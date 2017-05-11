@@ -1620,6 +1620,8 @@ abstract class Grid
         return $this->filterConfigurator;
     }
 
-
+    public function hasSimpleSearch(){
+        return !empty($this->simpleSearchFields);
+    }
 }
     

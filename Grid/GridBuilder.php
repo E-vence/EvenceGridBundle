@@ -206,7 +206,5 @@ class GridBuilder extends Grid
         return $this;
     }
 
-    public function hasSimpleSearch(){
-        return !empty($this->simpleSearchFields);
-    }
+
 }

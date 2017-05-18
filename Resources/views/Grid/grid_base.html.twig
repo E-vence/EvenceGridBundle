@@ -1,6 +1,20 @@
 {% use 'EvenceGridBundle:Grid:field_blocks.html.twig' %}
 {% form_theme form 'EvenceGridBundle:Form:bootstrap.html.twig' %}
 
+{% macro hiddenValue(prefix, key, var, exclude = {}) %}
+    {% set prefKey %}{% if prefix %}{{ prefix }}[{{ key }}]{% else %}{{ key }}{% endif %}{% endset %}
+    {% if prefKey not in exclude %}
+        {% if var is not iterable %}
+            <input type="hidden" class="form-control" name="{{ prefKey }}" value="{{ var }}">
+        {% else %}
+            {% for k,v in var  %}
+                {{ _self.hiddenValue(prefKey, k, v, exclude) }}
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+
 {% macro attributes(array,prefix = '') %}
     {% spaceless %}
         {% for key,value in array %}

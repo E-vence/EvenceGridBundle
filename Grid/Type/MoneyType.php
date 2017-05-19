@@ -43,10 +43,17 @@ class MoneyType extends TextType
      */
     public function renderType($value, $source, $options ){
 
+        if($value == null) return;
         if(!empty($options['mode']) && $options['mode'] == 'csv') return $value;
 
+        $currency = $this->getOption('currency');
+        if(is_callable($currency)){
+            $currency = call_user_func_array($currency, [$source]);
+        }
+
+
         $fmt = new \NumberFormatter($this->getOption('locale'), \NumberFormatter::CURRENCY );
-        return  $fmt->formatCurrency($value, $this->getOption('currency'));
+        return  $fmt->formatCurrency($value,  $currency);
 
         $numberFormatter->setAttribute(NumberFormatter::FRACTION_DIGITS, 0);
 

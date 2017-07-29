@@ -174,6 +174,7 @@ class GridActionConfigurator implements \Iterator, \ArrayAccess, \Countable
         
         foreach ( $mappedParameters as $key => $value) {
             
+            if($value == null) continue;
             $val = $this->grid->getColBySource($source, $value);
             if (! is_numeric($key))
                 $pArray[$key] = $val;

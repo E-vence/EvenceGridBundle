@@ -244,7 +244,7 @@ abstract class Grid
      *
      * @var Limit
      */
-    private $limit = 20;
+    private $limit = 50;
 
     /**
      * Parameter prefix for grid

@@ -3,7 +3,9 @@
 
 {% macro hiddenValue(prefix, key, var, exclude = {}) %}
     {% set prefKey %}{% if prefix %}{{ prefix }}[{{ key }}]{% else %}{{ key }}{% endif %}{% endset %}
-    {% if prefKey not in exclude %}
+
+    {% if prefKey|trim in exclude %}
+    {% else %}
         {% if var is not iterable %}
             <input type="hidden" class="form-control" name="{{ prefKey }}" value="{{ var }}">
         {% else %}
@@ -12,6 +14,7 @@
             {% endfor %}
         {% endif %}
     {% endif %}
+
 {% endmacro %}
 
 

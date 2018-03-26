@@ -48,7 +48,7 @@ class GridHelper
      * 
      * @var multitype:Grid
      */
-    private $grids = null;
+    private $grids = [];
 
     /**
      * Helper to create a grid

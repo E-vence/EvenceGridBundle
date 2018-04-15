@@ -91,6 +91,12 @@
                 {% if gridOptions.numbers %}{% block number_head %}
                     <th>#</th>{% endblock %}{% endif %}
 
+                {% if rows|length > 0 %}
+                    {% if rows[0].actions|length > 0 %}
+                        <th class="visible-xs">&nbsp;</th>
+                    {% endif %}
+                {% endif %}
+
                 {% for field in fields %} {% set fieldLabel = field.getLabel() %}
                     {% set mapped = field.getMapped() %}
                     {% set fieldSortUrl = field.getSortUrl() %} {% set fieldIsSorted = '' %}
@@ -110,7 +116,7 @@
 
                 {% if rows|length > 0 %}
                     {% if rows[0].actions|length > 0 %}
-                        <th>&nbsp;</th>
+                        <th class="hidden-xs">&nbsp;</th>
                     {% endif %}
                 {% endif %}
             </tr>
@@ -128,6 +134,64 @@
                 </td>{% endblock %} {% endif %}
             {% if gridOptions.numbers %} {% block col_number %}
                 <td  {{ g.attributes(grid.renderColAttributes(tdAttributes, row, null,'number')) }}>{{ row_no+fromItem }}</td>{% endblock %}  {% endif %}
+
+
+            {% set colAttributes = grid.renderColAttributes(tdAttributes, row, null, 'actions') %}
+            {% set class = '' %}
+
+            {% if colAttributes.class  is defined %}
+                {% set class = colAttributes.class %}
+            {% endif %}
+
+            {% set colAttributes = colAttributes|merge({'class':   'visible-xs grid-actions ' ~ class}) %}
+
+            <td {{ g.attributes(grid.renderColAttributes(colAttributes, row, null,'actions')) }}>
+                {% block actions %}
+                    {% for action in row.actions %}
+                        {% set label = action.label %}
+                        {% set url = action.url %}
+                        {% set options = action.options %}
+
+                        {% set class = '' %}
+                        {% if actionAttributes.class  is defined %}
+                            {% set class = actionAttributes.class %}
+                        {% endif %}
+
+                        {% if options.class %}
+                            {% set class = class ~ ' ' ~ options.class %}
+                        {% endif %}
+
+                        {% set attr = actionAttributes|merge({'href': action.url, 'class': class, 'target': options.target }) %}
+
+                        {% if options.confirm %}
+                            {% set onclick = "return confirm('" ~ options.confirm|trans|escape ~"');" %}
+                            {% set attr = attr|merge({'onclick': onclick}) %}
+                        {% endif %}
+
+                        {% set attr = attr|merge(options.attr) %}
+
+                        {% block action %}
+                            <a {{ g.attributes(attr) }}>
+                                {% block action_label %}
+                                    {% if options.icon %}
+                                        {% if options.iconType == 'fontawesome' %}
+                                            <i class="fa fa-{{ options.icon }}"></i>
+                                        {% elseif  options.iconType == 'glyphicons' %}<span
+                                            class="glyphicon glyphicon-{{ options.icon }}"
+                                            aria-hidden="true"></span> {% endif %}
+                                    {% endif %}
+
+                                    {% if not options.icon or options.iconLabel == true %}
+                                        {{ label|trans }}
+                                    {% endif %}
+
+
+                                {% endblock action_label %}
+                            </a>
+                        {% endblock action %}
+                    {% endfor %}
+                {% endblock actions %}
+            </td>
 
             {% for col in row.cols %}
 
@@ -168,63 +232,20 @@
 
             {% if row.actions|length > 0 %}
 
-            {% set colAttributes = grid.renderColAttributes(tdAttributes, row, null, 'actions') %}
-            {% set class = '' %}
+                {% set colAttributes = grid.renderColAttributes(tdAttributes, row, null, 'actions') %}
+                {% set class = '' %}
 
-            {% if colAttributes.class  is defined %}
-                {% set class = colAttributes.class %}
-            {% endif %}
+                {% if colAttributes.class  is defined %}
+                    {% set class = colAttributes.class %}
+                {% endif %}
 
-            {% set colAttributes = colAttributes|merge({'class':   'grid-actions ' ~ class}) %}
-
-
-
-                <td {{ g.attributes(grid.renderColAttributes(tdAttributes, row, null,'actions')) }}>
-                    {% block actions %}
-                        {% for action in row.actions %}
-                            {% set label = action.label %}
-                            {% set url = action.url %}
-                            {% set options = action.options %}
-
-                            {% set class = '' %}
-                            {% if actionAttributes.class  is defined %}
-                                {% set class = actionAttributes.class %}
-                            {% endif %}
-
-                            {% if options.class %}
-                                {% set class = class ~ ' ' ~ options.class %}
-                            {% endif %}
-
-                            {% set attr = actionAttributes|merge({'href': action.url, 'class': class, 'target': options.target }) %}
-
-                            {% if options.confirm %}
-                                {% set onclick = "return confirm('" ~ options.confirm|trans|escape ~"');" %}
-                                {% set attr = attr|merge({'onclick': onclick}) %}
-                            {% endif %}
-
-                            {% set attr = attr|merge(options.attr) %}
-
-                            {% block action %}
-                                <a {{ g.attributes(attr) }}>
-                                    {% block action_label %}
-                                        {% if options.icon %}
-                                            {% if options.iconType == 'fontawesome' %}
-                                                <i class="fa fa-{{ options.icon }}"></i>
-                                            {% elseif  options.iconType == 'glyphicons' %}<span
-                                                class="glyphicon glyphicon-{{ options.icon }}"
-                                                aria-hidden="true"></span> {% endif %}
-                                        {% endif %}
-
-                                        {% if not options.icon or options.iconLabel == true %}
-                                            {{ label|trans }}
-                                        {% endif %}
+                {% set colAttributes = colAttributes|merge({'class':   'hidden-xs grid-actions ' ~ class}) %}
 
 
-                                    {% endblock action_label %}
-                                </a>
-                            {% endblock action %}
-                        {% endfor %}
-                    {% endblock actions %}
+
+                <td {{ g.attributes(grid.renderColAttributes(colAttributes, row, null,'actions')) }}>
+
+                    {{block('actions')}}
                 </td>
             {% endif %}
         </tr>

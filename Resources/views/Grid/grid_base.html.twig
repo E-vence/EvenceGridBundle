@@ -178,7 +178,10 @@
                                             <i class="fas fa-{{ options.icon }}"></i>
                                         {% elseif  options.iconType == 'glyphicons' %}<span
                                             class="glyphicon glyphicon-{{ options.icon }}"
-                                            aria-hidden="true"></span> {% endif %}
+                                            aria-hidden="true"></span>
+                                        {% else %}
+                                        <i class="{{options.iconType}} fa-{{ options.icon }}"></i>
+                                        {% endif %}
                                     {% endif %}
 
                                     {% if not options.icon or options.iconLabel == true %}

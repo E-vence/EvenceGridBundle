@@ -468,6 +468,7 @@ abstract class Grid
     public function countRows($options)
     {
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
+            /** @var $qb \Doctrine\ORM\QueryBuilder */
             $qb = $this->getQueryBuilder();
 
             call_user_func_array($options['querybuilder_callback'], array(
@@ -482,6 +483,11 @@ abstract class Grid
             $this->eventDispatcher->dispatch(GridEvent::POST_SET_COUNT_QUERY, $event);
 
             $this->filterQuery($qb);
+
+
+            $qb->resetDQLPart('orderBy');
+
+
 
             $val = $qb->getQuery()->getSingleScalarResult();
 

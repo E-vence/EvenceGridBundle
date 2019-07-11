@@ -79,7 +79,7 @@ class ChoiceType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array('separator' => ', ', 'bootstrap' => ['label_callback' => null], 'choices_as_values' => false, 'choice_label' => [$this, 'choiceLabelCallback'] /* 'empty_data' => ''*/));
+        $resolver->setDefaults(array('separator' => ', ', 'bootstrap' => ['label_callback' => null], 'choices_as_values' => false, 'choice_label' => [$this, 'choiceLabelCallback'], 'empty_data' => ''));
         $resolver->setRequired('choices');
     }
 

@@ -110,11 +110,13 @@ class Action
             },
             'jsCallback' => null,
             'mappedParameters' => [],
+            'uri' =>  null,
             'label' => $this->humanize($identifier)
         ));
         
         $this->options = $resolver->resolve($options);        
         $this->label = $this->options ['label'];
+        $this->uri = $options['uri'];
     }
     
     public function humanize($input){
@@ -216,7 +218,7 @@ class Action
     {
         $router = $this->configurator->getGrid()->getRouter();
         if ($this->getUri())
-            return $this->getUri();
+            return (is_callable($this->getUri()) ? call_user_func_array($this->getUri(), [$source, $this->options['mappedParameters']]) : $this->getUri());
         
         if ($source)
             $parameters = array_merge($this->configurator->getParametersBySource($source, $this->options['mappedParameters']), $this->getRouteParameters());

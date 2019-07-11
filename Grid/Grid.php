@@ -464,6 +464,7 @@ abstract class Grid
      * Count rows for current data source
      *
      * @return integer0
+     *
      */
     public function countRows($options)
     {

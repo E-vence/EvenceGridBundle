@@ -116,6 +116,7 @@ class Action
         
         $this->options = $resolver->resolve($options);        
         $this->label = $this->options ['label'];
+        if(!empty($options['uri']))
         $this->uri = $options['uri'];
     }
     

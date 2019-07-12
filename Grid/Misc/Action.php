@@ -108,6 +108,9 @@ class Action
             'isVisible' => function (Action $action, $source) {
                 return true;
             },
+            'isGranted' => function ($action, $source) {
+                return true;
+            },
             'jsCallback' => null,
             'mappedParameters' => [],
             'uri' =>  null,
@@ -139,10 +142,26 @@ class Action
                     ->isGranted($row) !== false)
                     $denied = false;
             }
+
+
+
             if ($denied)
                 return false;
         }
-        
+
+        if($source){
+            if(!$this->configurator->getGrid()->isGranted($this, $source))
+                return false;
+
+
+            if(!call_user_func_array($this->options['isGranted'], array(
+
+                $this,
+                $source
+            )))
+                return false;
+        }
+
         /**
          *
          * @todo Check conditions

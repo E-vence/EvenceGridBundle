@@ -331,6 +331,14 @@ abstract class Grid
     protected $options;
 
     /**
+     * Grid options
+     *
+     * @var array
+     */
+    protected $resolvedOptions;
+
+
+    /**
      *
      * @var PropertyAccessor
      */
@@ -1038,6 +1046,9 @@ abstract class Grid
             'actionAttributes' => array(),
             'footer' => true,
             'full' => false,
+            'isGranted' => function(){
+                return true;
+            },
             'querybuilder_callback' => array(
                 $this,
                 'qbCallback'
@@ -1049,6 +1060,7 @@ abstract class Grid
             'template' => $this->getTemplate()
         ));
         $options = $resolver->resolve(array_merge($this->getOptions(), $options));
+        $this->resolvedOptions = $options;
 
 
         $event = new GridEvent();
@@ -1629,6 +1641,10 @@ abstract class Grid
 
     public function hasSimpleSearch(){
         return !empty($this->simpleSearchFields);
+    }
+
+    public function isGranted(Action $action, $source){
+        return call_user_func_array($this->resolvedOptions['isGranted'], [$action, $source]);
     }
 }
     

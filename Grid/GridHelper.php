@@ -99,7 +99,6 @@ class GridHelper
             ->setRequest($this->container->get('request_stack')->getMasterRequest())
             ->setRouter($this->container->get('router'))
             ->setSession($this->container->get('session'))
-       
             ->setTokenStorage($this->container->get('security.token_storage'))
             ->setAuthorizationChecker($this->container->get('security.authorization_checker'))
             ->setFormFactory($this->container->get('form.factory'))

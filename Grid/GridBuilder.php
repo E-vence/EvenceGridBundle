@@ -1,4 +1,5 @@
 <?php
+
 namespace Evence\Bundle\GridBundle\Grid;
 
 class GridBuilder extends Grid
@@ -30,12 +31,15 @@ class GridBuilder extends Grid
     {
         if ($dataSourceType == Grid::DATA_SOURCE_ENTITY) {
             $this->entityName = $source;
-        } else 
+        } else
             if ($dataSourceType == Grid::DATA_SOURCE_DOCUMENT) {
                 $this->documentName = $source;
             } elseif ($dataSourceType == Grid::DATA_SOURCE_ARRAY) {
                 $this->setDataSource($source);
+            } elseif ($dataSourceType == Grid::DATA_SOURCE_DBAL_UNION) {
+                $this->setDbalUnionTables($source);
             }
+
         $this->options = $options;
         $this->dataSourceType = $dataSourceType;
         $this->fieldConfigurator = $this->createFieldConfigurator();
@@ -51,7 +55,7 @@ class GridBuilder extends Grid
      *            Label of the field (for heading in the grid)
      * @param AbstractType|string $type
      *            Desired data type
-     * @param array $options            
+     * @param array $options
      * @return \Evence\Bundle\GridBundle\Grid\GridFieldConfigurator
      */
     public function addDataField($alias, $type = null, $options = [], $deprecatedOptions = null)
@@ -78,7 +82,7 @@ class GridBuilder extends Grid
     public function addCustomField($alias, $type, $callable, $options = [], $deprecatedOptions = null)
     {
         $this->fieldConfigurator->addCustomField($alias, $type, $callable, $options, $deprecatedOptions);
-        
+
         return $this;
     }
 
@@ -148,9 +152,9 @@ class GridBuilder extends Grid
      * If you add a nested group, this group should also be represented in the
      * object hierarchy.
      *
-     * @param string|int|FormBuilderInterface $child            
-     * @param string|FormTypeInterface $type            
-     * @param array $options            
+     * @param string|int|FormBuilderInterface $child
+     * @param string|FormTypeInterface $type
+     * @param array $options
      *
      * @return GridFilterConfigurator The builder object.
      */

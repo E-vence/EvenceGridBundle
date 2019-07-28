@@ -22,10 +22,12 @@
  * THE SOFTWARE.
  *
  */
+
 namespace Evence\Bundle\GridBundle\Grid;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\MongoDB\Query\Builder;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -72,7 +74,7 @@ abstract class Grid
 
     CONST QUERY_SELECT = 'select';
 
-    CONST TD_TYPE_CHECKBOX = 'checkbox';
+    CONST TD_TYPE_CECKBOX = 'checkbox';
     CONST TD_TYPE_ACTIONS = 'actions';
     CONST TD_TYPE_NUMBER = 'number';
     CONST TD_TYPE_COL = 'col';
@@ -137,6 +139,22 @@ abstract class Grid
      * @var string
      */
     CONST DATA_SOURCE_ENTITY = 'entity';
+
+
+    /**
+     * Data source: Entity
+     *
+     * @var string
+     */
+    CONST DATA_SOURCE_DBAL = 'dbal';
+
+
+    /**
+     * Data source: Entity
+     *
+     * @var string
+     */
+    CONST DATA_SOURCE_DBAL_UNION = 'dbal_union';
 
     /**
      * Data source: Document
@@ -357,6 +375,17 @@ abstract class Grid
     private $rawData = [];
 
 
+    /** @var string */
+    private $entityManager = null;
+
+
+    /** @var string */
+    private $dbalConnection = null;
+
+    private $dbalUnionTables = [];
+
+    private $dbalUnionCallback = null;
+    private $dbalUnionCountCallback = null;
 
     /**
      *
@@ -439,13 +468,13 @@ abstract class Grid
      *
      * @return QueryBuilder
      */
-    public function getQueryBuilder()
+    public function getQueryBuilder($entityManager = null)
     {
         /**
          *
          * @var $qb \Doctrine\ORM\QueryBuilder
          */
-        $qb = $this->doctrine->getRepository($this->getEntityName())
+        $qb = $this->doctrine->getRepository($this->getEntityName(), $entityManager)
             ->createQueryBuilder('e');
 
         return $qb;
@@ -476,9 +505,47 @@ abstract class Grid
      */
     public function countRows($options)
     {
+        if ($this->getDataSourceType() == self::DATA_SOURCE_DBAL_UNION) {
+
+            /** @var Connection $conn */
+            $conn = $this->doctrine->getConnection($this->dbalConnection);
+            $str = 'abcdefghijklmnopqrstuvwxyz';
+            $unionQueries = [];
+
+            $maxFields = [];
+            $i = 0;
+            foreach ($this->getDbalUnionTables() as $database => $table) {
+                $letter = $str[$i];
+                $selectFields = [];
+
+                for ($j = 0; $j < count($this->getDbalUnionTables()); $j++) {
+                    $subLetter = $str[$j];
+                    if ($subLetter == $letter)
+                        $selectFields[] = "COUNT(*) as " . $subLetter . 'CountField';
+                    else
+                        $selectFields[] = "'0' as " . $subLetter . 'CountField';
+                }
+
+                $maxFields[] = 'MAX(' . $letter . 'CountField)';
+
+                $selectClause = implode($selectFields, ', ');
+
+
+                $unionQueries[] = call_user_func_array($this->resolvedOptions['dbal_union_count_callback'], [$letter, $selectClause, $database, $table]);
+
+                $i++;
+            }
+
+            $query = 'SELECT (' . implode($maxFields, ' + ') . ') as totalCount  FROM (' . implode(" UNION ALL ", $unionQueries) . ') allData  ';
+
+            $results = $conn->fetchAll($query);
+            //die($results[0]['totalCount']);
+
+            return $results[0]['totalCount'];
+        }
         if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
             /** @var $qb \Doctrine\ORM\QueryBuilder */
-            $qb = $this->getQueryBuilder();
+            $qb = $this->getQueryBuilder($this->entityManager);
 
             call_user_func_array($options['querybuilder_callback'], array(
                 $qb,
@@ -495,7 +562,6 @@ abstract class Grid
 
 
             $qb->resetDQLPart('orderBy');
-
 
 
             $val = $qb->getQuery()->getSingleScalarResult();
@@ -534,8 +600,35 @@ abstract class Grid
     {
         $this->getPagination()->setTotalRows($this->countRows($options));
 
-        if ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
-            $qb = $this->getQueryBuilder()
+        if ($this->getDataSourceType() == self::DATA_SOURCE_DBAL_UNION) {
+            $conn = $this->doctrine->getConnection($this->dbalConnection);
+
+            $str = 'abcdefghijklmnopqrstuvwxyz';
+
+            $i = 0;
+            foreach ($this->getDbalUnionTables() as $databaseName => $table) {
+                $letter = $str[$i];
+
+                $unionQueries[] = call_user_func_array($this->resolvedOptions['dbal_union_callback'], [$letter, $databaseName, $table]);
+                /*
+                $unionQueries[] = "SELECT ".$letter."1.*, ".$letter."2.programId as programId, ".$letter."2.name as programName, '".(int)$website->getId(). "' as cashbackWebsiteId  FROM `".addslashes( $website->getDatabaseName()). "`.advertisement ".$letter."1 
+                                JOIN  `".addslashes( $website->getDatabaseName()). "`.affiliate_program ".$letter."2 ON ".$letter."2.id = ".$letter."1.program_id
+                                WHERE (".$letter."1.irrelevant IS NULL OR ".$letter."1.irrelevant = 0) AND ".$letter."1.deletedAt IS NULL  ";
+                */
+            }
+
+            $query = "SELECT * FROM (" . implode(" UNION ALL ", $unionQueries) . ") as allData ";
+
+            if ($this->getSortBy())
+                $query .=  " ORDER BY " . $this->getSortBy() . ' ' . $this->getSortOrder();
+            $query .=' LIMIT ' . $this->getPagination()->getFirstRecord() . ',' . $this->getPagination()->getMaxRecords();
+
+            $data = $conn->fetchAll($query);
+
+            $data = call_user_func_array($this->resolvedOptions['dbal_data_transformer'], [$data]);
+
+        } elseif ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
+            $qb = $this->getQueryBuilder($this->entityManager)
                 ->setMaxResults($this->getPagination()
                     ->getMaxRecords())
                 ->setFirstResult($this->getPagination()
@@ -573,8 +666,7 @@ abstract class Grid
                         $qb->orderBy('e.' . $this->getSortBy(), $this->getSortOrder());
                     else
                         $qb->orderBy($this->getSortBy(), $this->getSortOrder());
-                }
-                else {
+                } else {
                     $qb->orderBy($this->getSortBy(), $this->getSortOrder());
                 }
             }
@@ -640,6 +732,8 @@ abstract class Grid
         }
 
         $this->rawData = $data;
+
+
 
         return $this->prepareData($data, $options);
     }
@@ -710,8 +804,6 @@ abstract class Grid
             }
 
 
-
-
             foreach ($this->filterConfigurator->getFilterMapper() as $mapper) {
                 /**
                  *
@@ -721,16 +813,16 @@ abstract class Grid
             }
         }
 
-        if(($searchQuery = $this->request->get($this->getPrefix().'ss') ) && !empty($this->simpleSearchFields)){
+        if (($searchQuery = $this->request->get($this->getPrefix() . 'ss')) && !empty($this->simpleSearchFields)) {
 
             $args = [];
-            foreach ($this->simpleSearchFields as $field){
-                $args[] = $qb->expr()->like('e.'.$field, ':sq');
+            foreach ($this->simpleSearchFields as $field) {
+                $args[] = $qb->expr()->like('e.' . $field, ':sq');
             }
 
             $expr = $qb->expr();
             $qb->andWhere(call_user_func_array([$expr, 'orX'], $args));
-            $qb->setParameter('sq', '%'.$searchQuery.'%');
+            $qb->setParameter('sq', '%' . $searchQuery . '%');
         }
     }
 
@@ -740,8 +832,8 @@ abstract class Grid
      * @param mixed $source
      * @param string $col
      *            Fieldname of the source
-     * @throws UnknownGridFieldException Whether the field name doens't exists.
      * @return mixed Value of the col
+     * @throws UnknownGridFieldException Whether the field name doens't exists.
      */
     public function getColBySource($source, $col)
     {
@@ -757,7 +849,7 @@ abstract class Grid
                 return $this->getAssociation($col, $source);
             }
             return $this->getValueFromSource($source, $col);
-        } elseif ($this->getDataSourceType() == self::DATA_SOURCE_ARRAY) {
+        } elseif ($this->getDataSourceType() == self::DATA_SOURCE_ARRAY || $this->getDataSourceType() == self::DATA_SOURCE_DBAL_UNION || $this->getDataSourceType() == self::DATA_SOURCE_DBAL ) {
             if (isset($source[$col]))
                 return $source[$col];
 
@@ -765,18 +857,20 @@ abstract class Grid
         }
     }
 
-    public function renderColAttributes($attributes, $row, $col = null, $tdType =  self::TD_TYPE_COL){
+    public function renderColAttributes($attributes, $row, $col = null, $tdType = self::TD_TYPE_COL)
+    {
 
-        if(is_callable($attributes))
+        if (is_callable($attributes))
             return call_user_func_array($attributes, [$tdType, $row, $col]);
 
         return $attributes;
     }
 
-    public function renderRowAttributes($attributes, $row){
+    public function renderRowAttributes($attributes, $row)
+    {
 
 
-        if(is_callable($attributes))
+        if (is_callable($attributes))
             return call_user_func_array($attributes, [$row]);
 
         return $attributes;
@@ -807,8 +901,8 @@ abstract class Grid
      *            Data source
      * @param string $id
      *            Field identifier
-     * @throws \Exception
      * @return mixed
+     * @throws \Exception
      */
     public function getValueFromSource($source, $id)
     {
@@ -829,7 +923,7 @@ abstract class Grid
             if (!empty($fc[$id]))
                 $dataField = $fc[$id];
             return $this->getAccessor()->getValue($source, $id);
-        } elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY) {
+        } elseif ($this->getDataSourceType() == Grid::DATA_SOURCE_ARRAY || $this->getDataSourceType() == Grid::DATA_SOURCE_DBAL_UNION) {
             if (!array_key_exists($id, $source))
                 throw new \Exception('Uknown field ' . $id . ' in datasource array: ' . print_r($source, true));
 
@@ -1046,7 +1140,7 @@ abstract class Grid
             'actionAttributes' => array(),
             'footer' => true,
             'full' => false,
-            'isGranted' => function(){
+            'isGranted' => function () {
                 return true;
             },
             'querybuilder_callback' => array(
@@ -1057,6 +1151,9 @@ abstract class Grid
                 $this,
                 'dbCallback'
             ),
+            'dbal_union_callback' => [$this, 'dbalUnionCallback'],
+            'dbal_union_count_callback' => [$this, 'dbalUnionCountCallback'],
+            'dbal_data_transformer' => [$this, 'transformDbalData'],
             'template' => $this->getTemplate()
         ));
         $options = $resolver->resolve(array_merge($this->getOptions(), $options));
@@ -1435,8 +1532,8 @@ abstract class Grid
      * Set Symfony's securityContext service
      *
      * @param SecurityContext $securityContext
-     * @deprecated
      * @return \Evence\Bundle\GridBundle\Grid\Grid
+     * @deprecated
      */
     public function setSecurityContext(SecurityContext $securityContext)
     {
@@ -1483,8 +1580,8 @@ abstract class Grid
     /**
      * Creates the view
      *
-     * @todo Use for different views like: CSV, PDF and Excel
      * @return \Evence\Bundle\GridBundle\Grid\Grid
+     * @todo Use for different views like: CSV, PDF and Excel
      */
     public function createView($template = '')
     {
@@ -1526,7 +1623,8 @@ abstract class Grid
 
     public function getEntityClassMeta()
     {
-        return $this->doctrine->getManager()->getClassMetadata($this->getEntityName());
+
+        return $this->doctrine->getManager($this->entityManager)->getClassMetadata($this->getEntityName());
     }
 
     public function setIdentifier($identifier)
@@ -1639,12 +1737,67 @@ abstract class Grid
         return $this->filterConfigurator;
     }
 
-    public function hasSimpleSearch(){
+    public function hasSimpleSearch()
+    {
         return !empty($this->simpleSearchFields);
     }
 
-    public function isGranted(Action $action, $source){
+    public function isGranted(Action $action, $source)
+    {
         return call_user_func_array($this->resolvedOptions['isGranted'], [$action, $source]);
     }
+
+    /**
+     * @return string
+     */
+    public function getEntityManager()
+    {
+        return $this->entityManager;
+    }
+
+    /**
+     * @param string $entityManager
+     * @return Grid
+     */
+    public function setEntityManager($entityManager)
+    {
+        $this->entityManager = $entityManager;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDbalUnionTables()
+    {
+        return $this->dbalUnionTables;
+    }
+
+    /**
+     * @param array $dbalUnionTables
+     * @return Grid
+     */
+    public function setDbalUnionTables($dbalUnionTables)
+    {
+        $this->dbalUnionTables = $dbalUnionTables;
+        return $this;
+    }
+
+
+    public function dbalUnionCountCallback($letter, $selectClause, $database, $table)
+    {
+        return 'SELECT ' . $selectClause . ' FROM `' . $database . '`. `' . $table . '`';
+    }
+
+    public function dbalUnionCallback()
+    {
+
+    }
+
+
+    public function transformDbalData($data){
+
+        return $data;
+    }
+
 }
-    

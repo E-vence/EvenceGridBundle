@@ -29,6 +29,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Bundle\MongoDBBundle\ManagerRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Statement;
 use Doctrine\MongoDB\Query\Builder;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Evence\Bundle\GridBundle\Grid\Event\Evence\Bundle\GridBundle\Grid\Event;
@@ -513,8 +514,11 @@ abstract class Grid
             $unionQueries = [];
 
             $maxFields = [];
+            $allParameters = [];
             $i = 0;
             foreach ($this->getDbalUnionTables() as $database => $table) {
+
+                $queryBuilder = $conn->createQueryBuilder();
                 $letter = $str[$i];
                 $selectFields = [];
 
@@ -530,16 +534,39 @@ abstract class Grid
 
                 $selectClause = implode($selectFields, ', ');
 
+                $event = new GridEvent();
+                $event->setGrid($this)->setQuerybuilder($queryBuilder);
 
-                $unionQueries[] = call_user_func_array($this->resolvedOptions['dbal_union_count_callback'], [$letter, $selectClause, $database, $table]);
+                call_user_func_array($this->resolvedOptions['dbal_union_count_callback'], [$queryBuilder, $letter, $selectClause, $database, $table]);
+
+                $event->setGrid($this)->setQuerybuilder($queryBuilder);
+                $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);
+
+                $this->filterQuery($queryBuilder, $letter. 1);
+
+                $unionQueries[] = $queryBuilder->getSQL();
+                foreach ($queryBuilder->getParameters() as $p ){
+                    $allParameters[] = $p;
+                }
 
                 $i++;
             }
 
             $query = 'SELECT (' . implode($maxFields, ' + ') . ') as totalCount  FROM (' . implode(" UNION ALL ", $unionQueries) . ') allData  ';
 
-            $results = $conn->fetchAll($query);
-            //die($results[0]['totalCount']);
+
+            /** @var Statement $stmnt */
+            $stmnt = $conn->prepare($query);
+
+
+            foreach ($allParameters as $p => $v){
+                $stmnt->bindParam($p+1, $v);
+            }
+
+            $stmnt->execute();
+            $logger = $conn->getConfiguration()->getSQLLogger();
+            $results = $stmnt->fetchAll();
+
 
             return $results[0]['totalCount'];
         }
@@ -600,31 +627,73 @@ abstract class Grid
     {
         $this->getPagination()->setTotalRows($this->countRows($options));
 
+
+
         if ($this->getDataSourceType() == self::DATA_SOURCE_DBAL_UNION) {
+            /** @var Connection $conn */
             $conn = $this->doctrine->getConnection($this->dbalConnection);
 
+            $allParameters = [];
             $str = 'abcdefghijklmnopqrstuvwxyz';
-
+            $unionQueries = [];
             $i = 0;
             foreach ($this->getDbalUnionTables() as $databaseName => $table) {
                 $letter = $str[$i];
 
-                $unionQueries[] = call_user_func_array($this->resolvedOptions['dbal_union_callback'], [$letter, $databaseName, $table]);
-                /*
+                /** @var QueryBuilder $queryBuilder */
+                $queryBuilder = $conn->createQueryBuilder();
+
+
+                $event = new GridEvent();
+                $event->setGrid($this)->setQuerybuilder($queryBuilder);
+
+                //   $this->eventDispatcher->dispatch(GridEvent::PRE_SET_QUERY, $event);
+
+               call_user_func_array($this->resolvedOptions['dbal_union_callback'], [$queryBuilder, $letter, $databaseName, $table]);
+
+                $event->setGrid($this)->setQuerybuilder($queryBuilder);
+                $this->eventDispatcher->dispatch(GridEvent::POST_SET_QUERY, $event);
+
+                $this->filterQuery($queryBuilder, $letter. 1);
+
+
+                $unionQueries[] = $queryBuilder->getSQL();
+                foreach ($queryBuilder->getParameters() as $p ){
+                    $allParameters[] = $p;
+                }
+
+
+                /*ohra
                 $unionQueries[] = "SELECT ".$letter."1.*, ".$letter."2.programId as programId, ".$letter."2.name as programName, '".(int)$website->getId(). "' as cashbackWebsiteId  FROM `".addslashes( $website->getDatabaseName()). "`.advertisement ".$letter."1 
                                 JOIN  `".addslashes( $website->getDatabaseName()). "`.affiliate_program ".$letter."2 ON ".$letter."2.id = ".$letter."1.program_id
                                 WHERE (".$letter."1.irrelevant IS NULL OR ".$letter."1.irrelevant = 0) AND ".$letter."1.deletedAt IS NULL  ";
                 */
+
+                $i++;
             }
 
-            $query = "SELECT * FROM (" . implode(" UNION ALL ", $unionQueries) . ") as allData ";
+
+            $query = "SELECT * FROM (" . implode(" UNION ALL ", $unionQueries ) . ") as allData ";
 
             if ($this->getSortBy())
                 $query .=  " ORDER BY " . $this->getSortBy() . ' ' . $this->getSortOrder();
             $query .=' LIMIT ' . $this->getPagination()->getFirstRecord() . ',' . $this->getPagination()->getMaxRecords();
 
-            $data = $conn->fetchAll($query);
 
+            /** @var Statement $stmnt */
+            $stmnt = $conn->prepare($query);
+
+
+            foreach ($allParameters as $p => $v){
+                $stmnt->bindParam($p+1, $v);
+            }
+
+            $stmnt->execute();
+
+            $logger = $conn->getConfiguration()->getSQLLogger();
+
+
+            $data = $stmnt->fetchAll();
             $data = call_user_func_array($this->resolvedOptions['dbal_data_transformer'], [$data]);
 
         } elseif ($this->getDataSourceType() == self::DATA_SOURCE_ENTITY) {
@@ -764,7 +833,7 @@ abstract class Grid
     }
 
 
-    public function filterQuery($qb)
+    public function filterQuery($qb, $tableAlias = 'e')
     {
 
         /* Filters here */
@@ -795,8 +864,12 @@ abstract class Grid
                                 if ($item->getNormData() && method_exists($data, 'getId')) $data = $data->getId();
                                 $qb->field($name)->equals($data);
                             } elseif ($qb instanceof \Doctrine\ORM\QueryBuilder) {
-                                $qb->andWhere('e.' . $name . ' = :' . $name);
+                                $qb->andWhere($tableAlias.'.' . $name . ' = :' . $name);
                                 $qb->setParameter($name, $data);
+                            }
+                            elseif ($qb instanceof  QueryBuilder){
+                                $qb->andWhere($tableAlias.'.' . $name . ' = ?');
+                                $qb->setParameter(count($qb->getParameters())+1, $data);
                             }
                         }
                     }
@@ -817,12 +890,34 @@ abstract class Grid
 
             $args = [];
             foreach ($this->simpleSearchFields as $field) {
-                $args[] = $qb->expr()->like('e.' . $field, ':sq');
+
+                /*
+                 * Mongo
+                if ($qb instanceof Builder) {
+                    if ($item->getNormData() && method_exists($data, 'getId')) $data = $data->getId();
+                    $qb->field($name)->equals($data);
+                } else*/
+
+                if($qb instanceof \Doctrine\ORM\QueryBuilder) {
+                    $args[] = $qb->expr()->like($tableAlias.'.' . $field, ':sq');
+                }
+                elseif ($qb instanceof  QueryBuilder){
+                    $args[] = $qb->expr()->like($tableAlias.'.' . $field, '?');
+                }
             }
 
             $expr = $qb->expr();
+
+            if($qb instanceof \Doctrine\ORM\QueryBuilder) {
             $qb->andWhere(call_user_func_array([$expr, 'orX'], $args));
             $qb->setParameter('sq', '%' . $searchQuery . '%');
+            }
+            elseif ($qb instanceof  QueryBuilder){
+                $qb->andWhere(call_user_func_array([$expr, 'orX'], $args));
+                foreach ($this->simpleSearchFields as $field) {
+                    $qb->setParameter(count($qb->getParameters()) + 1, '%' . $searchQuery . '%');
+                }
+            }
         }
     }
 
